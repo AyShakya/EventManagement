@@ -9,7 +9,7 @@ const rateLimit = require('express-rate-limit');
 const authRouter = express.Router();
 const authLimiter = rateLimit({
   windowMs: 60 * 1000,
-  max: 10,
+  max: 100,
   message: 'Too many auth requests, try again later',
 });
 const csrfProtection = csrf({ cookie: true});

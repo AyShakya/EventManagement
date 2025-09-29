@@ -1,0 +1,8 @@
+1. implement view feature properly.
+2. Complete query functionality.
+3. Maybe store the liked events differently and not in the user as it can become very large array.
+4. Ensure we have created all the api endpoints for event functionality.
+5. Reset password for organiser.
+6. Email verification through email for both user and organiser.
+7. Social Logins.
+8. Frontend.

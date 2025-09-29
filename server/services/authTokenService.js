@@ -6,18 +6,20 @@ const JWT_SECRET = process.env.JWT_SECRET;
 const ACCESS_TOKEN_EXPIRES_MIN = Number(process.env.ACCESS_TOKEN_EXPIRES_MIN) || 15;
 const REFRESH_TOKEN_EXPIRES_DAYS = Number(process.env.REFRESH_TOKEN_EXPIRES_DAYS) || 7;
 
+
+/////////////////////////////////////
 function createAccessToken(payload) {
   return jwt.sign(payload, JWT_SECRET, { expiresIn: `${ACCESS_TOKEN_EXPIRES_MIN}m` });
 }
 
 function resolveModel(modelType){
   if(!modelType) return User;
-  if(typeOf(modelType) === 'String'){
+  if(typeof modelType === 'string'){
     const t = modelType.toLowerCase();
     if(t==='organiser' || t==='organizer'){
       return Organiser;
     }
-    return User;
+    if(t==='user') return User;
   }
   return modelType;
 }
@@ -49,16 +51,16 @@ async function createRefreshTokenForUser(modelType ,accountId, ip = '', userAgen
 async function findUserByRefreshToken(refreshTokenPlain) {
   const tokenHash = hashToken(refreshTokenPlain);
 
-  let account = await User.findOnw({'refreshTokens.tokenHash': tokenHash});
+  let account = await User.findOne({'refreshTokens.tokenHash': tokenHash});
   if(account) {
     const tokenObj = account.refreshTokens.find(rt => rt.tokenHash === tokenHash);
-    return { modelName: 'User', account, tokenObj};
+    return { modelName: 'user', account, tokenObj};
   } 
 
   account = await Organiser.findOne({ 'refreshTokens.tokenHash': tokenHash});
   if(account){
     const tokenObj = account.refreshTokens.find(rt => rt.tokenHash === tokenHash);
-    return { modelName: 'Organiser', account, tokenObj};
+    return { modelName: 'organiser', account, tokenObj};
   }
   return null;
 }
@@ -76,7 +78,8 @@ async function rotateRefreshToken(modelType, accountId, oldRefreshTokenPlain, ip
   if (!pulled) {
     throw new Error(`${Model.modelName} not found while rotating refresh token.`);
   }
-  return createRefreshToken(modelOrType, accountId, ip, userAgent);
+
+  return createRefreshToken(modelType, accountId, ip, userAgent);
 }
 
 async function removeRefreshToken(modelType, accountId, refreshTokenPlain) {

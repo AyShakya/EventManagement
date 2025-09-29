@@ -14,6 +14,7 @@ const userSchema = new mongoose.Schema({
     password: {type: String, required: true, select: false},
     resetOTP: {type: String, default:""},
     resetOTPExpireAt: {type:Number, default: 0},
+    userType: {type: String, default: 'user'},
     likedEvents: [{
       type: mongoose.Schema.Types.ObjectId,
       ref: "Event", 
@@ -33,6 +34,7 @@ const organiserSchema = mongoose.Schema({
   resetOTPExpireAt: { type: Number, default: 0 },
   eventsCreated: [{ type: mongoose.Schema.Types.ObjectId, ref: "Event" }],
   refreshTokens: [refreshTokenSchema],
+  userType: {type: String, default: 'organiser'},
   // isVerified: {type: Boolean, default: false},
 },
 {timestamps: true});

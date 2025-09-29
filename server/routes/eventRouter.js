@@ -3,13 +3,13 @@ const eventController = require('../controllers/eventController');
 const { createEventValidation } = require('../validators/eventValidator');
 const validateRequest = require('../middlewares/validateRequest');
 const csrf = require('csurf');
-const { authenticateAccessToken } = require('../middlewares/authMiddleware');
+const { authenticateAccessToken, requireUserType } = require('../middlewares/authMiddleware');
 
 const csrfProtection = csrf({ cookie: true});
 const eventRouter = express.Router();
 
 eventRouter.get('/', eventController.getAllEvents);
-eventRouter.get('/:id', eventController.getEventById);
+eventRouter.get('/:id', optionalAuth, eventController.getEventById);
 eventRouter.get('/user/:userId/liked', authenticateAccessToken, eventController.getLikedEvents);
 
 eventRouter.post('/', csrfProtection, authenticateAccessToken, requireUserType('organiser'), createEventValidation, validateRequest, eventController.createEvent);

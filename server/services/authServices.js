@@ -1,8 +1,7 @@
-const User = require("../models/userModel.js");
+const {User, Organiser} = require('../models/userModel');
 const bcrypt = require('bcrypt');
-const Organiser = require("../models/userModel.js");
 
-async function registerUser(userName, email, password, userType) {
+async function registerUser(userName, email, password, userType = 'user') {
   const normalizeEmail = String(email).trim().toLowerCase();
   const existingUser = await User.findOne({ email: normalizeEmail });
   if (existingUser) {
@@ -11,7 +10,7 @@ async function registerUser(userName, email, password, userType) {
   
   const hashedPassword = await bcrypt.hash(password, 10);
   let user;
-  if(userType == "user"){
+  if(userType === "user"){
     user = new User({ userName, email, password: hashedPassword });
   }
   else{
@@ -19,7 +18,7 @@ async function registerUser(userName, email, password, userType) {
   }
   await user.save();
   
-  return { id: user._id, userName: user.userName, email: user.email, userType: user.userType };
+  return { id: user._id, userName: user.userName || user.organiserName, email: user.email, userType };
 }
 
 async function loginUser(email, password) {
@@ -36,12 +35,12 @@ async function loginUser(email, password) {
     id: user._id,
     userName: user.userName,
     email: user.email,
-    type: 'user',
+    userType: 'user',
   };
   return { safeUser, userDoc: user };
 }
 
-async function loginOrgansier(email, password){
+async function loginOrganiser(email, password){
   const normalizeEmail = String(email).trim().toLowerCase();
   const organiser = await Organiser.findOne({ email:normalizeEmail}).select('+password');
   if(!organiser){
@@ -53,11 +52,11 @@ async function loginOrgansier(email, password){
   }
   const safeOrganiser = {
     id: organiser._id,
-    userName: organiser.userName,
+    organiserName: organiser.organiserName,
     email: organiser.email,
-    type: 'organiser',
+    userType: 'organiser',
   }
   return {safeOrganiser, organiserDoc: organiser};
 }
 
-module.exports = { registerUser, loginUser, loginOrgansier };
+module.exports = { registerUser, loginUser, loginOrganiser };

@@ -28,4 +28,4 @@ const eventSchema = new mongoose.Schema({
 
 eventSchema.plugin(mongoosePaginate);
 
-module.exports = mongoose.Schema('Event', eventSchema);
+module.exports = mongoose.models.Event || mongoose.model('Event', eventSchema);

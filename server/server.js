@@ -17,7 +17,7 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 const limiter = rateLimit({
   windowMs: 60*1000,
-  max: 5,
+  max: 100,
   message: "Too Many requests from this IP, please try again later"
 })
 const csrfProtection = csrf({ cookie: true});

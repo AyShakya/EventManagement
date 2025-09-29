@@ -1,5 +1,6 @@
 const jwt = require('jsonwebtoken');
 const JWT_SECRET = process.env.JWT_SECRET;
+const User = require("../models/userModel");
 
 function authenticateAccessToken(req, res, next) {
   const authHeader = req.headers.authorization;
@@ -24,4 +25,20 @@ function requireUserType(userType) {
   };
 }
 
-module.exports = { authenticateAccessToken, requireUserType };
+const optionalAuth = async (req, res, next) => {
+  const authHeader = req.headers.authorization;
+  if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    return next(); 
+  }
+
+  const token = authHeader.split(" ")[1];
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    req.user = await User.findById(decoded.id).select("-password");
+  } catch (err) {
+    req.user = null;
+  }
+  next();
+};
+
+module.exports = { authenticateAccessToken, requireUserType, optionalAuth };
