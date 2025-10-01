@@ -11,6 +11,7 @@ const authRouter = require('./routes/authRouter');
 const rateLimit = require('express-rate-limit');
 const csrf = require('csurf');
 const eventRouter = require('./routes/eventRouter');
+const queryRouter = require('./routes/queryRoutr');
 
 //Const Creation
 const app = express();
@@ -48,7 +49,7 @@ app.get('/api/csrf-token', csrfProtection, (req,res,next) => {
 
 app.use('/api/auth', authRouter);
 app.use('/api/event', eventRouter);
-
+app.use('/api/query', queryRouter);
 
 //Footer/Ending
 app.use(errorHandler);

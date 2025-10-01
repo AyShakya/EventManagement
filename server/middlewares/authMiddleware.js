@@ -33,8 +33,9 @@ const optionalAuth = async (req, res, next) => {
 
   const token = authHeader.split(" ")[1];
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    req.user = await User.findById(decoded.id).select("-password");
+    const decoded = jwt.verify(token, JWT_SECRET);
+    const user = await User.findById(decoded.id).select('-password');
+    if (user) req.user = { id: user._id, userType: user.userType };
   } catch (err) {
     req.user = null;
   }

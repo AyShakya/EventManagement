@@ -151,6 +151,7 @@ exports.updateEvent = asyncHandler(async (req, res) => {
   const { id } = req.params;
   if (!mongoose.isValidObjectId(id))
     return res.status(400).json({ message: "Invalid event id" });
+
   const updates = {};
   const allowed = ["title", "location", "description", "imageURL", "postedAt"];
   allowed.forEach((k) => {
@@ -159,11 +160,16 @@ exports.updateEvent = asyncHandler(async (req, res) => {
 
   if (Object.keys(updates).length == 0)
     return res.status(400).json({ message: "Nothing to update" });
-  const event = await Event.findByIdAndUpdate(id, updates, {
-    new: true,
-    runValidators: true,
-  }).lean();
+
+  const event = await Event.findById(id);
   if (!event) return res.status(404).json({ message: "Event not found" });
+
+  if(event.organizer.toString() !== req.user.id)
+    return res.status(403).json({ message: "Forbidden: You don't own this event" });
+  
+  Object.assign(event, updates);
+  await event.save();
+
   return res.status(200).json({ message: "Event Updated Successfully", event });
 });
 
@@ -171,7 +177,15 @@ exports.deleteEvent = asyncHandler(async (req, res) => {
   const { id } = req.params;
   if (!mongoose.isValidObjectId(id))
     return res.status(404).json({ message: "Invalid Event Id" });
-  const event = await Event.findByIdAndDelete(id);
+
+  const event = await Event.findById(id);
   if (!event) return res.status(404).json({ message: "Event not found" });
+
+  if(event.organizer.toString() !== req.user.id){
+    return res.status(403).json({ message: "Forbidden: You don't own this event" });
+  }
+
+  await event.delete();
+  
   return res.status(200).json({ message: "Event Deleted Successfully" });
 });

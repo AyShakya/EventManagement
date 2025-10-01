@@ -3,7 +3,7 @@ const eventController = require('../controllers/eventController');
 const { createEventValidation } = require('../validators/eventValidator');
 const validateRequest = require('../middlewares/validateRequest');
 const csrf = require('csurf');
-const { authenticateAccessToken, requireUserType } = require('../middlewares/authMiddleware');
+const { authenticateAccessToken, requireUserType, optionalAuth } = require('../middlewares/authMiddleware');
 
 const csrfProtection = csrf({ cookie: true});
 const eventRouter = express.Router();
