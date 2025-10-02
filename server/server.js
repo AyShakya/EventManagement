@@ -43,7 +43,7 @@ app.use(helmet({
 app.get('/', (req, res, next) => {
     res.send('Hello from Express server!');
 });
-app.get('/api/csrf-token', csrfProtection, (req,res,next) => {
+app.get('/api/csrf-token', csrfProtection, (req,res) => {
   res.json({csrfToken: req.csrfToken()});
 });
 
