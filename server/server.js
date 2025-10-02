@@ -33,10 +33,10 @@ app.use(cors({
 }));
 app.set('trust proxy', 1);
 app.use(limiter);
-// app.use(helmet({
-//   contentSecurityPolicy: false,
-//   xDownloadOptions: false
-// }));
+app.use(helmet({
+  contentSecurityPolicy: false,
+  xDownloadOptions: false
+}));
 
 
 //Path/Routes

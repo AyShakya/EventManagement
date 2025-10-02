@@ -14,6 +14,6 @@ const feedbackLimiter = rateLimit({
 queryRouter.post('/event/:id/Feedback', feedbackLimiter, optionalAuth, queryController.sendFeedback);
 queryRouter.get('/my', authenticateAccessToken, queryController.getYourQueries);
 queryRouter.get('/event/:eventId', authenticateAccessToken, requireUserType('organiser'), queryController.getQueriesForEvent);
-queryController.patch('/:id/status', authenticateAccessToken, requireUserType('organiser'), queryController.updateQueryStatus);
+queryRouter.patch('/:id/status', authenticateAccessToken, requireUserType('organiser'), queryController.updateQueryStatus);
 
 module.exports = queryRouter;
