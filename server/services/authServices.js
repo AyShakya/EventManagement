@@ -14,7 +14,8 @@ async function registerUser(userName, email, password, userType = 'user') {
     user = new User({ userName, email, password: hashedPassword });
   }
   else{
-    user = new Organiser({ userName, email, password: hashedPassword });
+    let organiserName = userName;
+    user = new Organiser({ organiserName, email, password: hashedPassword });
   }
   await user.save();
   

@@ -27,6 +27,11 @@ const registerValidation = [
     // .matches(/[!@#$%^&*(),.?":{}|<>]/)
     // .withMessage("Password should contain atleast one special character")
     .trim(),
+
+    check('userType')
+    .trim()
+    .notEmpty()
+    .withMessage('userType is required'),
 ]
 
 const loginValidation = [

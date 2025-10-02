@@ -6,3 +6,4 @@
 6. Email verification through email for both user and organiser.
 7. Social Logins.
 8. Frontend.
+9. So even without sending the usertype we are able to register as base userType - user, need to fix that.

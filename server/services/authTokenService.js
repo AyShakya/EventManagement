@@ -79,7 +79,7 @@ async function rotateRefreshToken(modelType, accountId, oldRefreshTokenPlain, ip
     throw new Error(`${Model.modelName} not found while rotating refresh token.`);
   }
 
-  return createRefreshToken(modelType, accountId, ip, userAgent);
+  return createRefreshTokenForUser(modelType, accountId, ip, userAgent);
 }
 
 async function removeRefreshToken(modelType, accountId, refreshTokenPlain) {
