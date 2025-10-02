@@ -11,7 +11,7 @@ const authRouter = require('./routes/authRouter');
 const rateLimit = require('express-rate-limit');
 const csrf = require('csurf');
 const eventRouter = require('./routes/eventRouter');
-const queryRouter = require('./routes/queryRoutr');
+const queryRouter = require('./routes/queryRouter');
 
 //Const Creation
 const app = express();
@@ -55,5 +55,5 @@ app.use('/api/query', queryRouter);
 app.use(errorHandler);
 
 app.listen(PORT, () => {
-  console.log(`Server is running on ${process.env.CLIENT_URL}`);
+  console.log(`Server is running on ${process.env.CLIENT_URL} and Port: ${PORT}`);
 });
