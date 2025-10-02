@@ -31,20 +31,27 @@ async function createRefreshTokenForUser(modelType ,accountId, ip = '', userAgen
   const now = Date.now();
   const expiresAt = now + REFRESH_TOKEN_EXPIRES_DAYS * 24 * 60 * 60 * 1000;
 
-  const update = {
-    $push: {
-      refreshTokens: {
-        tokenHash,
-        createdAt: now,
-        expiresAt,
-        ip,
-        userAgent,
-      },
-    },
-  }
-  const updated = await Model.findByIdAndUpdate(accountId, update, {new:true, runValidators: true})
+  console.log('[createRefreshTokenForUser] model:', Model.modelName, 'accountId:', accountId);
+  console.log('[createRefreshTokenForUser] tokenHash:', tokenHash, 'expiresAt:', expiresAt);
 
-  if(!updated) throw new Error(`${Model.modelName} not found when trying to save refresh token.`);
+  const account = await Model.findById(accountId);
+  if (!account) {
+    throw new Error(`${Model.modelName} not found when trying to save refresh token.`);
+  }
+
+  account.refreshTokens.push({
+    tokenHash,
+    createdAt: now,
+    expiresAt,
+    ip,
+    userAgent
+  })
+
+  const saved = await account.save();
+
+  const last = saved.refreshTokens[saved.refreshTokens.length - 1];
+  console.log('[createRefreshTokenForUser] after save, total tokens:', saved.refreshTokens.length, 'last token obj:', last ? { tokenHash: last.tokenHash, expiresAt: last.expiresAt } : null);
+
   return { refreshTokenPlain, expiresAt };
 }
 
@@ -54,13 +61,13 @@ async function findUserByRefreshToken(refreshTokenPlain) {
   let account = await User.findOne({'refreshTokens.tokenHash': tokenHash});
   if(account) {
     const tokenObj = account.refreshTokens.find(rt => rt.tokenHash === tokenHash);
-    return { modelName: 'user', account, tokenObj};
+    return { modelType: 'user', account, tokenObj};
   } 
 
   account = await Organiser.findOne({ 'refreshTokens.tokenHash': tokenHash});
   if(account){
     const tokenObj = account.refreshTokens.find(rt => rt.tokenHash === tokenHash);
-    return { modelName: 'organiser', account, tokenObj};
+    return { modelType: 'organiser', account, tokenObj};
   }
   return null;
 }

@@ -112,7 +112,7 @@ exports.refreshToken = async (req, res, next) => {
     if (!found || !found.tokenObj) return res.status(401).json({ message: 'Invalid refresh token' });
 
     if (found.tokenObj.expiresAt < Date.now()) {
-      await removeRefreshToken(found.userType, found.account._id, refreshTokenPlain);
+      await removeRefreshToken(found.modelType, found.account._id, refreshTokenPlain);
       return res.status(401).json({ message: 'Refresh token expired' });
     }
 
@@ -125,7 +125,7 @@ exports.refreshToken = async (req, res, next) => {
       req.get('User-Agent') || ''
     );
 
-    const accessToken = createAccessToken({ id: found.account._id, userType: found.account.userType || (found.modelType === 'organiser' ? 'organiser' : 'user')});
+    const accessToken = createAccessToken({ id: found.account._id, userType: found.modelType || (found.modelType === 'organiser' ? 'organiser' : 'user')});
 
     const accessAge = (Number(process.env.ACCESS_TOKEN_EXPIRES_MIN) || 15) * 60 * 1000;
     const refreshAge = (Number(process.env.REFRESH_TOKEN_EXPIRES_DAYS) || 7) * 24 * 60 * 60 * 1000;
@@ -138,7 +138,7 @@ exports.refreshToken = async (req, res, next) => {
       id: account._id,
       userName: account.userName || account.organiserName,
       email: account.email,
-      userType: account.userType,
+      userType: account.userType || found.modelType,
     }
 
     return res.status(200).json({ message: 'Token refreshed', user: safeUser });

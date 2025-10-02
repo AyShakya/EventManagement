@@ -185,7 +185,7 @@ exports.deleteEvent = asyncHandler(async (req, res) => {
     return res.status(403).json({ message: "Forbidden: You don't own this event" });
   }
 
-  await event.delete();
+  await event.deleteOne();
   
   return res.status(200).json({ message: "Event Deleted Successfully" });
 });
