@@ -26,21 +26,21 @@ const userSchema = new mongoose.Schema({
 },
 {timestamps: true});
 
-const organiserSchema = mongoose.Schema({
-  organiserName: { type: String, required: true },
+const organizerSchema = mongoose.Schema({
+  organizerName: { type: String, required: true },
   email: { type: String, required: true, unique: true },
   password: { type: String, required: true, select: false },
   resetOTP: { type: String, default: "" },
   resetOTPExpireAt: { type: Number, default: 0 },
   eventsCreated: [{ type: mongoose.Schema.Types.ObjectId, ref: "Event" }],
   refreshTokens: [refreshTokenSchema],
-  userType: {type: String, default: 'organiser'},
+  userType: {type: String, default: 'organizer'},
   // isVerified: {type: Boolean, default: false},
 },
 {timestamps: true});
 
 module.exports = {
   User: mongoose.models.User || mongoose.model('User', userSchema),
-  Organiser: mongoose.models.Organiser || mongoose.model('Organiser', organiserSchema),
+  Organizer: mongoose.models.Organizer || mongoose.model('Organizer', organizerSchema),
 };
 

@@ -16,7 +16,7 @@ const csrfProtection = csrf({ cookie: true});
 
 authRouter.post('/register', registerValidation, validateRequest, authController.register);
 authRouter.post('/login-user', loginValidation, validateRequest, authController.login);
-authRouter.post('/login-organiser', loginValidation, validateRequest, authController.organiserLogin);
+authRouter.post('/login-organizer', loginValidation, validateRequest, authController.organizerLogin);
 
 authRouter.post('/refresh-token', csrfProtection, authLimiter, authController.refreshToken);
 

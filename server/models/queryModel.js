@@ -5,7 +5,7 @@ const querySchema = new mongoose.Schema({
   senderName: { type: String, required: false },
   senderEmail: { type: String, required: false },
   eventId: { type: mongoose.Schema.Types.ObjectId, ref: 'Event', required: false },
-  organiserId: { type: mongoose.Schema.Types.ObjectId, ref: 'Organiser', required: false },
+  organizerId: { type: mongoose.Schema.Types.ObjectId, ref: 'Organizer', required: false },
   subject: { type: String, required: true },
   message: { type: String, required: true },
   sentAt: { type: Date, default: Date.now },

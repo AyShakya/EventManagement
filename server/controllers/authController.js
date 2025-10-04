@@ -1,6 +1,6 @@
-const { registerUser, loginUser, loginOrganiser } = require("../services/authServices.js");
+const { registerUser, loginUser, loginOrganizer } = require("../services/authServices.js");
 const bcrypt = require('bcrypt');
-const {User, Organiser} = require('../models/userModel.js');
+const {User, Organizer} = require('../models/userModel.js');
 const { default: transporter } = require("../config/nodeMailer.js");
 const {
   createAccessToken,
@@ -75,16 +75,16 @@ exports.login = async (req, res, next) => {
   }
 };
 
-exports.organiserLogin = async (req, res, next) => {
+exports.organizerLogin = async (req, res, next) => {
  try {
     const { email, password } = req.body;
-    const { safeOrganiser, organiserDoc } = await loginOrganiser(email, password);
+    const { safeOrganizer, organizerDoc } = await loginOrganizer(email, password);
 
-    const accessToken = createAccessToken({ id: organiserDoc._id, userType: 'organiser' });
+    const accessToken = createAccessToken({ id: organizerDoc._id, userType: 'organizer' });
 
     const { refreshTokenPlain, expiresAt } = await createRefreshTokenForUser(
-      'organiser',
-      organiserDoc._id,
+      'organizer',
+      organizerDoc._id,
       req.ip,
       req.get('User-Agent') || ''
     );
@@ -97,7 +97,7 @@ exports.organiserLogin = async (req, res, next) => {
 
     return res
       .status(200)
-      .json({ message: "Organiser Logged In Succesfully", user: safeOrganiser, userType: 'organiser' });
+      .json({ message: "Organizer Logged In Succesfully", user: safeOrganizer, userType: 'organizer' });
   } catch (error) {
     next(error); 
   }
@@ -125,7 +125,7 @@ exports.refreshToken = async (req, res, next) => {
       req.get('User-Agent') || ''
     );
 
-    const accessToken = createAccessToken({ id: found.account._id, userType: found.modelType || (found.modelType === 'organiser' ? 'organiser' : 'user')});
+    const accessToken = createAccessToken({ id: found.account._id, userType: found.modelType || (found.modelType === 'organizer' ? 'organizer' : 'user')});
 
     const accessAge = (Number(process.env.ACCESS_TOKEN_EXPIRES_MIN) || 15) * 60 * 1000;
     const refreshAge = (Number(process.env.REFRESH_TOKEN_EXPIRES_DAYS) || 7) * 24 * 60 * 60 * 1000;
@@ -136,7 +136,7 @@ exports.refreshToken = async (req, res, next) => {
     const account = found.account;
     const safeUser = {
       id: account._id,
-      userName: account.userName || account.organiserName,
+      userName: account.userName || account.organizerName,
       email: account.email,
       userType: account.userType || found.modelType,
     }

@@ -130,7 +130,7 @@ exports.getLikedEvents = asyncHandler(async (req, res) => {
   });
 });
 
-//Organiser Logged In Methods
+//Organizer Logged In Methods
 exports.createEvent = asyncHandler(async (req, res) => {
   const payload = {
     title: req.body.title,

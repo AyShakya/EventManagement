@@ -11,9 +11,9 @@ const feedbackLimiter = rateLimit({
   message: 'Too many feedback submissions, please try again later',
 });
 
-queryRouter.post('/event/:id/feedback', feedbackLimiter, optionalAuth, queryController.sendFeedback);
+queryRouter.post('/event/:id/feedback', feedbackLimiter, authenticateAccessToken, requireUserType('user'), queryController.sendFeedback);
 queryRouter.get('/my', authenticateAccessToken, queryController.getYourQueries);
-queryRouter.get('/event/:eventId', authenticateAccessToken, requireUserType('organiser'), queryController.getQueriesForEvent);
-queryRouter.patch('/:id/status', authenticateAccessToken, requireUserType('organiser'), queryController.updateQueryStatus);
+queryRouter.get('/event/:eventId', authenticateAccessToken, requireUserType('organizer'), queryController.getQueriesForEvent);
+queryRouter.patch('/:id/status', authenticateAccessToken, requireUserType('organizer'), queryController.updateQueryStatus);
 
 module.exports = queryRouter;

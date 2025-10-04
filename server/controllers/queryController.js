@@ -2,7 +2,8 @@ const Query = require("../models/queryModel");
 const sanitizeHtml = require('sanitize-html');
 const asyncHandler = require("../utils/asyncHandler");
 const Event = require("../models/eventModel");
-const { Organiser } = require("../models/userModel");
+const { Organizer, User } = require("../models/userModel");
+const transporter = require("../config/nodemailer");
 
 function sanitizeInput(str) {
   if (!str) return '';
@@ -26,20 +27,20 @@ exports.sendFeedback = asyncHandler(async (req, res) => {
   const event = await Event.findById(eventId).lean();
   if (!event) return res.status(404).json({ message: 'Event not found' });
 
-  let organiser = null;
+  let organizer = null;
   if(event.organizer) {
-    organiser = await Organiser.findById(event.organizer).select('+email').lean();
-    if (!organiser) {
-      organiser = await User.findById(event.organizer).select('+email').lean();
-    }
+    organizer = await Organizer.findById(event.organizer).select('+email').lean();
+    // if (!organizer) {
+    //   organizer = await User.findById(event.organizer).select('+email').lean();
+    // }
   }
 
   const queryDoc = new Query({
-    senderId: req.user?.id || undefined,
+    senderId: req.user?.id || req.user?._id || undefined,
     senderName,
     senderEmail,
     eventId,
-    organiserId: organiser?._id || undefined,
+    organizerId: organizer?._id || undefined,
     subject,
     message,
     status: 'pending',
@@ -47,10 +48,10 @@ exports.sendFeedback = asyncHandler(async (req, res) => {
 
   await queryDoc.save();
 
-   if (organiser && organiser.email) {
+   if (organizer && organizer.email) {
     const mailOptions = {
       from: process.env.SENDER_EMAIL, 
-      to: organiser.email,
+      to: organizer.email,
       subject: `[Feedback] ${subject} — ${event.title}`,
       html: `
         <p>You have received new feedback for your event <strong>${event.title}</strong>.</p>
@@ -58,7 +59,7 @@ exports.sendFeedback = asyncHandler(async (req, res) => {
         <p><strong>Subject:</strong> ${subject}</p>
         <p><strong>Message:</strong></p>
         <div style="white-space:pre-wrap;">${message}</div>
-        <p><a href="${process.env.CLIENT_URL}/organiser/events/${eventId}/queries">View in dashboard</a></p>
+        <p><a href="${process.env.CLIENT_URL}/organizer/events/${eventId}/queries">View in dashboard</a></p>
         <hr/>
         <small>Event ID: ${eventId} | Query ID: ${queryDoc._id}</small>
       `,
@@ -86,7 +87,7 @@ exports.getQueriesForEvent = asyncHandler(async (req, res) => {
   const event = await Event.findById(eventId).lean();
   if(!event) return res.status(404).json({ message: 'Event not found' });
 
-  if(event.organizer.toString !== userId){
+  if(event.organizer.toString() !== userId){
     return res.status(403).json({ message: "Forbidden: you don't own this event" });
   }
 
@@ -97,7 +98,7 @@ exports.getQueriesForEvent = asyncHandler(async (req, res) => {
 exports.updateQueryStatus = asyncHandler(async (req,res) => {
   const {id} = req.params;
   const {status} = req.body;
-  const userId = req.user?.id;
+  const userId = req.user?.id || req.user?._id;
   if(!userId) return res.status(401).json({ message: 'Not authenticated' });
 
   const query = await Query.findById(id);
@@ -111,7 +112,7 @@ exports.updateQueryStatus = asyncHandler(async (req,res) => {
     }
   }
   else{
-    if (query.organiserId && query.organiserId.toString() !== userId) {
+    if (query.organizerId && query.organizerId.toString() !== userId) {
       return res.status(403).json({ message: "Forbidden" });
     }
   }

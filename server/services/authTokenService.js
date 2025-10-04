@@ -1,6 +1,6 @@
 const jwt = require('jsonwebtoken');
 const { generateRandomTokenHex, hashToken } = require('../utils/tokenUtils');
-const {User, Organiser} = require('../models/userModel');
+const {User, Organizer} = require('../models/userModel');
 
 const JWT_SECRET = process.env.JWT_SECRET;
 const ACCESS_TOKEN_EXPIRES_MIN = Number(process.env.ACCESS_TOKEN_EXPIRES_MIN) || 15;
@@ -16,8 +16,8 @@ function resolveModel(modelType){
   if(!modelType) return User;
   if(typeof modelType === 'string'){
     const t = modelType.toLowerCase();
-    if(t==='organiser' || t==='organizer'){
-      return Organiser;
+    if(t==='organizer' || t==='organizer'){
+      return Organizer;
     }
     if(t==='user') return User;
   }
@@ -64,10 +64,10 @@ async function findUserByRefreshToken(refreshTokenPlain) {
     return { modelType: 'user', account, tokenObj};
   } 
 
-  account = await Organiser.findOne({ 'refreshTokens.tokenHash': tokenHash});
+  account = await Organizer.findOne({ 'refreshTokens.tokenHash': tokenHash});
   if(account){
     const tokenObj = account.refreshTokens.find(rt => rt.tokenHash === tokenHash);
-    return { modelType: 'organiser', account, tokenObj};
+    return { modelType: 'organizer', account, tokenObj};
   }
   return null;
 }

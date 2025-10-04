@@ -1,4 +1,4 @@
-const {User, Organiser} = require('../models/userModel');
+const {User, Organizer} = require('../models/userModel');
 const bcrypt = require('bcrypt');
 
 async function registerUser(userName, email, password, userType = 'user') {
@@ -14,12 +14,12 @@ async function registerUser(userName, email, password, userType = 'user') {
     user = new User({ userName, email, password: hashedPassword });
   }
   else{
-    let organiserName = userName;
-    user = new Organiser({ organiserName, email, password: hashedPassword });
+    let organizerName = userName;
+    user = new Organizer({ organizerName, email, password: hashedPassword });
   }
   await user.save();
   
-  return { id: user._id, userName: user.userName || user.organiserName, email: user.email, userType };
+  return { id: user._id, userName: user.userName || user.organizerName, email: user.email, userType };
 }
 
 async function loginUser(email, password) {
@@ -41,23 +41,23 @@ async function loginUser(email, password) {
   return { safeUser, userDoc: user };
 }
 
-async function loginOrganiser(email, password){
+async function loginOrganizer(email, password){
   const normalizeEmail = String(email).trim().toLowerCase();
-  const organiser = await Organiser.findOne({ email:normalizeEmail}).select('+password');
-  if(!organiser){
+  const organizer = await Organizer.findOne({ email:normalizeEmail}).select('+password');
+  if(!organizer){
     throw new Error("Invalid Email");
   }
-  const isMatch = await bcrypt.compare(password, organiser.password);
+  const isMatch = await bcrypt.compare(password, organizer.password);
   if(!isMatch){
     throw new Error("Invalid Password");
   }
-  const safeOrganiser = {
-    id: organiser._id,
-    organiserName: organiser.organiserName,
-    email: organiser.email,
-    userType: 'organiser',
+  const safeOrganizer = {
+    id: organizer._id,
+    organizerName: organizer.organizerName,
+    email: organizer.email,
+    userType: 'organizer',
   }
-  return {safeOrganiser, organiserDoc: organiser};
+  return {safeOrganizer, organizerDoc: organizer};
 }
 
-module.exports = { registerUser, loginUser, loginOrganiser };
+module.exports = { registerUser, loginUser, loginOrganizer };

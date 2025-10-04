@@ -13,10 +13,10 @@ eventRouter.get('/', eventController.getAllEvents);
 eventRouter.get('/user/:userId/liked', authenticateAccessToken, eventController.getLikedEvents);
 eventRouter.get('/:id', optionalAuth, eventController.getEventById);
 
-//organiser
-eventRouter.post('/', csrfProtection, authenticateAccessToken, requireUserType('organiser'), createEventValidation, validateRequest, eventController.createEvent);
-eventRouter.patch('/:id', csrfProtection, authenticateAccessToken, requireUserType('organiser'), eventController.updateEvent);
-eventRouter.delete('/:id', csrfProtection, authenticateAccessToken, requireUserType('organiser'), eventController.deleteEvent);
+//organizer
+eventRouter.post('/', csrfProtection, authenticateAccessToken, requireUserType('organizer'), createEventValidation, validateRequest, eventController.createEvent);
+eventRouter.patch('/:id', csrfProtection, authenticateAccessToken, requireUserType('organizer'), eventController.updateEvent);
+eventRouter.delete('/:id', csrfProtection, authenticateAccessToken, requireUserType('organizer'), eventController.deleteEvent);
 
 //user
 eventRouter.post('/:id/like', csrfProtection, authenticateAccessToken, eventController.likeEvent);
