@@ -64,29 +64,71 @@ exports.likeEvent = asyncHandler(async (req, res) => {
   if (!mongoose.isValidObjectId(eventId) || !mongoose.isValidObjectId(userId))
     return res.status(404).json({ message: "Missing Id" });
 
-  const userUpdate = await User.findOneAndUpdate(
-    { _id: userId, likedEvents: { $ne: eventId } },
-    { $addToSet: { likedEvents: eventId } },
-    { new: true }
-  );
-  if (!userUpdate) {
+  const session = await mongoose.startSession();
+  try {
+    session.startTransaction();
+
+    const userAdded = await User.findOneAndUpdate(
+      { _id: userId, likedEvents: { $ne: eventId }},
+      { $addToSet: {likedEvents: eventId }},
+      { new: true, session }
+    ).lean();
+
+    if (userAdded){
+      const event = await Event.findByIdAndUpdate(
+        eventId,
+        { $inc: { likes: 1 } },
+        { new: true, session }
+      ).lean();
+
+      if(!event){
+        await User.findByIdAndUpdate(
+          userId,
+          { $pull: {likedEvents: eventId } },
+          {session}
+        );
+        await session.abortTransaction();
+        return res.status(404).json({ message: "Event not found" });
+      }
+
+      await session.commitTransaction();
+      return res.status(200).json({ message: "Event Liked", event });
+    }
+
     const userExists = await User.findById(userId).lean();
-    if (!userExists) return res.status(404).json({ message: "User not found" });
-    return res.status(400).json({ message: "User already liked this event" });
+    if(!userExists){
+      await session.abortTransaction();
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    const decrementedEvent = await Event.findOneAndUpdate(
+      { _id: eventId, likes: { $gt: 0 } },
+      { $inc: { likes: -1 } },
+      { new: true, session }
+    ).lean();
+
+    if (decrementedEvent) {
+      await User.findByIdAndUpdate(userId, { $pull: { likedEvents: eventId } }, { session });
+      await session.commitTransaction();
+      return res.status(200).json({ message: "Event Unliked", event: decrementedEvent });
+    }
+
+    const eventExists = await Event.findById(eventId).lean();
+    if (!eventExists) {
+      await session.abortTransaction();
+      return res.status(404).json({ message: "Event not found" });
+    }
+
+    await User.findByIdAndUpdate(userId, { $pull: {likedEvents: eventId } }, {session});
+    await session.commitTransaction();
+    return res.status(200).json({ message: "Event Unliked", event: null });
+  } catch (err) {
+    await session.abortTransaction();
+    throw err;
   }
-
-  const event = await Event.findByIdAndUpdate(
-    eventId,
-    { $inc: { likes: 1 } },
-    { new: true, lean: true }
-  ).lean();
-
-  if (!event) {
-    await User.findByIdAndUpdate(userId, { $pull: { likedEvents: eventId } });
-    return res.status(404).json({ message: "Event not found" });
+  finally {
+    session.endSession();
   }
-
-  return res.status(200).json({ message: "Event liked", event });
 });
 
 exports.getLikedEvents = asyncHandler(async (req, res) => {
@@ -164,9 +206,11 @@ exports.updateEvent = asyncHandler(async (req, res) => {
   const event = await Event.findById(id);
   if (!event) return res.status(404).json({ message: "Event not found" });
 
-  if(event.organizer.toString() !== req.user.id)
-    return res.status(403).json({ message: "Forbidden: You don't own this event" });
-  
+  if (event.organizer.toString() !== req.user.id)
+    return res
+      .status(403)
+      .json({ message: "Forbidden: You don't own this event" });
+
   Object.assign(event, updates);
   await event.save();
 
@@ -181,11 +225,13 @@ exports.deleteEvent = asyncHandler(async (req, res) => {
   const event = await Event.findById(id);
   if (!event) return res.status(404).json({ message: "Event not found" });
 
-  if(event.organizer.toString() !== req.user.id){
-    return res.status(403).json({ message: "Forbidden: You don't own this event" });
+  if (event.organizer.toString() !== req.user.id) {
+    return res
+      .status(403)
+      .json({ message: "Forbidden: You don't own this event" });
   }
 
   await event.deleteOne();
-  
+
   return res.status(200).json({ message: "Event Deleted Successfully" });
 });
