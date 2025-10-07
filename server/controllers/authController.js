@@ -10,6 +10,8 @@ const {
   removeRefreshToken,
   removeAllRefreshTokens,
 } = require('../services/authTokenService');
+const { hashToken } = require("../utils/tokenUtils.js");
+const { createAndSendVerificationEmail } = require("../utils/emailVerification.js");
 
 const ACCESS_COOKIE_NAME = 'accessToken';
 const REFRESH_COOKIE_NAME = 'refreshToken';
@@ -231,3 +233,73 @@ exports.resetPassword = async (req, res, next) => {
     next(error);
   }
 };  
+
+exports.sendVerificationEmail = async (req, res, next) => {
+  try {
+    if(!req.user || !req.user.id) return res.status(401).json({ message: 'Not authenticated' });
+
+    const userType = (req.user.userType || '').toLowerCase();
+
+    const Model = userType === 'organizer' ? Organizer : User;
+
+    const account = await Model.findById(req.user.id);
+    if (!account) return res.status(404).json({ message: 'Account not found' });
+
+    if (account.isEmailVerified) {
+      return res.status(400).json({ message: 'Email already verified' });
+    }
+
+    await EmailToken.deleteMany({ userId: account._id, userType: account.userType, type: 'verifyEmail'});
+
+    await createAndSendVerificationEmail(account);
+
+    return res.status(200).json({ message: 'Verification email sent. Check your inbox' });
+    
+  } catch (error) {
+    next(error);
+  }
+}
+
+exports.verifyEmail = async (req, res, next) => {
+  try {
+    const { token } = req.query;
+    if (!token) return res.status(400).send('Missing token');
+
+    const tokenHash = hashToken(token);
+
+    const tokenRecord = await EmailToken.findOne({ tokenHash, type: 'verifyEmail' }).populate('userId');
+    if(!tokenRecord) return res.status(400).send('Invalid or expired token');
+
+    if(tokenRecord.expiresAt < new Date()){
+      await EmailToken.deleteOne({ _id: tokenRecord._id });
+      return res.status(400).send('Token expired');
+    }
+
+
+    let Model;
+    if(tokenRecord.userType === 'user'){
+      Model = User;
+    } else if(tokenRecord.userType === 'organizer'){
+      Model = Organizer;
+    }
+    else{
+      await EmailToken.deleteOne({ _id: tokenRecord._id });
+      return res.status(400).send('Invalid user type');
+    }
+
+    const entity = await Model.findById(tokenRecord.userId._id);
+    if (!entity) {
+      await EmailToken.deleteOne({ _id: tokenRecord._id });
+      return res.status(400).send('User not found');
+    }
+    entity.isEmailVerified = true;
+    await entity.save();
+    await EmailToken.deleteOne({ _id: tokenRecord._id });
+
+    return res.status(200).send(`Email verified successfully for ${tokenRecord.userType}`);
+    
+  } catch (error) {
+    next(error);
+  }
+}
+

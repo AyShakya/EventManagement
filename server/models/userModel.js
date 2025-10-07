@@ -20,9 +20,7 @@ const userSchema = new mongoose.Schema({
       ref: "Event", 
     }],
     refreshTokens: [refreshTokenSchema], 
-    // verifyOTP: {type: String, default: ""},
-    // OTPExpireAt: {type: Number, default: 0},
-    // isVerified: {type: Boolean, default: false},
+    isEmailVerified: { type: Boolean, default: false },
 },
 {timestamps: true});
 
@@ -35,7 +33,7 @@ const organizerSchema = mongoose.Schema({
   eventsCreated: [{ type: mongoose.Schema.Types.ObjectId, ref: "Event" }],
   refreshTokens: [refreshTokenSchema],
   userType: {type: String, default: 'organizer'},
-  // isVerified: {type: Boolean, default: false},
+  isEmailVerified: { type: Boolean, default: false },
 },
 {timestamps: true});
 

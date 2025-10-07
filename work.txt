@@ -1,11 +1,7 @@
 1. implement view feature properly.
-2. Complete query functionality.
 3. Maybe store the liked events differently and not in the user as it can become very large array.
-4. Ensure we have created all the api endpoints for event functionality.
 5. Reset password for organiser.
 6. Email verification through email for both user and organiser.
 7. Social Logins.
 8. Frontend.
-9. So even without sending the usertype we are able to register as base userType - user, need to fix that.
-10. Like api is one directionally it only increments the like whenever called, it should toggle for each call.
 11. When i go to event details while login, it should increase the view count but it is not doing it right now.

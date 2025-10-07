@@ -1,7 +1,7 @@
 const {User, Organizer} = require('../models/userModel');
 const bcrypt = require('bcrypt');
 
-async function registerUser(userName, email, password, userType = 'user') {
+async function registerUser(userName, email, password, userType) {
   const normalizeEmail = String(email).trim().toLowerCase();
   const existingUser = await User.findOne({ email: normalizeEmail });
   if (existingUser) {
@@ -13,9 +13,12 @@ async function registerUser(userName, email, password, userType = 'user') {
   if(userType === "user"){
     user = new User({ userName, email, password: hashedPassword });
   }
-  else{
+  else if(userType === "organizer"){
     let organizerName = userName;
     user = new Organizer({ organizerName, email, password: hashedPassword });
+  }
+  else{
+    throw new Error("Invalid user type");
   }
   await user.save();
   
