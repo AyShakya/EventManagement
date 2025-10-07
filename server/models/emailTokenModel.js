@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
 const emailTokenSchema = new mongoose.Schema({
-  userId: { type: mongoose.Schema.Types.ObjectId, ref: 'modelType', required: true },
+  userId: { type: mongoose.Schema.Types.ObjectId, refPath: 'modelType', required: true },
   modelType: { type: String, required: true, enum: ['User', 'Organizer'] },
   tokenHash: { type: String, required: true, index: true },
   type: { type: String, enum: ['verifyEmail', 'resetPassword'], default: 'verifyEmail' },

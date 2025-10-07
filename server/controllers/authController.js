@@ -1,6 +1,7 @@
 const { registerUser, loginUser, loginOrganizer } = require("../services/authServices.js");
 const bcrypt = require('bcrypt');
 const {User, Organizer} = require('../models/userModel.js');
+const EmailToken = require("../models/emailTokenModel.js");
 const { default: transporter } = require("../config/nodeMailer.js");
 const {
   createAccessToken,
@@ -11,7 +12,7 @@ const {
   removeAllRefreshTokens,
 } = require('../services/authTokenService');
 const { hashToken } = require("../utils/tokenUtils.js");
-const { createAndSendVerificationEmail } = require("../utils/emailVerification.js");
+const { createAndSendVerificationEmail, findAccountByEmail } = require("../utils/emailHandler.js");
 
 const ACCESS_COOKIE_NAME = 'accessToken';
 const REFRESH_COOKIE_NAME = 'refreshToken';
@@ -185,20 +186,22 @@ exports.resetOTP = async (req, res, next) => {
     return res.status(400).json({success: false, message: "Email is required"});
   }
   try {
-    const user = await User.findOne({email});
-    if(!user){
-      return res.status(404).json({success: false, message: "User not found"});
+    const {account,kind} = await findAccountByEmail(email);
+    if (!account) {
+      return res.status(404).json({ success: false, message: "User not found" });
     }
-    const otp = String(Math.floor(100000 + Math.random()*900000));
-    user.resetOTP = otp;
-    user.resetOTPExpireAt = Date.now() + (15*60*1000);
-    await user.save();
 
+    const otp = String(Math.floor(100000 + Math.random()*900000));
+    account.resetOTP = otp;
+    account.resetOTPExpireAt = Date.now() + (15*60*1000);
+    await account.save();
+
+    const displayName = account.userName || account.organizerName || 'User';
     const mailOption = {
       from: process.env.SENDER_EMAIL,
-      to: user.email,
+      to: account.email,
       subject: "Password Reset OTP",
-      text: `Hello ${user.userName},\n\nYour OTP for password reset is ${otp}. It is valid for 15 minutes.\n\nBest regards,\nThe Team`
+      text: `Hello ${displayName},\n\nYour OTP for password reset is ${otp}. It is valid for 15 minutes.\n\nBest regards,\nThe Team`
     }
     await transporter.sendMail(mailOption);
     return res.status(201).json({message: "OTP sent to your email"});
@@ -213,21 +216,21 @@ exports.resetPassword = async (req, res, next) => {
     return res.status(400).json({success: false, message: "Missing Details"});
   }
   try {
-    const user = await User.findOne({email});
-    if(!user){
-      return res.status(404).json({success: false, message: "User not found"});
+    const {account, kind} = await findAccountByEmail(email);
+    if (!account) {
+      return res.status(404).json({ success: false, message: "User not found" });
     }
-    if(user.resetOTP === '' || user.resetOTP !== otp){
+    if(account.resetOTP === '' || account.resetOTP !== otp){
       return res.status(400).json({success: false, message: "Invalid OTP"});
     }
-    if(user.resetOTPExpireAt < Date.now()){
+    if(!account.resetOTPExpireAt || account.resetOTPExpireAt < Date.now()){
       return res.status(400).json({success: false, message: "OTP Expired"});
     }
     const hashedPassword = await bcrypt.hash(newPassword, 10);
-    user.password = hashedPassword;
-    user.resetOTP = '';
-    user.resetOTPExpireAt = 0;
-    await user.save();
+    account.password = hashedPassword;
+    account.resetOTP = '';
+    account.resetOTPExpireAt = 0;
+    await account.save();
     return res.status(200).json({success: true, message: "Password reset successful"});
   } catch (error) {
     next(error);
@@ -238,9 +241,9 @@ exports.sendVerificationEmail = async (req, res, next) => {
   try {
     if(!req.user || !req.user.id) return res.status(401).json({ message: 'Not authenticated' });
 
-    const userType = (req.user.userType || '').toLowerCase();
+    const userTypeLower  = (req.user.userType || '').toLowerCase();
 
-    const Model = userType === 'organizer' ? Organizer : User;
+    const Model = userTypeLower  === 'organizer' ? Organizer : User;
 
     const account = await Model.findById(req.user.id);
     if (!account) return res.status(404).json({ message: 'Account not found' });
@@ -249,7 +252,7 @@ exports.sendVerificationEmail = async (req, res, next) => {
       return res.status(400).json({ message: 'Email already verified' });
     }
 
-    await EmailToken.deleteMany({ userId: account._id, userType: account.userType, type: 'verifyEmail'});
+    await EmailToken.deleteMany({ userId: account._id, modelType: account.userType, type: 'verifyEmail'});
 
     await createAndSendVerificationEmail(account);
 
@@ -267,36 +270,41 @@ exports.verifyEmail = async (req, res, next) => {
 
     const tokenHash = hashToken(token);
 
-    const tokenRecord = await EmailToken.findOne({ tokenHash, type: 'verifyEmail' }).populate('userId');
+    const tokenRecord = await EmailToken.findOne({ tokenHash, type: 'verifyEmail' });
     if(!tokenRecord) return res.status(400).send('Invalid or expired token');
 
     if(tokenRecord.expiresAt < new Date()){
-      await EmailToken.deleteOne({ _id: tokenRecord._id });
+      try {
+        await EmailToken.findByIdAndDelete(tokenRecord._id);
+        console.log('[verifyEmail] deleted expired token', tokenRecord._id.toString());
+      } catch (delErr) {
+        console.error('[verifyEmail] failed deleting expired token', delErr);
+      }
       return res.status(400).send('Token expired');
     }
 
 
-    let Model;
-    if(tokenRecord.userType === 'user'){
+    let Model = null;
+    if(tokenRecord.modelType === 'User'){
       Model = User;
-    } else if(tokenRecord.userType === 'organizer'){
+    } else if(tokenRecord.modelType === 'Organizer'){
       Model = Organizer;
     }
     else{
-      await EmailToken.deleteOne({ _id: tokenRecord._id });
+      await EmailToken.findByIdAndDelete(tokenRecord._id);
       return res.status(400).send('Invalid user type');
     }
 
-    const entity = await Model.findById(tokenRecord.userId._id);
+    const entity = await Model.findById(tokenRecord.userId);
     if (!entity) {
-      await EmailToken.deleteOne({ _id: tokenRecord._id });
+      await EmailToken.findByIdAndDelete(tokenRecord._id);
       return res.status(400).send('User not found');
     }
     entity.isEmailVerified = true;
     await entity.save();
-    await EmailToken.deleteOne({ _id: tokenRecord._id });
+    await EmailToken.findByIdAndDelete(tokenRecord._id);
 
-    return res.status(200).send(`Email verified successfully for ${tokenRecord.userType}`);
+    return res.status(200).send(`Email verified successfully for ${tokenRecord.modelType}`);
     
   } catch (error) {
     next(error);

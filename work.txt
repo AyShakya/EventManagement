@@ -1,7 +1,5 @@
 1. implement view feature properly.
 3. Maybe store the liked events differently and not in the user as it can become very large array.
-5. Reset password for organiser.
-6. Email verification through email for both user and organiser.
 7. Social Logins.
 8. Frontend.
 11. When i go to event details while login, it should increase the view count but it is not doing it right now.

@@ -17,6 +17,11 @@ const sendVerificationLimiter = rateLimit({
   max: 5, 
   message: 'Too many verification requests, try again later'
 });
+const sendResetOtpLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000, 
+  max: 5, 
+  message: 'Too many reset otp requests, try again later'
+});
 const csrfProtection = csrf({ cookie: true});
 
 authRouter.post('/register', registerValidation, validateRequest, authController.register);
@@ -29,7 +34,7 @@ authRouter.post('/logout', csrfProtection, authenticateAccessToken, authControll
 authRouter.post('/logout-all', csrfProtection, authenticateAccessToken, authController.logoutAll)
 
 authRouter.post('/reset-pass-otp', authController.resetOTP);
-authRouter.post('/reset-password', resetPasswordValidation, validateRequest, authController.resetPassword);
+authRouter.post('/reset-password', sendResetOtpLimiter, resetPasswordValidation, validateRequest, authController.resetPassword);
 
 authRouter.post('/send-verification', authenticateAccessToken, sendVerificationLimiter, authController.sendVerificationEmail);
 authRouter.get('/verify-email', authController.verifyEmail);
