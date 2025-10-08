@@ -33,7 +33,7 @@ function requireUserType(userType) {
 const optionalAuth = async (req, res, next) => {
   try {
     const authHeader = req.headers.authorization;
-    const tokenFromHeader = authHeader || authHeader.startsWith('Bearer ') && authHeader.split(" ")[1];
+    const tokenFromHeader = authHeader && authHeader.startsWith('Bearer ') && authHeader.split(" ")[1];
     const token = tokenFromHeader || (req.cookies && req.cookies.accessToken);
 
     if(!token) {req.user=null; return next();}

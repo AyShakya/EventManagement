@@ -40,18 +40,17 @@ exports.getEventById = asyncHandler(async (req, res) => {
   const { id } = req.params;
   if (!mongoose.isValidObjectId(id))
     return res.status(404).json({ message: "Invalid Event Id" });
-  let event;
-
-  if (req.user) {
-    event = await Event.findByIdAndUpdate(
-      id,
-      { $inc: { viewsCount: 1 } },
-      { new: true, lean: true }
-    );
-  } else {
-    event = await Event.findById(id).lean();
-  }
+  
+  const event = await Event.findById(id).lean();
   if (!event) return res.status(404).json({ message: "Missing Event" });
+
+  const shouldIncrement = !req.user || (req.user && req.user.id.toString() !== event.organizer?.toString());
+
+  if (shouldIncrement) {
+    await Event.updateOne({ _id: id }, { $inc: { views: 1 } }).exec();
+    event.views = (event.views || 0) + 1;
+  }
+
   return res.status(200).json({ message: "Event Sent", event });
 });
 
