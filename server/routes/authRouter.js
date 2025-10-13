@@ -31,7 +31,7 @@ authRouter.post('/login-organizer', loginValidation, validateRequest, authContro
 authRouter.post('/refresh-token', csrfProtection, authLimiter, authController.refreshToken);
 
 authRouter.post('/logout', csrfProtection, authenticateAccessToken, authController.logout);
-authRouter.post('/logout-all', csrfProtection, authenticateAccessToken, authController.logoutAll)
+authRouter.post('/logout-all', csrfProtection, authenticateAccessToken, authController.logoutAll);
 
 authRouter.post('/reset-pass-otp', authController.resetOTP);
 authRouter.post('/reset-password', sendResetOtpLimiter, resetPasswordValidation, validateRequest, authController.resetPassword);
