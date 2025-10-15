@@ -2,7 +2,7 @@ const { registerUser, loginUser, loginOrganizer } = require("../services/authSer
 const bcrypt = require('bcrypt');
 const {User, Organizer} = require('../models/userModel.js');
 const EmailToken = require("../models/emailTokenModel.js");
-const { default: transporter } = require("../config/nodeMailer.js");
+const transporter = require("../config/nodemailer.js");
 const {
   createAccessToken,
   createRefreshTokenForUser,

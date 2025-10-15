@@ -1,6 +1,7 @@
-const transporter = require("../config/nodeMailer");
+const transporter = require("../config/nodemailer");
 const EmailToken = require("../models/emailTokenModel");
 const { generateRandomTokenHex, hashToken } = require("./tokenUtils");
+const {User, Organizer} = require("../models/userModel");
 
 async function createAndSendVerificationEmail(user) {
   try {
