@@ -22,7 +22,7 @@ const createEventValidation = [
         .isURL().withMessage('Image URL must be a valid URL'),
 
     check('postedAt')
-        .notEmpty().withMessage('Posted date is required')
+        .optional()
         .isISO8601().toDate().withMessage('Posted date must be a valid date'),
 ]
 

@@ -28,7 +28,7 @@ authRouter.post('/register', registerValidation, validateRequest, authController
 authRouter.post('/login-user', loginValidation, validateRequest, authController.login);
 authRouter.post('/login-organizer', loginValidation, validateRequest, authController.organizerLogin);
 
-authRouter.post('/refresh-token', csrfProtection, authLimiter, authController.refreshToken);
+authRouter.post('/refresh-token', authLimiter, authController.refreshToken);
 
 authRouter.post('/logout', csrfProtection, authenticateAccessToken, authController.logout);
 authRouter.post('/logout-all', csrfProtection, authenticateAccessToken, authController.logoutAll);

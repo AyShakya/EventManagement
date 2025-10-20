@@ -7,6 +7,10 @@ async function registerUser(userName, email, password, userType) {
   if (existingUser) {
     throw new Error("User with this email already exists");
   }
+  const existingOrganizer = await Organizer.findOne({ email: normalizeEmail });
+  if (existingOrganizer) {
+    throw new Error("Organizer with this email already exists");
+  }
   
   const hashedPassword = await bcrypt.hash(password, 10);
   let user;

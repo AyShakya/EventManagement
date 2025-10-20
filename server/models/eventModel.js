@@ -14,7 +14,7 @@ const eventSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
-    organizer: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+    organizer: { type: mongoose.Schema.Types.ObjectId, ref: "Organizer" },
     views: {type: Number, default: 0},
     likes: {type: Number, default: 0},
     imageURL: {

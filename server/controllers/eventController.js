@@ -154,7 +154,7 @@ exports.getLikedEvents = asyncHandler(async (req, res) => {
     { _id: { $in: user.likedEvents } },
     options
   );
-  return res.status(201).json({
+  return res.status(200).json({
     message: "Liked Events Fetched",
     meta: {
       totalDocs: events.totalDocs,

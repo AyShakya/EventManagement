@@ -11,7 +11,6 @@ function authenticateAccessToken(req, res, next) {
       authHeader.split(" ")[1];
     const token = tokenFromHeader || (req.cookies && req.cookies.accessToken);
     if (!token) return res.status(401).json({ message: "No access token" });
-
     const payload = jwt.verify(token, JWT_SECRET);
     req.user = { id: payload.id, userType: payload.userType };
     return next();
