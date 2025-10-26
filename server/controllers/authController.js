@@ -112,29 +112,36 @@ exports.refreshToken = async (req, res, next) => {
     if (!refreshTokenPlain) return res.status(401).json({ message: 'No refresh token' });
 
     const found = await findUserByRefreshToken(refreshTokenPlain);
-    if (!found || !found.tokenObj) return res.status(401).json({ message: 'Invalid refresh token' });
-
+    if (!found || !found.tokenObj) {
+      console.warn('[refreshToken] refresh token not found - possible reuse or tampering', { ip: req.ip, ua: req.get('User-Agent') });
+      res.clearCookie(ACCESS_COOKIE_NAME, cookieOptions(0));
+      res.clearCookie(REFRESH_COOKIE_NAME, cookieOptions(0));
+      return res.status(401).json({ message: 'Invalid refresh token' });
+    }
     if (found.tokenObj.expiresAt < Date.now()) {
       await removeRefreshToken(found.modelType, found.account._id, refreshTokenPlain);
+      res.clearCookie(ACCESS_COOKIE_NAME, cookieOptions(0));
+      res.clearCookie(REFRESH_COOKIE_NAME, cookieOptions(0));
       return res.status(401).json({ message: 'Refresh token expired' });
     }
 
-    // rotate
-    const { refreshTokenPlain: newRefreshPlain, expiresAt } = await rotateRefreshToken(
-      found.modelType,
-      found.account._id,
-      refreshTokenPlain,
-      req.ip,
-      req.get('User-Agent') || ''
-    );
+    let rotatedResult;
+    try{
+      rotatedResult = await rotateRefreshToken(found.modelType, found.account._id, refreshTokenPlain, req.ip, req.get('User-Agent') || '');
+    } catch(err){
+      console.error('[refreshToken] rotate failed:', err.message);
+      // res.clearCookie(ACCESS_COOKIE_NAME, cookieOptions(0));
+      // res.clearCookie(REFRESH_COOKIE_NAME, cookieOptions(0));
+      return res.status(401).json({ message: 'Invalid refresh token' });
+    }
 
-    const accessToken = createAccessToken({ id: found.account._id, userType: found.modelType || (found.modelType === 'organizer' ? 'organizer' : 'user')});
+    const accessToken = createAccessToken({ id: found.account._id, userType: found.modelType.toLowerCase() || (found.modelType === 'organizer' ? 'organizer' : 'user')});
 
     const accessAge = (Number(process.env.ACCESS_TOKEN_EXPIRES_MIN) || 15) * 60 * 1000;
     const refreshAge = (Number(process.env.REFRESH_TOKEN_EXPIRES_DAYS) || 7) * 24 * 60 * 60 * 1000;
 
     res.cookie(ACCESS_COOKIE_NAME, accessToken, cookieOptions(accessAge));
-    res.cookie(REFRESH_COOKIE_NAME, newRefreshPlain, cookieOptions(refreshAge));
+    res.cookie(REFRESH_COOKIE_NAME, rotatedResult.refreshTokenPlain, cookieOptions(refreshAge));
 
     const account = found.account;
     const safeUser = {
@@ -310,4 +317,3 @@ exports.verifyEmail = async (req, res, next) => {
     next(error);
   }
 }
-
