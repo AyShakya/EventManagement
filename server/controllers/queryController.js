@@ -59,7 +59,7 @@ exports.sendFeedback = asyncHandler(async (req, res) => {
         <p><strong>Subject:</strong> ${subject}</p>
         <p><strong>Message:</strong></p>
         <div style="white-space:pre-wrap;">${message}</div>
-        <p><a href="${process.env.CLIENT_URL}/organizer/events/${eventId}/queries">View in dashboard</a></p>
+        <p><a href="${process.env.SERVER_URL}/organizer/events/${eventId}/queries">View in dashboard</a></p>
         <hr/>
         <small>Event ID: ${eventId} | Query ID: ${queryDoc._id}</small>
       `,

@@ -24,7 +24,7 @@ async function createAndSendVerificationEmail(user) {
       expiresAt,
     });
 
-    const apiVerifyUrl = `${process.env.CLIENT_URL}/api/auth/verify-email?token=${token}`;
+    const apiVerifyUrl = `${process.env.SERVER_URL}/api/auth/verify-email?token=${token}`;
 
     const html = `
     <div style="font-family: Arial, sans-serif;line-height:1.5;">
@@ -52,7 +52,7 @@ async function createAndSendVerificationEmail(user) {
     await transporter.sendMail(mailOption);
     return { sendTo: user.email, expiresAt };
   } catch (error) {
-    next(error);
+    throw new Error("Error sending verification email: " + error.message);
   }
 }
 

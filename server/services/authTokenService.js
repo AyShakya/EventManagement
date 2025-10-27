@@ -9,7 +9,7 @@ const ACCESS_TOKEN_EXPIRES_MIN =
 const REFRESH_TOKEN_EXPIRES_DAYS =
   Number(process.env.REFRESH_TOKEN_EXPIRES_DAYS) || 7;
 
-const MAX_RFRESH_TOKENS = Number(process.env.MAX_REFRESH_TOKENS) || 5;
+const MAX_REFRESH_TOKENS = Number(process.env.MAX_REFRESH_TOKENS) || 5;
 
 function createAccessToken(payload) {
   return jwt.sign(payload, JWT_SECRET, {
@@ -52,7 +52,7 @@ async function createRefreshTokenForUser(
       );
     }
 
-    await Model.updateone(
+    await Model.updateOne(
       { _id: accountId },
       { $pull: { refreshTokens: { expiresAt: { $lt: Date.now() } } } },
       { session }
@@ -72,7 +72,7 @@ async function createRefreshTokenForUser(
         $push: {
           refreshTokens: {
             $each: [tokenObj],
-            $slice: -Math.max(1, MAX_RFRESH_TOKENS),
+            $slice: -Math.max(1, MAX_REFRESH_TOKENS),
           },
         },
       },
@@ -124,7 +124,7 @@ async function rotateRefreshToken(
   try {
     session.startTransaction();
 
-    const account = await Model.findById(acocuntId).session(session);
+    const account = await Model.findById(accountId).session(session);
     if (!account) {
       throw new Error(`${Model.modelName} not found while rotating refresh token.`);
     }
@@ -152,7 +152,7 @@ async function rotateRefreshToken(
       { $pull: {
         refreshTokens: {
           $each: [newTokenObj],
-          $slice: -Math.max(1, MAX_RFRESH_TOKENS),
+          $slice: -Math.max(1, MAX_REFRESH_TOKENS),
         }
       }},
       {session}
@@ -166,7 +166,7 @@ async function rotateRefreshToken(
 
     await session.commitTransaction();
     session.endSession();
-    return {newRefreshPlain, expiresAt};
+    return { refreshTokenPlain: newRefreshPlain, expiresAt };
 
   } catch (error) {
     await session.abortTransaction();

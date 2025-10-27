@@ -26,7 +26,7 @@ const REQUIRED_ENVS = [
   "SENDER_EMAIL",
   "SMTP_USER",
   "SMTP_PASS",
-  "CLIENT_URL",
+  "SERVER_URL",
 ];
 const missing = REQUIRED_ENVS.filter((k) => !process.env[k]);
 if (process.env.NODE_ENV === "production" && missing.length > 0) {
@@ -60,7 +60,7 @@ if (!isProd) {
 }
 
 // CORS: whitelist approach
-// const clientOrigin = process.env.CLIENT_URL;
+// const clientOrigin = process.env.SERVER_URL;
 // const additionalOrigins = (process.env.ADDITIONAL_CLIENT_ORIGINS || '').split(',').map(s => s.trim()).filter(Boolean);
 // const allowedOrigins = new Set([clientOrigin, ...additionalOrigins]);
 // app.use(cors({
@@ -75,7 +75,7 @@ if (!isProd) {
 
 app.use(
   cors({
-    origin: process.env.CLIENT_URL || "http://localhost:5000",
+    origin: process.env.SERVER_URL || "http://localhost:5000",
     credentials: true,
   })
 );
@@ -149,7 +149,7 @@ app.use(limiter);
     //Start Server
     server = app.listen(PORT, () => {
       console.log(
-        `Server is running on ${process.env.CLIENT_URL} and Port: ${PORT}`
+        `Server is running on ${process.env.SERVER_URL} and Port: ${PORT}`
       );
     });
 
