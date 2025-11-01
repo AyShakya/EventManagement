@@ -1,4 +1,4 @@
-import { createContext, useReducer } from "react";
+import { createContext, useEffect, useReducer } from "react";
 import api from "../api/axiosClient";
 
 const initialState = { user: null, loading: true };
