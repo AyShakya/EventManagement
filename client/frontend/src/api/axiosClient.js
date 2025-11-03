@@ -52,4 +52,20 @@ export async function fetchCsrfToken(){
   return resp.data && resp.data.csrfToken;
 }
 
+export async function csrfPost(url, data={}, config={}){
+  const token = await fetchCsrfToken();
+  return api.post(url, data, {
+    ...config, 
+    headers: { ...(config.headers || {}), "X-CSRF-Token": token },
+  })
+}
+
+export async function csrfDelete(url, config={}){
+  const token = await fetchCsrfToken();
+  return api.delete(url, {
+    ...config,
+    headers: { ...(config.headers || {}), "X-CSRF-Token": token },
+  });
+}
+
 export default api;
