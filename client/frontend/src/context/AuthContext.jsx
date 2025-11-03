@@ -1,5 +1,5 @@
 import { createContext, useEffect, useReducer } from "react";
-import api from "../api/axiosClient";
+import api, { fetchCsrfToken } from "../api/axiosClient";
 
 const initialState = { user: null, loading: true };
 
@@ -36,24 +36,43 @@ export const AuthProivder = ({ children }) => {
     })();
   }, []);
 
-  const login = async (email, password, userType = 'user') => {
-    const route = userType === 'organizer' ? '/api/auth/login-organizer' : '/api/auth/login-user';
-    const resp = await api.post(route, { email, password});
+  const login = async (email, password, userType = "user") => {
+    const route =
+      userType === "organizer"
+        ? "/api/auth/login-organizer"
+        : "/api/auth/login-user";
+    const resp = await api.post(route, { email, password, userType });
     if (resp.data && resp.data.user) {
-        dispatch({ type: 'SET_USER', payload: resp.data.user });
+      dispatch({ type: "SET_USER", payload: resp.data.user });
     }
     return resp.data;
-  }
+  };
+
+  const register = async (name, email, password, userType = "user") => {
+    const payload = { name, email, password };
+    const resp = await api.post("/api/auth/register", payload);
+    return resp.data;
+  };
 
   const logout = async () => {
-    const csrf = await import('../api/axiosClient').then(m => m.fetchCsrfToken());
-    await api.post('/api/auth/logout', null, {headers: {'X-CSRF-Token': csrf}});    
-    dispatch({ type: 'CLEAR_USER' });
-  }
+    const csrf = await fetchCsrfToken();
+    await api.post("/api/auth/logout", null, {
+      headers: { "X-CSRF-Token": csrf },
+    });
+    dispatch({ type: "CLEAR_USER" });
+  };
+
+  const logoutAll = async () => {
+    const csrf = await fetchCsrfToken();
+    await api.post("/api/auth/logout-all", null, {
+      headers: { "X-CSRF-Token": csrf },
+    });
+    dispatch({ type: "CLEAR_USER" });
+  };
 
   return (
-    <AuthContext.Provider value={{...state, dispatch, login, logout}}>
-        {children}
+    <AuthContext.Provider value={{ ...state, dispatch, login, register, logout, logoutAll }}>
+      {children}
     </AuthContext.Provider>
-  )
+  );
 };
