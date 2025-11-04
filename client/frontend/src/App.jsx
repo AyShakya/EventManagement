@@ -5,6 +5,7 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import PublicOnlyRoute from "./components/PublicOnlyRoute";
 import { Navigate } from "react-router-dom";
 import Navbar from "./components/Navbar";
+import { SendFeedback } from "./pages/user/SendFeedback";
 
 //Lazt Pages
 const Home = React.lazy(() => import("./pages/Home"));
@@ -55,7 +56,7 @@ function AppRoutes() {
             <Route path="liked" element={<LikedEvents />} />
             <Route path="queries" element={<MyQueries />} />
           </Route>
-          {/* <Route path="/events/:id/feedback" element={<SendFeedback />} /> */}
+          <Route path="/events/:id/feedback" element={<SendFeedback />} />
         </Route>
 
         {/* Organizer Only */}
