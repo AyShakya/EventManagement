@@ -1,13 +1,13 @@
-import { BrowserRouter, Route, Routes } from "react-router-dom";
 import React, { Suspense } from "react";
-import { AuthProivder } from "./context/AuthContext";
+import { BrowserRouter, Route, Routes, Navigate } from "react-router-dom";
+import { AuthProvider } from "./context/AuthContext";
 import ProtectedRoute from "./components/ProtectedRoute";
 import PublicOnlyRoute from "./components/PublicOnlyRoute";
-import { Navigate } from "react-router-dom";
 import Navbar from "./components/Navbar";
 import { SendFeedback } from "./pages/user/SendFeedback";
+import "./App.css";
 
-//Lazt Pages
+// lazy pages
 const Home = React.lazy(() => import("./pages/Home"));
 const EventsList = React.lazy(() => import("./pages/EventsList"));
 const EventDetail = React.lazy(() => import("./pages/EventDetail"));
@@ -18,35 +18,35 @@ const RequestResetOTP = React.lazy(() => import("./pages/auth/RequestResetOTP"))
 const ResetPassword = React.lazy(() => import("./pages/auth/ResetPassword"));
 const NotFound = React.lazy(() => import("./pages/NotFound"));
 
-//User Pages
+// user pages
 const UserDashboard = React.lazy(() => import("./pages/user/UserDashboard"));
 const LikedEvents = React.lazy(() => import("./pages/user/LikedEvents"));
 const MyQueries = React.lazy(() => import("./pages/user/MyQueries"));
 
-//Organizer Pages
+// organizer pages
 const OrganizerDashboard = React.lazy(() => import("./pages/organizer/OrganizerDashboard"));
 const OrganizerEvents = React.lazy(() => import("./pages/organizer/OrganizerEvents"));
 const OrganizerCreateEvent = React.lazy(() => import("./pages/organizer/OrganizerCreateEvent"));
 const OrganizerEditEvent = React.lazy(() => import("./pages/organizer/OrganizerEditEvent"));
 const OrganizerEventQueries = React.lazy(() => import("./pages/organizer/OrganizerEventQueries"));
 
-
 function AppRoutes() {
   return (
-    <Suspense fallback={<div style={{ padding: 20 }}>Loading...</div>}>
+    <Suspense fallback={<div className="p-8 text-center">Loading...</div>}>
       <Routes>
         {/* Public */}
-        <Route path="/" eleement={<Home />} />
-        <Route path="/events" eleement={<EventsList />} />
-        <Route path="/events/:id" eleement={<EventDetail />} />
+        <Route path="/" element={<Home />} />
+        <Route path="/events" element={<EventsList />} />
+        <Route path="/events/:id" element={<EventDetail />} />
 
-        {/* Auth Pages */}
+        {/* Auth Pages (public only) */}
         <Route element={<PublicOnlyRoute />}>
-          <Route path="/login" eleement={<Login />} />
-          <Route path="/register" eleement={<Register />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
           <Route path="/reset-pass-otp" element={<RequestResetOTP />} />
           <Route path="/reset-password" element={<ResetPassword />} />
         </Route>
+
         <Route path="/verify-email" element={<VerifyEmail />} />
 
         {/* User Only */}
@@ -60,16 +60,13 @@ function AppRoutes() {
         </Route>
 
         {/* Organizer Only */}
-        <Route eleement={<ProtectedRoute requiredUserType="organizer" />}>
+        <Route element={<ProtectedRoute requiredUserType="organizer" />}>
           <Route path="/organizer" element={<OrganizerDashboard />}>
             <Route index element={<div>Organizer Home</div>} />
             <Route path="events" element={<OrganizerEvents />} />
             <Route path="events/create" element={<OrganizerCreateEvent />} />
             <Route path="events/:id/edit" element={<OrganizerEditEvent />} />
-            <Route
-              path="events/:id/queries"
-              element={<OrganizerEventQueries />}
-            />
+            <Route path="events/:id/queries" element={<OrganizerEventQueries />} />
           </Route>
         </Route>
 
@@ -82,12 +79,12 @@ function AppRoutes() {
 
 const App = () => {
   return (
-    <AuthProivder>
+    <AuthProvider>
       <BrowserRouter>
         <Navbar />
         <AppRoutes />
       </BrowserRouter>
-    </AuthProivder>
+    </AuthProvider>
   );
 };
 

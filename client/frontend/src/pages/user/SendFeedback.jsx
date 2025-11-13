@@ -1,5 +1,7 @@
-import { useContext } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useContext, useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import { AuthContext } from "../../context/AuthContext";
+import api from "../../api/axiosClient";
 
 export const SendFeedback = () => {
   const { id: eventId } = useParams();
@@ -38,7 +40,6 @@ export const SendFeedback = () => {
   async function handleSubmit(e) {
     e.preventDefault();
     setError("");
-    setLoading(true);
     setSuccess("");
     const v = validate();
     if (v) {
@@ -54,14 +55,11 @@ export const SendFeedback = () => {
         senderEmail: senderEmail.trim() || undefined,
       };
 
-      const res = await api.post(
-        `/api/query/event/${eventId}/feedback`,
-        payload
-      );
+      const res = await api.post(`/api/query/event/${eventId}/feedback`, payload);
       setLoading(false);
 
       if (res && (res.status === 201 || res.data)) {
-        setSuccessMsg("Feedback submitted. Thank you!");
+        setSuccess("Feedback submitted. Thank you!");
         setTimeout(() => {
           navigate("/user/queries");
         }, 900);
@@ -81,75 +79,49 @@ export const SendFeedback = () => {
   }
 
   return (
-    <div style={{ padding: 20, maxWidth: 720, margin: "0 auto" }}>
-      <h2>Send Feedback for Event</h2>
-      <p>
-        {eventId ? (
-          <>
-            Sending feedback for event <strong>{eventId}</strong>.
-          </>
-        ) : (
-          "No event selected"
-        )}
-      </p>
+    <div className="min-h-[60vh] flex items-center">
+      <div className="app-container mx-auto w-full max-w-3xl bg-white rounded-lg p-6 card-coffee">
+        <h2 className="text-2xl font-semibold mb-2">Send Feedback for Event</h2>
+        <p className="text-sm mb-3">
+          {eventId ? (
+            <>Sending feedback for event <strong>{eventId}</strong>.</>
+          ) : (
+            "No event selected"
+          )}
+        </p>
 
-      {error && <div style={{ color: "red", marginBottom: 12 }}>{error}</div>}
-      {success && <div style={{ color: "green", marginBottom: 12 }}>{success}</div>}
+        {error && <div className="text-red-600 mb-3">{error}</div>}
+        {success && <div className="text-green-600 mb-3">{success}</div>}
 
-      <form onSubmit={handleSubmit}>
-        <div style={{ marginBottom: 10 }}>
-          <label style={{ display: "block", fontWeight: 600 }}>Your name (optional)</label>
-          <input
-            value={senderName}
-            onChange={(e) => setSenderName(e.target.value)}
-            placeholder="Your name"
-            style={{ width: "100%", padding: "8px 10px", borderRadius: 6, border: "1px solid #ccc" }}
-          />
-        </div>
+        <form onSubmit={handleSubmit} className="space-y-3">
+          <div>
+            <label className="block font-semibold text-sm">Your name (optional)</label>
+            <input value={senderName} onChange={(e) => setSenderName(e.target.value)} placeholder="Your name" className="w-full px-3 py-2 rounded border" />
+          </div>
 
-        <div style={{ marginBottom: 10 }}>
-          <label style={{ display: "block", fontWeight: 600 }}>Your email (optional)</label>
-          <input
-            value={senderEmail}
-            onChange={(e) => setSenderEmail(e.target.value)}
-            placeholder="you@example.com"
-            type="email"
-            style={{ width: "100%", padding: "8px 10px", borderRadius: 6, border: "1px solid #ccc" }}
-          />
-        </div>
+          <div>
+            <label className="block font-semibold text-sm">Your email (optional)</label>
+            <input value={senderEmail} onChange={(e) => setSenderEmail(e.target.value)} placeholder="you@example.com" type="email" className="w-full px-3 py-2 rounded border" />
+          </div>
 
-        <div style={{ marginBottom: 10 }}>
-          <label style={{ display: "block", fontWeight: 600 }}>Subject</label>
-          <input
-            value={subject}
-            onChange={(e) => setSubject(e.target.value)}
-            placeholder="Short subject"
-            required
-            style={{ width: "100%", padding: "8px 10px", borderRadius: 6, border: "1px solid #ccc" }}
-          />
-        </div>
+          <div>
+            <label className="block font-semibold text-sm">Subject</label>
+            <input value={subject} onChange={(e) => setSubject(e.target.value)} placeholder="Short subject" required className="w-full px-3 py-2 rounded border" />
+          </div>
 
-        <div style={{ marginBottom: 10 }}>
-          <label style={{ display: "block", fontWeight: 600 }}>Message</label>
-          <textarea
-            value={message}
-            onChange={(e) => setMessage(e.target.value)}
-            placeholder="Write your feedback..."
-            rows={8}
-            required
-            style={{ width: "100%", padding: "8px 10px", borderRadius: 6, border: "1px solid #ccc", resize: "vertical" }}
-          />
-        </div>
+          <div>
+            <label className="block font-semibold text-sm">Message</label>
+            <textarea value={message} onChange={(e) => setMessage(e.target.value)} placeholder="Write your feedback..." rows={8} required className="w-full px-3 py-2 rounded border resize-vertical" />
+          </div>
 
-        <div style={{ marginTop: 12 }}>
-          <button type="submit" disabled={loading} style={{ padding: "8px 14px", borderRadius: 6 }}>
-            {loading ? "Sending..." : "Send Feedback"}
-          </button>{" "}
-          <button type="button" onClick={() => navigate(-1)} style={{ marginLeft: 8 }}>
-            Cancel
-          </button>
-        </div>
-      </form>
+          <div className="flex items-center gap-3">
+            <button type="submit" disabled={loading} className="bg-coffee-mid text-white px-4 py-2 rounded">
+              {loading ? "Sending..." : "Send Feedback"}
+            </button>
+            <button type="button" onClick={() => navigate(-1)} className="px-3 py-2 rounded border">Cancel</button>
+          </div>
+        </form>
+      </div>
     </div>
   );
 };

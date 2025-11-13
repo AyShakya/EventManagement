@@ -1,4 +1,4 @@
-import { createContext, useEffect, useReducer } from "react";
+import React, { createContext, useEffect, useReducer } from "react";
 import api, { fetchCsrfToken } from "../api/axiosClient";
 
 const initialState = { user: null, loading: true };
@@ -18,7 +18,7 @@ function reducer(state, action) {
 
 export const AuthContext = createContext();
 
-export const AuthProivder = ({ children }) => {
+export const AuthProvider = ({ children }) => {
   const [state, dispatch] = useReducer(reducer, initialState);
 
   useEffect(() => {
@@ -49,7 +49,7 @@ export const AuthProivder = ({ children }) => {
   };
 
   const register = async (name, email, password, userType = "user") => {
-    const payload = { name, email, password };
+    const payload = { name, email, password, userType };
     const resp = await api.post("/api/auth/register", payload);
     return resp.data;
   };

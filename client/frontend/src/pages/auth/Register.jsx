@@ -1,4 +1,4 @@
-import { useContext } from "react";
+import React, { useContext, useState } from "react";
 import { AuthContext } from "../../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 
@@ -21,7 +21,7 @@ const Register = () => {
       setLoading(false);
       alert(res?.message || "Registered successfully. Please login.");
       navigate("/login");
-    } catch (error) {
+    } catch (err) {
       setLoading(false);
       const msg =
         err?.response?.data?.message ||
@@ -32,35 +32,39 @@ const Register = () => {
     }
   }
   return (
-    <div style={{ padding: 20, maxWidth: 520, margin: "0 auto" }}>
-      <h2>Register</h2>
-      {error && <div style={{ color: "red", marginBottom: 12 }}>{error}</div>}
-      <form onSubmit={handleSubmit}>
-        <div style={{ marginBottom: 8 }}>
-          <label>Name</label><br />
-          <input required value={userName} onChange={(e) => setUserName(e.target.value)} />
-        </div>
+    <div className="min-h-[60vh] flex items-center">
+      <div className="app-container mx-auto w-full max-w-md bg-white rounded-lg p-6 card-coffee">
+        <h2 className="text-2xl font-semibold mb-4">Register</h2>
+        {error && <div className="text-red-600 mb-3">{error}</div>}
+        <form onSubmit={handleSubmit} className="space-y-3">
+          <div>
+            <label className="block text-sm mb-1">Name</label>
+            <input required value={userName} onChange={(e) => setUserName(e.target.value)} className="w-full px-3 py-2 rounded border" />
+          </div>
 
-        <div style={{ marginBottom: 8 }}>
-          <label>Email</label><br />
-          <input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} />
-        </div>
+          <div>
+            <label className="block text-sm mb-1">Email</label>
+            <input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} className="w-full px-3 py-2 rounded border" />
+          </div>
 
-        <div style={{ marginBottom: 8 }}>
-          <label>Password</label><br />
-          <input type="password" required value={password} onChange={(e) => setPassword(e.target.value)} />
-        </div>
+          <div>
+            <label className="block text-sm mb-1">Password</label>
+            <input type="password" required value={password} onChange={(e) => setPassword(e.target.value)} className="w-full px-3 py-2 rounded border" />
+          </div>
 
-        <div style={{ marginBottom: 12 }}>
-          <label>User type</label><br />
-          <select value={userType} onChange={(e) => setUserType(e.target.value)}>
-            <option value="user">User</option>
-            <option value="organizer">Organizer</option>
-          </select>
-        </div>
+          <div>
+            <label className="block text-sm mb-1">User type</label>
+            <select value={userType} onChange={(e) => setUserType(e.target.value)} className="w-full px-3 py-2 rounded border">
+              <option value="user">User</option>
+              <option value="organizer">Organizer</option>
+            </select>
+          </div>
 
-        <button disabled={loading} type="submit">{loading ? "Creating..." : "Register"}</button>
-      </form>
+          <div className="flex justify-between items-center">
+            <button disabled={loading} type="submit" className="bg-coffee-mid text-white px-4 py-2 rounded">{loading ? "Creating..." : "Register"}</button>
+          </div>
+        </form>
+      </div>
     </div>
   );
 };

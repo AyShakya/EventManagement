@@ -1,12 +1,12 @@
-import { useContext } from "react";
+import React, { useContext } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
 
 const Navbar = () => {
-    const {user, loading} = useContext(AuthContext);
-    const navigate = useNavigate();
+  const { user, loading, logout } = useContext(AuthContext);
+  const navigate = useNavigate();
 
-    async function handleLogout() {
+  async function handleLogout() {
     try {
       await logout();
       navigate("/login");
@@ -14,24 +14,41 @@ const Navbar = () => {
       console.error("Logout failed", err);
     }
   }
-    return (
-        <nav style={{ padding: 12, borderBottom: "1px solid #ddd"}}>
-            <Link to="/">Home</Link> | <Link to="/events">Events</Link>
-            <span style={{float: "right"}}>
-                {user ? (
-                    <>
-                    {user.userType === "user" ? <Link to="/organizer">Dashboard</Link> : <Link to="/user">Dashboard</Link>}
-                    {" • "}
-                    <button onClick={handleLogout}>Logout</button>
-                    </>
-                ) : (
-                    <>
-                    <Link to="/login">Login</Link> • <Link to="/register">Register</Link>
-                    </>
-                )};
-            </span>
-        </nav>
-    )
+
+  return (
+    <nav className="bg-coffee-hero text-white py-6 shadow-sm">
+      <div className="app-container flex items-center justify-between">
+        <div className="flex items-center gap-4">
+          <Link to="/" className="font-semibold text-lg">CoffeeEvents</Link>
+          <Link to="/events" className="opacity-90 hover:opacity-100">Browse</Link>
+        </div>
+
+        <div className="flex items-center gap-4">
+          {user ? (
+            <>
+              {user.userType === "organizer" ? (
+                <Link to="/organizer" className="text-sm">Dashboard</Link>
+              ) : (
+                <Link to="/user" className="text-sm">Dashboard</Link>
+              )}
+              <button
+                onClick={handleLogout}
+                className="bg-coffee-dark hover:bg-coffee-mid text-sm px-3 py-1 rounded"
+                style={{ backgroundColor: "#561C24" }}
+              >
+                Logout
+              </button>
+            </>
+          ) : (
+            <>
+              <Link to="/login" className="text-sm">Login</Link>
+              <Link to="/register" className="text-sm">Register</Link>
+            </>
+          )}
+        </div>
+      </div>
+    </nav>
+  );
 }
 
 export default Navbar;
