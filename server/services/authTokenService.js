@@ -76,7 +76,7 @@ async function createRefreshTokenForUser(
           },
         },
       },
-      {session}
+      { session }
     );
 
     await session.commitTransaction();
@@ -126,14 +126,20 @@ async function rotateRefreshToken(
 
     const account = await Model.findById(accountId).session(session);
     if (!account) {
-      throw new Error(`${Model.modelName} not found while rotating refresh token.`);
+      throw new Error(
+        `${Model.modelName} not found while rotating refresh token.`
+      );
     }
 
-    const tokenExists = account.refreshTokens.some(rt => rt.tokenHash === oldHash);
+    const tokenExists = account.refreshTokens.some(
+      (rt) => rt.tokenHash === oldHash
+    );
     if (!tokenExists) {
-      throw new Error('Old refresh token not found for this account — possible token reuse or already rotated.');
+      throw new Error(
+        "Old refresh token not found for this account — possible token reuse or already rotated."
+      );
     }
-    
+
     const newRefreshPlain = generateRandomTokenHex(64);
     const newHash = hashToken(newRefreshPlain);
     const now = Date.now();
@@ -146,28 +152,30 @@ async function rotateRefreshToken(
       ip,
       userAgent,
     };
-    
+
     await Model.updateOne(
-      {_id: accountId},
-      { $pull: {
-        refreshTokens: {
-          $each: [newTokenObj],
-          $slice: -Math.max(1, MAX_REFRESH_TOKENS),
-        }
-      }},
-      {session}
+      { _id: accountId },
+      {
+        $pull: { refreshTokens: { tokenHash: oldHash } },
+        $pull: {
+          refreshTokens: {
+            $each: [newTokenObj],
+            $slice: -Math.max(1, MAX_REFRESH_TOKENS),
+          },
+        },
+      },
+      { session }
     );
 
     await Model.updateOne(
-      {_id: accountId},
-      {$pull: { refreshTokens: { tokenHash: oldHash } }},
-      {session},
-    )
+      { _id: accountId },
+      { $pull: { refreshTokens: { tokenHash: oldHash } } },
+      { session }
+    );
 
     await session.commitTransaction();
     session.endSession();
     return { refreshTokenPlain: newRefreshPlain, expiresAt };
-
   } catch (error) {
     await session.abortTransaction();
     session.endSession();
@@ -206,8 +214,14 @@ async function removeAllRefreshTokens(modelType, accountId) {
 
 async function pruneExpiredTokens() {
   const now = Date.now();
-  await User.updateMany({}, { $pull: { refreshTokens: { expiresAt: { $lte: now } } } });
-  await Organizer.updateMany({}, { $pull: { refreshTokens: { expiresAt: { $lte: now } } } });
+  await User.updateMany(
+    {},
+    { $pull: { refreshTokens: { expiresAt: { $lte: now } } } }
+  );
+  await Organizer.updateMany(
+    {},
+    { $pull: { refreshTokens: { expiresAt: { $lte: now } } } }
+  );
 }
 
 module.exports = {
@@ -217,5 +231,5 @@ module.exports = {
   rotateRefreshToken,
   removeRefreshToken,
   removeAllRefreshTokens,
-  pruneExpiredTokens
+  pruneExpiredTokens,
 };
