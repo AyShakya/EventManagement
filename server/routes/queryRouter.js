@@ -4,6 +4,9 @@ const queryRouter = express.Router();
 const queryController = require('../controllers/queryController');
 const { optionalAuth, authenticateAccessToken, requireUserType } = require('../middlewares/authMiddleware');
 const rateLimit = require('express-rate-limit');
+const csrf = require('csurf');
+
+const csrfProtection = csrf({ cookie: true});
 
 const feedbackLimiter = rateLimit({
   windowMs: 60 * 1000, 
@@ -11,9 +14,9 @@ const feedbackLimiter = rateLimit({
   message: 'Too many feedback submissions, please try again later',
 });
 
-queryRouter.post('/event/:id/feedback', feedbackLimiter, authenticateAccessToken, requireUserType('user'), queryController.sendFeedback);
+queryRouter.post('/event/:id/feedback', feedbackLimiter, csrfProtection, authenticateAccessToken, requireUserType('user'), queryController.sendFeedback);
 queryRouter.get('/my', authenticateAccessToken, queryController.getYourQueries);
 queryRouter.get('/event/:eventId', authenticateAccessToken, requireUserType('organizer'), queryController.getQueriesForEvent);
-queryRouter.patch('/:id/status', authenticateAccessToken, requireUserType('organizer'), queryController.updateQueryStatus);
+queryRouter.patch('/:id/status', csrfProtection, authenticateAccessToken, requireUserType('organizer'), queryController.updateQueryStatus);
 
 module.exports = queryRouter;
