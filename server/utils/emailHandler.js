@@ -57,10 +57,12 @@ async function createAndSendVerificationEmail(user) {
 }
 
 async function findAccountByEmail(email) {
-  let account = await User.findOne({ email });
+  if (!email) return { account: null, kind: null };
+  const normalized = String(email).trim().toLowerCase();
+  let account = await User.findOne({ email: normalized });
   let kind = 'user';
   if (!account) {
-    account = await Organizer.findOne({ email });
+    account = await Organizer.findOne({ email: normalized });
     kind = 'organizer';
   }
   return { account, kind };

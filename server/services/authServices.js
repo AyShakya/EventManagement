@@ -15,11 +15,11 @@ async function registerUser(userName, email, password, userType) {
   const hashedPassword = await bcrypt.hash(password, 10);
   let user;
   if(userType === "user"){
-    user = new User({ userName, email, password: hashedPassword });
+    user = new User({ userName, email: normalizeEmail, password: hashedPassword });
   }
   else if(userType === "organizer"){
     let organizerName = userName;
-    user = new Organizer({ organizerName, email, password: hashedPassword });
+    user = new Organizer({ organizerName, email: normalizeEmail, password: hashedPassword });
   }
   else{
     throw new Error("Invalid user type");

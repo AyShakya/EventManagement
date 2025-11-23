@@ -1,6 +1,6 @@
 const jwt = require("jsonwebtoken");
 const JWT_SECRET = process.env.JWT_SECRET;
-const {User} = require("../models/userModel");
+const { User } = require("../models/userModel");
 
 function authenticateAccessToken(req, res, next) {
   try {
@@ -32,14 +32,29 @@ function requireUserType(userType) {
 const optionalAuth = async (req, res, next) => {
   try {
     const authHeader = req.headers.authorization;
-    const tokenFromHeader = authHeader && authHeader.startsWith('Bearer ') && authHeader.split(" ")[1];
+    const tokenFromHeader =
+      authHeader &&
+      authHeader.startsWith("Bearer ") &&
+      authHeader.split(" ")[1];
     const token = tokenFromHeader || (req.cookies && req.cookies.accessToken);
 
-    if(!token) {req.user=null; return next();}
-
+    if (!token) {
+      req.user = null;
+      return next();
+    }
     const decoded = jwt.verify(token, JWT_SECRET);
-    const user = await User.findById(decoded.id).select("-password");
-    if (user) req.user = { id: user._id, userType: user.userType };
+    let model = User;
+    if (
+      decoded.userType &&
+      String(decoded.userType).toLowerCase() === "organizer"
+    )
+      model = Organizer;
+    const account = await model.findById(decoded.id).select("-password");
+    if (account)
+      req.user = {
+        id: account._id.toString(),
+        userType: account.userType || decoded.userType,
+      };
     return next();
   } catch (err) {
     req.user = null;
