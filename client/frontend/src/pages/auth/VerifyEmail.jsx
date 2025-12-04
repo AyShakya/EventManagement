@@ -17,14 +17,18 @@ export default function VerifyEmail() {
       if (!token) return setLoading(false);
       setLoading(true);
       try {
-        const res = await api.post('/api/auth/verify-email', { token });
+        const res = await api.get('/api/auth/verify-email', { params: {token} });
         if (!mounted) return;
-        setSuccess(res?.data?.message || 'Email verified successfully.');
+        const data = res?.data;
+        const msg = typeof data === 'string' ? data : (data?.message || 'Email verified successfully.');
+        setSuccess(msg);
         setTimeout(() => navigate('/login'), 1200);
       } catch (err) {
         console.error(err);
         if (!mounted) return;
-        setError(err?.response?.data?.message || 'Verification failed or token expired');
+        const data = err?.response?.data;
+        const msg = typeof data === 'string' ? data : (data?.message || 'Verification failed or token expired');
+        setError(msg);
       } finally {
         if (mounted) setLoading(false);
       }

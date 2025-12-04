@@ -27,7 +27,7 @@ export default function RequestResetOTP() {
     if (!email || !/\S+@\S+\.\S+/.test(email)) return setError('Please enter a valid email');
     setLoading(true);
     try {
-      const res = await api.post('/api/auth/request-reset-otp', { email });
+      const res = await api.post('/api/auth/reset-pass-otp', { email });
       setSuccess(res?.data?.message || 'If that email exists we sent reset instructions.');
       // Optionally redirect the user to reset page; many flows expect email with token
       // navigate('/login');

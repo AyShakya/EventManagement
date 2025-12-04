@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useContext } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
-import api from "../api/axiosClient";
+import api, {csrfPost} from "../api/axiosClient";
 import { AuthContext } from "../context/AuthContext";
 
 /*
@@ -65,11 +65,18 @@ export default function EventDetail() {
   async function toggleLike() {
     if (!user) return navigate('/login');
     try {
-      const res = await api.post(`/api/event/${id}/like`);
-      // backend should return new like state and count
+      const res = await csrfPost(`/api/event/${id}/like`);
       const data = res.data || {};
+
+      
       setLiked(Boolean(data.liked ?? !liked));
-      setLikes(typeof data.likes === 'number' ? data.likes : (liked ? Math.max(0, likes - 1) : likes + 1));
+      setLikes(
+      typeof data.likes === "number"
+        ? data.likes
+        : liked
+        ? Math.max(0, likes - 1)
+        : likes + 1
+    );
     } catch (e) {
       console.error(e);
     }

@@ -22,7 +22,16 @@ api.interceptors.response.use(
   res => res,
   async err => {
     const originalRequest = err.config;
-    if(err.response && err.response.status === 401 && !originalRequest._retry){
+    const response = err.response;
+
+    if(!response){
+      throw new Error('Network error or server is unreachable');
+    }
+
+    const status = response.status;
+    const isRefreshCall = originalRequest?.url?.includes('/api/auth/refresh-token');
+
+    if(status === 401 && !isRefreshCall && !originalRequest._retry){
       if (isRefreshing) {
         return new Promise((resolve, reject) => {
           refreshQueue.push({ resolve, reject });

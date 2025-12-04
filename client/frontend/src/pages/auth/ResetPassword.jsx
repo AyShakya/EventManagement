@@ -5,8 +5,8 @@ import api from '../../api/axiosClient';
 
 export default function ResetPassword() {
   const [searchParams] = useSearchParams();
-  const tokenFromQuery = searchParams.get('token') || searchParams.get('otp') || '';
-  const [token, setToken] = useState(tokenFromQuery);
+  const tokenFromQuery = searchParams.get('otp') || searchParams.get('token') || '';
+  const [otp, setOtp] = useState(tokenFromQuery);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirm, setConfirm] = useState('');
@@ -16,7 +16,7 @@ export default function ResetPassword() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (tokenFromQuery) setToken(tokenFromQuery);
+    if (tokenFromQuery) setOtp(tokenFromQuery);
   }, [tokenFromQuery]);
 
   async function handleSubmit(e) {
@@ -27,11 +27,13 @@ export default function ResetPassword() {
     if (!password || password.length < 6) return setError('Password must be at least 6 characters');
     if (password !== confirm) return setError('Passwords do not match');
 
+    if (!email) return setError('Email is required');
+    if (!otp) return setError('OTP/code is required');
     // some backends require email + token + password; others accept token + password
-    const payload = token ? { token, password } : { email, password };
-
+    
     setLoading(true);
     try {
+      const payload = { email, otp, newPassword: password };
       const res = await api.post('/api/auth/reset-password', payload);
       setSuccess(res?.data?.message || 'Password reset successful. You can log in now.');
       setTimeout(() => navigate('/login'), 1200);
@@ -62,8 +64,8 @@ export default function ResetPassword() {
           )}
 
           <div>
-            <label className="block text-sm mb-1">Reset token / code (if you have it)</label>
-            <input value={token} onChange={(e) => setToken(e.target.value)} className="w-full px-3 py-2 rounded border" />
+            <label className="block text-sm mb-1">Reset OTP / code (if you have it)</label>
+            <input value={otp} onChange={(e) => setOtp(e.target.value)} className="w-full px-3 py-2 rounded border" />
           </div>
 
           <div>

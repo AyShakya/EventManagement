@@ -18,6 +18,7 @@ async function registerUser(userName, email, password, userType) {
     user = new User({ userName, email: normalizeEmail, password: hashedPassword });
   }
   else if(userType === "organizer"){
+    
     let organizerName = userName;
     user = new Organizer({ organizerName, email: normalizeEmail, password: hashedPassword });
   }

@@ -131,10 +131,10 @@ async function rotateRefreshToken(
       );
     }
 
-    const tokenExists = account.refreshTokens.some(
+    const idx = account.refreshTokens.findIndex(
       (rt) => rt.tokenHash === oldHash
     );
-    if (!tokenExists) {
+    if (idx === -1) {
       throw new Error(
         "Old refresh token not found for this account — possible token reuse or already rotated."
       );
@@ -153,25 +153,16 @@ async function rotateRefreshToken(
       userAgent,
     };
 
-    await Model.updateOne(
-      { _id: accountId },
-      {
-        $pull: { refreshTokens: { tokenHash: oldHash } },
-        $pull: {
-          refreshTokens: {
-            $each: [newTokenObj],
-            $slice: -Math.max(1, MAX_REFRESH_TOKENS),
-          },
-        },
-      },
-      { session }
-    );
+    // Replace the old token entry with the new one
+    account.refreshTokens.splice(idx, 1, newTokenObj);
 
-    await Model.updateOne(
-      { _id: accountId },
-      { $pull: { refreshTokens: { tokenHash: oldHash } } },
-      { session }
-    );
+    // Drop any expired tokens and enforce MAX_REFRESH_TOKENS
+    account.refreshTokens = account.refreshTokens
+      .filter((rt) => rt.expiresAt > now)
+      .slice(-Math.max(1, MAX_REFRESH_TOKENS));
+
+    // Save inside the transaction
+    await account.save({ session });
 
     await session.commitTransaction();
     session.endSession();

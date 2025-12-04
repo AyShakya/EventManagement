@@ -85,6 +85,7 @@ const App = () => {
         <AppRoutes />
       </BrowserRouter>
     </AuthProvider>
+    
   );
 };
 

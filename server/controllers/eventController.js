@@ -41,17 +41,38 @@ exports.getEventById = asyncHandler(async (req, res) => {
   if (!mongoose.isValidObjectId(id))
     return res.status(404).json({ message: "Invalid Event Id" });
   
-  const event = await Event.findById(id).lean();
-  if (!event) return res.status(404).json({ message: "Missing Event" });
+  const ev = await Event.findById(id).lean();
+  if (!ev) return res.status(404).json({ message: "Missing Event" });
 
-  const shouldIncrement = !req.user || (req.user && req.user.id.toString() !== event.organizer?.toString());
+  const shouldIncrement =
+    !req.user ||
+    (req.user && req.user.id.toString() !== ev.organizer?.toString());
 
   if (shouldIncrement) {
     await Event.updateOne({ _id: id }, { $inc: { views: 1 } }).exec();
-    event.views = (event.views || 0) + 1;
+    ev.views = (ev.views || 0) + 1; 
   }
 
-  return res.status(200).json({ message: "Event Sent", event });
+  let liked = false;
+
+  if (req.user && req.user.userType === "user") {
+    const user = await User.findById(req.user.id)
+      .select("likedEvents")
+      .lean();
+
+    liked =
+      user?.likedEvents?.some(
+        (evId) => evId.toString() === ev._id.toString()
+      ) || false;
+  }
+
+  return res.status(200).json({
+    message: "Event Sent",
+    event: {
+      ...ev,
+      liked, 
+    },
+  });
 });
 
 //User Logged In Methods-

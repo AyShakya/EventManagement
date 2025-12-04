@@ -1,0 +1,97 @@
+// routes/organizerRouter.js
+const express = require("express");
+const { authenticateAccessToken, requireUserType } = require("../middlewares/authMiddleware");
+const { Organizer } = require("../models/userModel");
+const Event = require("../models/eventModel");
+const Query = require("../models/queryModel");
+const asyncHandler = require("../utils/asyncHandler");
+
+const organizerRouter = express.Router();
+
+// all routes here require organizer auth
+organizerRouter.use(authenticateAccessToken, requireUserType("organizer"));
+
+/**
+ * GET /api/organizer/me
+ * Return basic profile of logged-in organizer (no password, no refresh tokens)
+ */
+organizerRouter.get(
+  "/me",
+  asyncHandler(async (req, res) => {
+    const organizer = await Organizer.findById(req.user.id)
+      .select("-password -refreshTokens")
+      .lean();
+
+    if (!organizer) {
+      return res.status(404).json({ message: "Organizer not found" });
+    }
+
+    return res.status(200).json({ user: organizer });
+  })
+);
+
+/**
+ * GET /api/organizer/me/events
+ * Return events created by this organizer, with pagination.
+ * Supports: ?page=&limit=
+ */
+organizerRouter.get(
+  "/me/events",
+  asyncHandler(async (req, res) => {
+    const page = Math.max(1, Number(req.query.page) || 1);
+    const limit = Math.min(100, Number(req.query.limit) || 8);
+
+    const options = {
+      page,
+      limit,
+      lean: true,
+      sort: { postedAt: -1 },
+      select: "title location description organizer views likes imageURL postedAt",
+    };
+
+    const result = await Event.paginate({ organizer: req.user.id }, options);
+
+    return res.status(200).json({
+      events: result.docs,
+      meta: {
+        totalDocs: result.totalDocs,
+        limit: result.limit,
+        totalPages: result.totalPages,
+        currentPage: result.page,
+        pagingCounter: result.pagingCounter,
+        hasPrevPage: result.hasPrevPage,
+        hasNextPage: result.hasNextPage,
+        prevPage: result.prevPage,
+        nextPage: result.nextPage,
+      },
+    });
+  })
+);
+
+/**
+ * GET /api/organizer/me/stats
+ * Simple stats for dashboard.
+ * - events: total events created
+ * - attendees: (0 for now, until we add attend model)
+ * - queries: number of queries/feedback for this organizer's events
+ */
+organizerRouter.get(
+  "/me/stats",
+  asyncHandler(async (req, res) => {
+    const organizerId = req.user.id;
+
+    const [eventsCount, queriesCount] = await Promise.all([
+      Event.countDocuments({ organizer: organizerId }),
+      Query.countDocuments({ organizerId }),
+    ]);
+
+    // attendees will be 0 for now, until we add registration model
+    return res.status(200).json({
+      events: eventsCount,
+      attendees: 0,
+      queries: queriesCount,
+    });
+  })
+);
+
+module.exports = organizerRouter;

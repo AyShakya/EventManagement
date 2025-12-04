@@ -7,17 +7,20 @@ const connectDB = require("./config/mongodb");
 const helmet = require("helmet");
 const errorHandler = require("./middlewares/errorHandler");
 const cors = require("cors");
-const authRouter = require("./routes/authRouter");
 const rateLimit = require("express-rate-limit");
 const csrf = require("csurf");
-const mongoSanitize = require("express-mongo-sanitize");
-const xss = require("xss-clean");
+// const mongoSanitize = require("express-mongo-sanitize");
+// const xss = require("xss-clean");
 const hsts = require("helmet").hsts;
-const eventRouter = require("./routes/eventRouter");
-const queryRouter = require("./routes/queryRouter");
 const { pruneExpiredTokens } = require("./services/authTokenService");
 const morgan = require("morgan");
 const mongoose = require("mongoose");
+
+const authRouter = require("./routes/authRouter");
+const eventRouter = require("./routes/eventRouter");
+const queryRouter = require("./routes/queryRouter");
+const organizerRouter = require("./routes/organizerRouter");
+const userRouter = require("./routes/userRouter");
 
 //Env Check
 const REQUIRED_ENVS = [
@@ -75,7 +78,7 @@ if (!isProd) {
 
 app.use(
   cors({
-    origin: process.env.SERVER_URL || "http://localhost:5000",
+    origin: process.env.CLIENT_URL || "http://localhost:5173",
     credentials: true,
   })
 );
@@ -109,8 +112,8 @@ if (isProd) {
 }
 
 //Sanitize Input
-app.use(mongoSanitize());
-app.use(xss());
+// app.use(mongoSanitize());
+// app.use(xss());
 
 //Global Rate Limiter
 app.use(limiter);
@@ -142,6 +145,8 @@ app.use(limiter);
     app.use("/api/auth", authRouter);
     app.use("/api/event", eventRouter);
     app.use("/api/query", queryRouter);
+    app.use("/api/organizer", organizerRouter);
+    app.use("/api/user", userRouter);
 
     //Error Handler
     app.use(errorHandler);
