@@ -37,6 +37,13 @@ authRouter.post('/reset-pass-otp', authController.resetOTP);
 authRouter.post('/reset-password', sendResetOtpLimiter, resetPasswordValidation, validateRequest, authController.resetPassword);
 
 authRouter.post('/send-verification', authenticateAccessToken, sendVerificationLimiter, authController.sendVerificationEmail);
-authRouter.get('/verify-email', authController.verifyEmail);
+authRouter.post(
+  "/resend-verify",
+  sendVerificationLimiter,
+  authController.resendVerify
+);
+
+authRouter.get("/verify-email", authController.verifyEmail);
+authRouter.post("/verify-email", authController.verifyEmail);
 
 module.exports = authRouter;   

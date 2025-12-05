@@ -26,7 +26,16 @@ userRouter.get(
       return res.status(404).json({ message: "User not found" });
     }
 
-    return res.status(200).json({ user });
+    const safeUser = {
+      id: user._id,
+      userName: user.userName,
+      email: user.email,
+      userType: user.userType || "user",
+      // map DB flag → frontend flag
+      emailVerified: !!user.isEmailVerified,
+    };
+
+    return res.status(200).json({ user: safeUser });
   })
 );
 

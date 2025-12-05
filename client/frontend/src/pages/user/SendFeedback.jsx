@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { AuthContext } from "../../context/AuthContext";
-import api from "../../api/axiosClient";
+import api, {csrfPost} from "../../api/axiosClient";
 
 export const SendFeedback = () => {
   const { id: eventId } = useParams();
@@ -55,7 +55,7 @@ export const SendFeedback = () => {
         senderEmail: senderEmail.trim() || undefined,
       };
 
-      const res = await api.post(`/api/query/event/${eventId}/feedback`, payload);
+      const res = await csrfPost(`/api/query/event/${eventId}/feedback`, payload);
       setLoading(false);
 
       if (res && (res.status === 201 || res.data)) {

@@ -15,6 +15,7 @@ const hsts = require("helmet").hsts;
 const { pruneExpiredTokens } = require("./services/authTokenService");
 const morgan = require("morgan");
 const mongoose = require("mongoose");
+const path = require("path");
 
 const authRouter = require("./routes/authRouter");
 const eventRouter = require("./routes/eventRouter");
@@ -61,6 +62,8 @@ app.use(cookieParser());
 if (!isProd) {
   app.use(morgan("dev"));
 }
+
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 // CORS: whitelist approach
 // const clientOrigin = process.env.SERVER_URL;

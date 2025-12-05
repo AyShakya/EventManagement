@@ -89,12 +89,16 @@ exports.login = async (req, res, next) => {
     //   sameSite: process.env.NODE_ENV === "production" ? "none" : "strict",
     //   maxAge: 7 * 24 * 60 * 60 * 1000,
     // });
+    const responseUser = {
+      ...safeUser,
+      emailVerified: !!userDoc.isEmailVerified,
+    };
 
     return res
       .status(200)
       .json({
         message: "User Logged In Succesfully",
-        user: safeUser,
+        user: responseUser,
         userType: "user",
       });
   } catch (error) {
@@ -138,11 +142,16 @@ exports.organizerLogin = async (req, res, next) => {
       cookieOptions(refreshAge)
     );
 
+    const responseUser = {
+      ...safeOrganizer,
+      emailVerified: !!organizerDoc.isEmailVerified,
+    };
+
     return res
       .status(200)
       .json({
         message: "Organizer Logged In Succesfully",
-        user: safeOrganizer,
+        user: responseUser,
         userType: "organizer",
       });
   } catch (error) {
@@ -228,6 +237,7 @@ exports.refreshToken = async (req, res, next) => {
       userName: account.userName || account.organizerName,
       email: account.email,
       userType: account.userType || found.modelType,
+      emailVerified: !!account.isEmailVerified,
     };
 
     return res.status(200).json({ message: "Token refreshed", user: safeUser });
@@ -370,8 +380,13 @@ exports.sendVerificationEmail = async (req, res, next) => {
 
 exports.verifyEmail = async (req, res, next) => {
   try {
-    const { token } = req.query;
-    if (!token) return res.status(400).send("Missing token");
+    const token =
+      (req.body && req.body.token) ||
+      (req.query && req.query.token) ||
+      (req.query && req.query.t);
+    if (!token) {
+      return res.status(400).json({ message: "Missing token" });
+    }
 
     const tokenHash = hashToken(token);
 
@@ -409,6 +424,7 @@ exports.verifyEmail = async (req, res, next) => {
       await EmailToken.findByIdAndDelete(tokenRecord._id);
       return res.status(400).send("User not found");
     }
+
     entity.isEmailVerified = true;
     await entity.save();
     await EmailToken.findByIdAndDelete(tokenRecord._id);
@@ -416,6 +432,43 @@ exports.verifyEmail = async (req, res, next) => {
     return res
       .status(200)
       .send(`Email verified successfully for ${tokenRecord.modelType}`);
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.resendVerify = async (req, res, next) => {
+  try {
+    const { email } = req.body || {};
+    if (!email) {
+      return res.status(400).json({ message: "Email is required" });
+    }
+
+    const { account, kind } = await findAccountByEmail(email);
+    if (!account) {
+      return res
+        .status(404)
+        .json({ message: "Account with this email not found" });
+    }
+
+    if (account.isEmailVerified) {
+      return res
+        .status(400)
+        .json({ message: "Email is already verified" });
+    }
+
+    // clean up any old verifyEmail tokens for this user+modelType
+    await EmailToken.deleteMany({
+      userId: account._id,
+      modelType: kind === "organizer" ? "Organizer" : "User",
+      type: "verifyEmail",
+    });
+
+    await createAndSendVerificationEmail(account);
+
+    return res.status(200).json({
+      message: "Verification email sent. Check your inbox.",
+    });
   } catch (error) {
     next(error);
   }

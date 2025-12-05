@@ -26,7 +26,15 @@ organizerRouter.get(
       return res.status(404).json({ message: "Organizer not found" });
     }
 
-    return res.status(200).json({ user: organizer });
+    const safeUser = {
+      id: organizer._id,
+      userName: organizer.organizerName, // 👈 match frontend
+      email: organizer.email,
+      userType: organizer.userType || "organizer",
+      emailVerified: !!organizer.isEmailVerified,
+    };
+
+    return res.status(200).json({ user: safeUser });
   })
 );
 
