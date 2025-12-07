@@ -2,6 +2,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { csrfPost } from "../../api/axiosClient";
+import { uploadEventImage } from "../../api/uploadImage";
 
 export default function OrganizerCreateEvent() {
   const navigate = useNavigate();
@@ -9,8 +10,11 @@ export default function OrganizerCreateEvent() {
   const [title, setTitle] = useState("");
   const [location, setLocation] = useState("");
   const [description, setDescription] = useState("");
+  const [startAt, setStartAt] = useState("");
+
   const [imageURL, setImageURL] = useState("");
-  const [date, setDate] = useState(""); // postedAt (we'll treat as date/time)
+  const [uploadingImage, setUploadingImage] = useState(false);
+
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
@@ -25,6 +29,28 @@ export default function OrganizerCreateEvent() {
       return "Image URL must be a valid http(s) url";
     }
     return null;
+  }
+
+  async function handleImageChange(e) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setError("");
+    setUploadingImage(true);
+
+    try {
+      const { imageURL: url } = await uploadEventImage(file);
+      setImageURL(url);
+    } catch (error) {
+      console.error(error);
+      setError(
+        error?.response?.data?.message ||
+          error.message ||
+          "Failed to upload image"
+      );
+    } finally {
+      setUploadingImage(false);
+    }
   }
 
   async function handleSubmit(e) {
@@ -45,11 +71,12 @@ export default function OrganizerCreateEvent() {
         location: location.trim(),
         description: description.trim(),
         imageURL: imageURL.trim() || undefined,
+        startAt: startAt ? new Date(startAt).toISOString() : undefined,
       };
 
       // if user picked a date/time, send it as postedAt
-      if (date) {
-        payload.postedAt = new Date(date).toISOString();
+      if (startAt) {
+        payload.postedAt = new Date(startAt).toISOString();
       }
 
       const res = await csrfPost("/api/event", payload);
@@ -84,6 +111,7 @@ export default function OrganizerCreateEvent() {
         {success && <div className="text-green-600 mb-3">{success}</div>}
 
         <form onSubmit={handleSubmit} className="space-y-4">
+          {/* Title */}
           <div>
             <label className="block text-sm font-medium mb-1">
               Title <span className="text-red-500">*</span>
@@ -97,6 +125,7 @@ export default function OrganizerCreateEvent() {
             />
           </div>
 
+          {/* Location */}
           <div>
             <label className="block text-sm font-medium mb-1">
               Location <span className="text-red-500">*</span>
@@ -110,6 +139,7 @@ export default function OrganizerCreateEvent() {
             />
           </div>
 
+          {/* Description */}
           <div>
             <label className="block text-sm font-medium mb-1">
               Description <span className="text-red-500">*</span>
@@ -126,21 +156,32 @@ export default function OrganizerCreateEvent() {
             </p>
           </div>
 
-          <div>
-            <label className="block text-sm font-medium mb-1">
-              Image URL (optional)
-            </label>
-            <input
-              className="w-full px-3 py-2 rounded border"
-              value={imageURL}
-              onChange={(e) => setImageURL(e.target.value)}
-              placeholder="https://example.com/event-image.jpg"
-            />
-            <p className="text-xs text-gray-400 mt-1">
-              Used on the home page and event cards.
-            </p>
-          </div>
+          {/* Image upload */}
+        <div>
+          <label className="block text-sm font-medium mb-1">
+            Event image (optional)
+          </label>
+          <input type="file" accept="image/*" onChange={handleImageChange} />
+          {uploadingImage && (
+            <div className="text-xs text-gray-500 mt-1">
+              Uploading image...
+            </div>
+          )}
+          {imageURL && (
+            <div className="mt-2">
+              <div className="text-xs text-gray-500 mb-1">Preview:</div>
+              <div className="w-48 h-32 rounded overflow-hidden bg-gray-100">
+                <img
+                  src={imageURL}
+                  alt="Event"
+                  className="w-full h-full object-cover"
+                />
+              </div>
+            </div>
+          )}
+        </div>
 
+          {/* Event date & time */}
           <div>
             <label className="block text-sm font-medium mb-1">
               Event date / time (optional)
@@ -148,11 +189,12 @@ export default function OrganizerCreateEvent() {
             <input
               type="datetime-local"
               className="w-full px-3 py-2 rounded border"
-              value={date}
-              onChange={(e) => setDate(e.target.value)}
+              value={startAt}
+              onChange={(e) => setStartAt(e.target.value)}
+              required
             />
             <p className="text-xs text-gray-400 mt-1">
-              If not set, the backend will use current time as posted date.
+              This is when the event actually happens (not when you post it).
             </p>
           </div>
 

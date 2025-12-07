@@ -2,6 +2,7 @@ const { User } = require("../models/userModel");
 const Event = require("../models/eventModel");
 const { default: mongoose } = require("mongoose");
 const asyncHandler = require("../utils/asyncHandler");
+const cloudinary = require("../config/cloudinary");
 
 //Individual Event Methods
 exports.getAllEvents = asyncHandler(async (req, res) => {
@@ -202,6 +203,7 @@ exports.createEvent = asyncHandler(async (req, res) => {
     views: req.body.views || 0,
     likes: req.body.likes || 0,
     imageURL: req.body.imageURL,
+    startAt: req.body.startAt || undefined,
     postedAt: req.body.postedAt || Date.now(),
   };
 
@@ -215,7 +217,7 @@ exports.updateEvent = asyncHandler(async (req, res) => {
     return res.status(400).json({ message: "Invalid event id" });
 
   const updates = {};
-  const allowed = ["title", "location", "description", "imageURL", "postedAt"];
+  const allowed = ["title", "location", "description", "imageURL", "postedAt", "startAt"];
   allowed.forEach((k) => {
     if (req.body[k] !== undefined) updates[k] = req.body[k];
   });
@@ -255,3 +257,30 @@ exports.deleteEvent = asyncHandler(async (req, res) => {
 
   return res.status(200).json({ message: "Event Deleted Successfully" });
 });
+
+exports.uploadEventImage = asyncHandler(async (req, res) => {
+  if (!req.file) {
+    return res.status(400).json({ message: "No file uploaded" });
+  }
+
+  try {
+    const base64 = `data:${req.file.mimetype};base64,${req.file.buffer.toString("base64")}`;
+
+    const result = await cloudinary.uploader.upload(base64, {
+      folder: "events",
+    });
+
+    return res.status(201).json({
+      message: "Image uploaded",
+      imageURL: result.secure_url,
+      publicId: result.public_id,
+    });
+  } catch (err) {
+    console.error("Cloudinary upload error:", err);
+    return res.status(500).json({
+      message: "Failed to upload image",
+      error: err.message,
+    });
+  }
+});
+

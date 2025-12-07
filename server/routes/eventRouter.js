@@ -4,6 +4,7 @@ const { createEventValidation } = require('../validators/eventValidator');
 const validateRequest = require('../middlewares/validateRequest');
 const csrf = require('csurf');
 const { authenticateAccessToken, requireUserType, optionalAuth } = require('../middlewares/authMiddleware');
+const upload = require('../middlewares/uploadMiddleware');
 
 const csrfProtection = csrf({ cookie: true});
 const eventRouter = express.Router();
@@ -17,6 +18,7 @@ eventRouter.get('/:id', optionalAuth, eventController.getEventById);
 eventRouter.post('/', csrfProtection, authenticateAccessToken, requireUserType('organizer'), createEventValidation, validateRequest, eventController.createEvent);
 eventRouter.patch('/:id', csrfProtection, authenticateAccessToken, requireUserType('organizer'), eventController.updateEvent);
 eventRouter.delete('/:id', csrfProtection, authenticateAccessToken, requireUserType('organizer'), eventController.deleteEvent);
+eventRouter.post('/upload-image', csrfProtection, authenticateAccessToken, requireUserType("organizer"), upload.single("image"), eventController.uploadEventImage);
 
 //user
 eventRouter.post('/:id/like', csrfProtection, authenticateAccessToken, eventController.likeEvent);
