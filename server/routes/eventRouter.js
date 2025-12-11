@@ -19,6 +19,7 @@ eventRouter.post('/', csrfProtection, authenticateAccessToken, requireUserType('
 eventRouter.patch('/:id', csrfProtection, authenticateAccessToken, requireUserType('organizer'), eventController.updateEvent);
 eventRouter.delete('/:id', csrfProtection, authenticateAccessToken, requireUserType('organizer'), eventController.deleteEvent);
 eventRouter.post('/upload-image', csrfProtection, authenticateAccessToken, requireUserType("organizer"), upload.single("image"), eventController.uploadEventImage);
+eventRouter.patch("/:id/stats", csrfProtection, authenticateAccessToken, requireUserType("organizer"), eventController.updateEventStats);
 
 //user
 eventRouter.post('/:id/like', csrfProtection, authenticateAccessToken, eventController.likeEvent);

@@ -17,17 +17,27 @@ const eventSchema = new mongoose.Schema({
   organizer: { type: mongoose.Schema.Types.ObjectId, ref: "Organizer" },
   views: { type: Number, default: 0 },
   likes: { type: Number, default: 0 },
-  imageURL: {
-    type: String,
-  },
-  startAt: {
-    type: Date,
-    // not required so old events don't break; you can make it required later
-  },
-  postedAt: {
-    type: Date,
-    default: Date.now,
-    required: true,
+  images: [{ type: String }],
+  imagePublicId: { type: String },
+  attendees: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
+  startAt: { type: Date },
+  postedAt: { type: Date, default: Date.now, required: true },
+
+  stats: {
+    filled: { type: Boolean, default: false }, 
+    filledAt: { type: Date },
+
+    totalAttendees: { type: Number, min: 0 },
+    expectedAttendees: { type: Number, min: 0 },
+
+    averageRating: { type: Number, min: 0, max: 5 }, 
+
+    revenue: { type: Number, min: 0 }, // total revenue (tickets, sponsors, etc.)
+    cost: { type: Number, min: 0 },    // cost of running the event
+
+    highlights: { type: String }, 
+    notes: { type: String },      
+    isPublished: { type: Boolean, default: false }, 
   },
 });
 

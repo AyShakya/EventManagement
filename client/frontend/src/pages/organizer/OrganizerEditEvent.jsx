@@ -21,6 +21,7 @@ export default function OrganizerEditEvent() {
   const [description, setDescription] = useState("");
   const [startAt, setStartAt] = useState("");
   const [imageURL, setImageURL] = useState("");
+  const [imagePublicId, setImagePublicId] = useState("");
 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -43,7 +44,10 @@ export default function OrganizerEditEvent() {
         setTitle(ev.title || "");
         setLocation(ev.location || "");
         setDescription(ev.description || "");
-        setImageURL(ev.imageURL || "");
+
+        setImageURL(ev.images?.[0] || ev.imageURL || "");
+        setImagePublicId(ev.imagePublicId || "");
+
         setStartAt(ev.startAt ? toLocalDateTimeInput(ev.startAt) : "");
       } catch (err) {
         console.error(err);
@@ -83,8 +87,9 @@ export default function OrganizerEditEvent() {
     setError("");
     setUploadingImage(true);
     try {
-      const { imageURL: url } = await uploadEventImage(file);
+      const { imageURL: url, publicId } = await uploadEventImage(file);
       setImageURL(url);
+      setImagePublicId(publicId);
     } catch (error) {
       console.error(error);
       setError(
@@ -115,6 +120,7 @@ export default function OrganizerEditEvent() {
         location: location.trim(),
         description: description.trim(),
         imageURL: imageURL.trim() || undefined,
+        imagePublicId: imagePublicId || undefined,
         startAt: startAt ? new Date(startAt).toISOString() : undefined,
       };
 
@@ -168,7 +174,7 @@ export default function OrganizerEditEvent() {
             <input
               className="w-full px-3 py-2 rounded border"
               value={title}
-              onChange={e => setTitle(e.target.value)}
+              onChange={(e) => setTitle(e.target.value)}
               required
             />
           </div>
@@ -181,7 +187,7 @@ export default function OrganizerEditEvent() {
             <input
               className="w-full px-3 py-2 rounded border"
               value={location}
-              onChange={e => setLocation(e.target.value)}
+              onChange={(e) => setLocation(e.target.value)}
               required
             />
           </div>
@@ -194,7 +200,7 @@ export default function OrganizerEditEvent() {
             <textarea
               className="w-full px-3 py-2 rounded border min-h-[120px] resize-vertical"
               value={description}
-              onChange={e => setDescription(e.target.value)}
+              onChange={(e) => setDescription(e.target.value)}
               required
             />
             <p className="text-xs text-gray-400 mt-1">
@@ -234,7 +240,7 @@ export default function OrganizerEditEvent() {
               type="datetime-local"
               className="w-full px-3 py-2 rounded border"
               value={startAt}
-              onChange={e => setStartAt(e.target.value)}
+              onChange={(e) => setStartAt(e.target.value)}
             />
             <p className="text-xs text-gray-400 mt-1">
               This is when the event actually happens (not when you posted it).

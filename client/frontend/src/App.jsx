@@ -29,6 +29,10 @@ const OrganizerEvents = React.lazy(() => import("./pages/organizer/OrganizerEven
 const OrganizerCreateEvent = React.lazy(() => import("./pages/organizer/OrganizerCreateEvent"));
 const OrganizerEditEvent = React.lazy(() => import("./pages/organizer/OrganizerEditEvent"));
 const OrganizerEventQueries = React.lazy(() => import("./pages/organizer/OrganizerEventQueries"));
+const OrganizerEventStats = React.lazy(
+  () => import("./pages/organizer/OrganizerEventStats")
+);
+
 
 function AppRoutes() {
   return (
@@ -67,6 +71,7 @@ function AppRoutes() {
             <Route path="events/create" element={<OrganizerCreateEvent />} />
             <Route path="events/:id/edit" element={<OrganizerEditEvent />} />
             <Route path="events/:id/queries" element={<OrganizerEventQueries />} />
+            <Route path="events/:id/stats" element={<OrganizerEventStats />} />
           </Route>
         </Route>
 

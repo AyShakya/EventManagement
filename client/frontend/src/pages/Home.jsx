@@ -1,22 +1,80 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import api from "../api/axiosClient";
+import { getEventStage } from "../utils/eventStage";
 
 function EventCard({ ev }) {
+  const cover =
+    (Array.isArray(ev.images) && ev.images[0]) ||
+    ev.imageURL ||
+    "/placeholder.jpg";
+
+  const stageInfo = getEventStage(ev.startAt);
+
   return (
-    <Link to={`/events/${ev._id}`} className="block bg-white rounded-xl shadow-sm hover:shadow-md transition p-4">
-      <div className="h-40 w-full bg-gray-100 rounded overflow-hidden mb-3 flex items-center justify-center">
-        {ev.imageURL ? (
-          <img src={ev.imageURL} alt={ev.title} className="object-cover h-full w-full" />
-        ) : (
-          <div className="text-sm text-gray-500">No image</div>
-        )}
+    <Link
+      to={`/events/${ev._id}`}
+      className="group block bg-white rounded-2xl shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 overflow-hidden border border-coffee-cream/60"
+    >
+      {/* Image */}
+      <div className="relative h-40 w-full bg-gray-100 overflow-hidden">
+        <img
+          src={cover}
+          alt={ev.title}
+          className="h-full w-full object-cover group-hover:scale-[1.03] transition-transform duration-200"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-black/15 to-transparent" />
+
+        {/* Stage chip */}
+        <div className="absolute bottom-2 left-2 flex items-center gap-1 text-[11px]">
+          <span
+            className={`inline-flex items-center px-2 py-0.5 rounded-full font-medium
+              ${
+                stageInfo.stage === "completed"
+                  ? "bg-green-100/90 text-green-800"
+                  : stageInfo.stage === "upcoming"
+                  ? "bg-blue-100/90 text-blue-800"
+                  : "bg-gray-100/90 text-gray-800"
+              }`}
+          >
+            {stageInfo.label}
+          </span>
+        </div>
       </div>
-      <h3 className="text-lg font-semibold">{ev.title}</h3>
-      <p className="text-sm text-gray-600 mt-1 line-clamp-2">{ev.description}</p>
-      <div className="mt-3 text-xs text-gray-500 flex items-center justify-between">
-        <span>{ev.location}</span>
-        <span>{new Date(ev.postedAt).toLocaleDateString()}</span>
+
+      {/* Content */}
+      <div className="p-4 flex flex-col gap-2">
+        <h3 className="text-base font-semibold text-coffee-dark line-clamp-2 group-hover:text-coffee-mid">
+          {ev.title}
+        </h3>
+
+        <div className="flex items-center justify-between text-[11px] text-gray-500">
+          <span className="inline-flex items-center gap-1">
+            <span>📍</span>
+            <span className="truncate max-w-[140px]">{ev.location}</span>
+          </span>
+          <span>
+            {ev.startAt
+              ? new Date(ev.startAt).toLocaleDateString()
+              : new Date(ev.postedAt).toLocaleDateString()}
+          </span>
+        </div>
+
+        <p className="text-sm text-gray-600 mt-1 line-clamp-2">
+          {ev.description}
+        </p>
+
+        <div className="mt-2 flex items-center justify-between text-[11px] text-gray-500">
+          <span className="inline-flex items-center gap-1">
+            <span>❤️</span>
+            <span>{ev.likes || 0}</span>
+            <span className="mx-1">·</span>
+            <span>👁️ {ev.views || 0}</span>
+          </span>
+          <span className="text-coffee-mid font-medium text-[11px]">
+            View details →
+          </span>
+        </div>
       </div>
     </Link>
   );
@@ -35,7 +93,9 @@ const Home = () => {
       try {
         const res = await api.get("/api/event?page=1&limit=8");
         const events = (res.data && res.data.events) || [];
-        const sortedByLikes = [...events].sort((a, b) => (b.likes || 0) - (a.likes || 0));
+        const sortedByLikes = [...events].sort(
+          (a, b) => (b.likes || 0) - (a.likes || 0)
+        );
         setFeatured(sortedByLikes.slice(0, 4));
         setLatest(events.slice(0, 8));
       } catch (e) {
@@ -49,56 +109,170 @@ const Home = () => {
 
   function onSearchSubmit(e) {
     e.preventDefault();
-    window.location.href = `/events?q=${encodeURIComponent(q.trim())}`;
+    const trimmed = q.trim();
+    if (!trimmed) {
+      window.location.href = "/events";
+      return;
+    }
+    window.location.href = `/events?q=${encodeURIComponent(trimmed)}`;
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-coffee-cream to-coffee-mid text-gray-900">
+    <div className="min-h-screen bg-gradient-to-b from-coffee-cream via-[#f5ece0] to-coffee-mid text-gray-900">
       {/* Hero */}
-      <div className="py-16 px-6">
-        <div className="app-container mx-auto flex flex-col md:flex-row items-center gap-8">
+      <section className="py-14 px-4 md:px-6 bg-coffee-hero text-coffee-cream">
+        <div className="app-container mx-auto flex flex-col lg:flex-row items-center gap-10">
+          {/* Left text side */}
           <div className="flex-1">
-            <h1 className="text-4xl md:text-5xl font-bold leading-tight text-coffee-dark">Discover local events — connect, attend, create.</h1>
-            <p className="mt-4 text-coffee-mid max-w-xl">Find events near you, like the ones you love, and create your own. Simple, fast, and community-first.</p>
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-black/15 text-xs mb-4 border border-white/10">
+              <span className="text-[10px] uppercase tracking-[0.16em]">
+                CoffeeEvents
+              </span>
+              <span className="h-1 w-1 rounded-full bg-coffee-cream" />
+              <span className="text-[10px] opacity-80">
+                Discover · Attend · Organize
+              </span>
+            </div>
 
-            <div className="mt-6 flex flex-col sm:flex-row gap-3">
-              <Link to="/events" className="bg-coffee-dark text-coffee-cream px-4 py-2 rounded shadow font-medium">Browse Events</Link>
-              <Link to="/register" className="border border-coffee-dark text-coffee-dark px-4 py-2 rounded">Create an account</Link>
+            <h1 className="text-3xl md:text-5xl font-bold leading-tight text-coffee-cream drop-shadow-sm">
+              Discover events that{" "}
+              <span className="text-[#F5CBA7]">match your vibe</span>.
+            </h1>
+
+            <p className="mt-4 text-sm md:text-base text-coffee-cream/90 max-w-xl">
+              From tech fests to open mics — explore what&apos;s happening
+              around you, save your favorites, and get post-event insights from
+              organizers.
+            </p>
+
+            <div className="mt-6 flex flex-wrap gap-3">
+              <Link
+                to="/events"
+                className="inline-flex items-center justify-center bg-coffee-cream text-coffee-dark px-4 py-2.5 rounded-full shadow font-medium text-sm hover:bg-[#f8e7d1] transition"
+              >
+                Browse events
+              </Link>
+              <Link
+                to="/register"
+                className="inline-flex items-center justify-center border border-coffee-cream/70 text-coffee-cream px-4 py-2.5 rounded-full text-sm hover:bg-black/10 transition"
+              >
+                Create organizer account
+              </Link>
+            </div>
+
+            {/* Tiny stats row */}
+            <div className="mt-5 flex flex-wrap gap-4 text-[11px] text-coffee-cream/80">
+              <div className="flex items-center gap-2">
+                <span className="h-2 w-2 rounded-full bg-green-400" />
+                Live and upcoming events displayed in real-time.
+              </div>
+              <div>Track likes, views & post-event stats.</div>
             </div>
           </div>
 
-          {/* Search */}
-          <div className="w-full md:w-96">
-            <form onSubmit={onSearchSubmit} className="bg-white p-4 rounded shadow">
-              <label className="text-sm text-gray-600">Search events by title or location</label>
-              <div className="mt-2 flex gap-2">
-                <input value={q} onChange={e => setQ(e.target.value)} placeholder="e.g. Hackathon, Paris" className="flex-1 px-3 py-2 border rounded focus:outline-none" />
-                <button className="bg-coffee-mid text-white px-4 rounded">Search</button>
-              </div>
-              <small className="text-xs text-gray-400 mt-2 block">Tip: try "Workshop", "Music", or a city name.</small>
-            </form>
+          {/* Right search card */}
+          <div className="w-full max-w-md">
+            <div className="bg-white/95 rounded-2xl shadow-xl p-5 border border-coffee-cream/50 backdrop-blur-sm">
+              <h2 className="text-base font-semibold text-coffee-dark mb-2">
+                Search events
+              </h2>
+              <p className="text-xs text-gray-500 mb-3">
+                Search by title or location — for example,{" "}
+                <span className="italic">Hackathon</span> or{" "}
+                <span className="italic">Delhi</span>.
+              </p>
+
+              <form onSubmit={onSearchSubmit} className="space-y-3">
+                <div className="flex gap-2">
+                  <input
+                    value={q}
+                    onChange={(e) => setQ(e.target.value)}
+                    placeholder="Try: Hackathon, Music, Workshop..."
+                    className="flex-1 px-3 py-2 rounded-lg border text-sm focus:outline-none focus:ring-1 focus:ring-coffee-mid focus:border-coffee-mid"
+                  />
+                  <button
+                    type="submit"
+                    className="px-4 py-2 rounded-lg bg-coffee-mid text-white text-sm font-medium hover:bg-coffee-dark transition"
+                  >
+                    Search
+                  </button>
+                </div>
+
+                <div className="flex flex-wrap gap-2 text-[11px] text-gray-500">
+                  <span className="font-medium">Popular:</span>
+                  <button
+                    type="button"
+                    onClick={() => setQ("Workshop")}
+                    className="px-2 py-1 rounded-full bg-gray-100 hover:bg-gray-200"
+                  >
+                    Workshop
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setQ("Hackathon")}
+                    className="px-2 py-1 rounded-full bg-gray-100 hover:bg-gray-200"
+                  >
+                    Hackathon
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setQ("Music")}
+                    className="px-2 py-1 rounded-full bg-gray-100 hover:bg-gray-200"
+                  >
+                    Music
+                  </button>
+                </div>
+              </form>
+            </div>
           </div>
         </div>
-      </div>
+      </section>
 
+      {/* Main content */}
       <main className="app-container mx-auto px-4 py-10">
-        {error && <div className="text-red-600 mb-4">{error}</div>}
+        {error && (
+          <div className="mb-4 bg-red-50 border border-red-200 text-red-700 text-sm px-4 py-3 rounded-xl">
+            {error}
+          </div>
+        )}
 
         {/* Featured */}
-        <section className="mb-8">
+        <section className="mb-10">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-2xl font-bold">Featured events</h2>
-            <Link to="/events" className="text-coffee-mid">See all</Link>
+            <div>
+              <h2 className="text-xl md:text-2xl font-bold text-coffee-dark">
+                Featured events
+              </h2>
+              <p className="text-xs text-gray-500 mt-1">
+                Most loved events based on likes and activity.
+              </p>
+            </div>
+            <Link
+              to="/events"
+              className="text-xs md:text-sm text-coffee-mid hover:underline"
+            >
+              See all
+            </Link>
           </div>
 
           {loading ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-              {[1,2,3,4].map(i => <div key={i} className="h-56 bg-white rounded shadow animate-pulse" />)}
+              {[1, 2, 3, 4].map((i) => (
+                <div
+                  key={i}
+                  className="h-56 bg-white rounded-2xl shadow-sm animate-pulse"
+                />
+              ))}
+            </div>
+          ) : featured.length === 0 ? (
+            <div className="text-gray-500 text-sm">
+              No featured events yet. Check back soon.
             </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-              {featured.map(ev => <EventCard key={ev._id} ev={ev} />)}
-              {featured.length === 0 && <div className="text-gray-500">No featured events</div>}
+              {featured.map((ev) => (
+                <EventCard key={ev._id} ev={ev} />
+              ))}
             </div>
           )}
         </section>
@@ -106,37 +280,76 @@ const Home = () => {
         {/* Latest */}
         <section>
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-2xl font-bold">Latest events</h2>
-            <Link to="/events" className="text-coffee-mid">View all</Link>
+            <div>
+              <h2 className="text-xl md:text-2xl font-bold text-coffee-dark">
+                Latest events
+              </h2>
+              <p className="text-xs text-gray-500 mt-1">
+                Freshly added events from organizers.
+              </p>
+            </div>
+            <Link
+              to="/events"
+              className="text-xs md:text-sm text-coffee-mid hover:underline"
+            >
+              View all events
+            </Link>
           </div>
 
           {loading ? (
-            <div className="space-y-4">
-              {[1,2,3].map(i => <div key={i} className="h-28 bg-white rounded shadow animate-pulse" />)}
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {[1, 2, 3].map((i) => (
+                <div
+                  key={i}
+                  className="h-28 bg-white rounded-2xl shadow-sm animate-pulse"
+                />
+              ))}
+            </div>
+          ) : latest.length === 0 ? (
+            <div className="text-gray-500 text-sm">
+              No events found. Organizers will add something soon.
             </div>
           ) : (
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {latest.map(ev => <EventCard key={ev._id} ev={ev} />)}
+              {latest.map((ev) => (
+                <EventCard key={ev._id} ev={ev} />
+              ))}
             </div>
           )}
         </section>
 
-        {/* CTA */}
-        <section className="mt-10 bg-white p-6 rounded shadow">
-          <div className="flex flex-col md:flex-row items-center justify-between">
+        {/* CTA strip */}
+        <section className="mt-12 bg-white rounded-2xl p-6 md:p-7 shadow-sm border border-coffee-cream/60">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-4">
             <div>
-              <h3 className="text-xl font-semibold">Are you an organizer?</h3>
-              <p className="text-gray-600">Create events, manage attendees, and get feedback directly from users.</p>
+              <h3 className="text-lg md:text-xl font-semibold text-coffee-dark">
+                Organize your next event with CoffeeEvents
+              </h3>
+              <p className="text-sm text-gray-600 mt-1 max-w-md">
+                Create events, collect feedback, and publish post-event stats
+                like attendance, ratings, and highlights — all in one place.
+              </p>
             </div>
-            <div className="mt-4 md:mt-0">
-              <Link to="/register" className="bg-coffee-mid text-white px-4 py-2 rounded">Create organizer account</Link>
+            <div className="flex flex-wrap gap-3">
+              <Link
+                to="/register"
+                className="bg-coffee-mid text-white px-4 py-2 rounded-full text-sm hover:bg-coffee-dark transition"
+              >
+                Start as organizer
+              </Link>
+              <Link
+                to="/login"
+                className="px-4 py-2 rounded-full border text-sm hover:bg-gray-50 transition"
+              >
+                I already have an account
+              </Link>
             </div>
           </div>
         </section>
       </main>
 
-      <footer className="text-center py-8 text-sm text-gray-700">
-        © {new Date().getFullYear()} CoffeeEvents — Built with MERN
+      <footer className="text-center py-8 text-xs text-gray-700">
+        © {new Date().getFullYear()} CoffeeEvents · Built with MERN
       </footer>
     </div>
   );

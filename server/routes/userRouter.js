@@ -134,8 +134,19 @@ userRouter.get(
       options
     );
 
+    const likedEvents = result.docs.map((ev) => {
+      const images =
+        Array.isArray(ev.images) && ev.images.length
+          ? ev.images
+          : ev.imageURL
+          ? [ev.imageURL]
+          : [];
+      const imageURL = images[0] || null;
+      return { ...ev, images, imageURL };
+    });
+
     return res.status(200).json({
-      likedEvents: result.docs,
+      likedEvents,
       meta: {
         totalDocs: result.totalDocs,
         limit: result.limit,

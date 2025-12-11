@@ -97,7 +97,7 @@ if (isProd) {
         "default-src": ["'self'"],
         "script-src": ["'self'"],
         "style-src": ["'self'", "'unsafe-inline'"],
-        "img-src": ["'self'", "data:"],
+        "img-src": ["'self'", "data:", "https://res.cloudinary.com"],
       },
     })
   );

@@ -14,6 +14,7 @@ export default function OrganizerCreateEvent() {
 
   const [imageURL, setImageURL] = useState("");
   const [uploadingImage, setUploadingImage] = useState(false);
+  const [imagePublicId, setImagePublicId] = useState("");
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -39,8 +40,9 @@ export default function OrganizerCreateEvent() {
     setUploadingImage(true);
 
     try {
-      const { imageURL: url } = await uploadEventImage(file);
+      const { imageURL: url, publicId } = await uploadEventImage(file);
       setImageURL(url);
+      setImagePublicId(publicId);
     } catch (error) {
       console.error(error);
       setError(
@@ -71,6 +73,7 @@ export default function OrganizerCreateEvent() {
         location: location.trim(),
         description: description.trim(),
         imageURL: imageURL.trim() || undefined,
+        imagePublicId: imagePublicId || undefined,
         startAt: startAt ? new Date(startAt).toISOString() : undefined,
       };
 
@@ -157,29 +160,29 @@ export default function OrganizerCreateEvent() {
           </div>
 
           {/* Image upload */}
-        <div>
-          <label className="block text-sm font-medium mb-1">
-            Event image (optional)
-          </label>
-          <input type="file" accept="image/*" onChange={handleImageChange} />
-          {uploadingImage && (
-            <div className="text-xs text-gray-500 mt-1">
-              Uploading image...
-            </div>
-          )}
-          {imageURL && (
-            <div className="mt-2">
-              <div className="text-xs text-gray-500 mb-1">Preview:</div>
-              <div className="w-48 h-32 rounded overflow-hidden bg-gray-100">
-                <img
-                  src={imageURL}
-                  alt="Event"
-                  className="w-full h-full object-cover"
-                />
+          <div>
+            <label className="block text-sm font-medium mb-1">
+              Event image (optional)
+            </label>
+            <input type="file" accept="image/*" onChange={handleImageChange} />
+            {uploadingImage && (
+              <div className="text-xs text-gray-500 mt-1">
+                Uploading image...
               </div>
-            </div>
-          )}
-        </div>
+            )}
+            {imageURL && (
+              <div className="mt-2">
+                <div className="text-xs text-gray-500 mb-1">Preview:</div>
+                <div className="w-48 h-32 rounded overflow-hidden bg-gray-100">
+                  <img
+                    src={imageURL}
+                    alt="Event"
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+              </div>
+            )}
+          </div>
 
           {/* Event date & time */}
           <div>
@@ -191,7 +194,6 @@ export default function OrganizerCreateEvent() {
               className="w-full px-3 py-2 rounded border"
               value={startAt}
               onChange={(e) => setStartAt(e.target.value)}
-              required
             />
             <p className="text-xs text-gray-400 mt-1">
               This is when the event actually happens (not when you post it).

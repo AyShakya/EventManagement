@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import api, { csrfDelete } from "../../api/axiosClient";
+import { getEventStage } from "../../utils/eventStage";
 
 export default function OrganizerEvents() {
   const [events, setEvents] = useState([]);
@@ -17,7 +18,9 @@ export default function OrganizerEvents() {
       setLoading(true);
       setErr("");
       try {
-        const res = await api.get(`/api/organizer/me/events?page=${page}&limit=${limit}`);
+        const res = await api.get(
+          `/api/organizer/me/events?page=${page}&limit=${limit}`
+        );
         setEvents(res.data?.events || []);
         setMeta(res.data?.meta || null);
       } catch (error) {
@@ -42,7 +45,7 @@ export default function OrganizerEvents() {
     try {
       await csrfDelete(`/api/event/${id}`);
       // remove from local state
-      setEvents(prev => prev.filter(ev => ev._id !== id));
+      setEvents((prev) => prev.filter((ev) => ev._id !== id));
     } catch (err) {
       console.error(err);
       alert(
@@ -72,12 +75,14 @@ export default function OrganizerEvents() {
 
         {loading ? (
           <div className="space-y-2">
-            {[1, 2, 3].map(i => (
+            {[1, 2, 3].map((i) => (
               <div key={i} className="h-12 bg-gray-100 rounded animate-pulse" />
             ))}
           </div>
         ) : events.length === 0 ? (
-          <div className="text-gray-500">You have not created any events yet.</div>
+          <div className="text-gray-500">
+            You have not created any events yet.
+          </div>
         ) : (
           <>
             <div className="overflow-x-auto">
@@ -86,56 +91,113 @@ export default function OrganizerEvents() {
                   <tr className="border-b text-left text-xs text-gray-500 uppercase">
                     <th className="py-2 pr-4">Title</th>
                     <th className="py-2 pr-4">Location</th>
-                    <th className="py-2 pr-4">Posted</th>
+                    <th className="py-2 pr-4">Stage</th>
+                    <th className="py-2 pr-4">Event Date</th>
+                    <th className="py-2 pr-4">Reported Attendees</th>
                     <th className="py-2 pr-4">Likes</th>
                     <th className="py-2 pr-4">Views</th>
                     <th className="py-2 pr-4">Actions</th>
                   </tr>
                 </thead>
+
                 <tbody>
-                  {events.map(ev => (
-                    <tr key={ev._id} className="border-b last:border-0">
-                      <td className="py-2 pr-4 font-medium">
-                        <Link
-                          to={`/events/${ev._id}`}
-                          className="text-coffee-dark hover:underline"
-                        >
-                          {ev.title}
-                        </Link>
-                      </td>
-                      <td className="py-2 pr-4">{ev.location}</td>
-                      <td className="py-2 pr-4 text-xs text-gray-500">
-                        {ev.postedAt
-                          ? new Date(ev.postedAt).toLocaleString()
-                          : "-"}
-                      </td>
-                      <td className="py-2 pr-4">{ev.likes ?? 0}</td>
-                      <td className="py-2 pr-4">{ev.views ?? 0}</td>
-                      <td className="py-2 pr-4">
-                        <div className="flex flex-wrap gap-2">
+                  {events.map((ev) => {
+                    const stageInfo = getEventStage(ev.startAt);
+                    const stats = ev.stats || {};
+                    const canEditStats = stageInfo.stage === "completed";
+
+                    return (
+                      <tr key={ev._id} className="border-b last:border-0">
+                        <td className="py-2 pr-4 font-medium">
                           <Link
-                            to={`/organizer/events/${ev._id}/edit`}
-                            className="px-2 py-1 border rounded text-xs"
+                            to={`/events/${ev._id}`}
+                            className="text-coffee-dark hover:underline"
                           >
-                            Edit
+                            {ev.title}
                           </Link>
-                          <Link
-                            to={`/organizer/events/${ev._id}/queries`}
-                            className="px-2 py-1 rounded text-xs bg-coffee-mid text-white"
+                        </td>
+
+                        <td className="py-2 pr-4">{ev.location}</td>
+
+                        {/* Stage */}
+                        <td className="py-2 pr-4 text-xs">
+                          <span
+                            className={
+                              stageInfo.stage === "completed"
+                                ? "text-green-700"
+                                : stageInfo.stage === "upcoming"
+                                ? "text-blue-700"
+                                : "text-gray-600"
+                            }
                           >
-                            Queries
-                          </Link>
-                          <button
-                            onClick={() => handleDelete(ev._id)}
-                            disabled={deletingId === ev._id}
-                            className="px-2 py-1 rounded text-xs border border-red-500 text-red-600 disabled:opacity-60"
-                          >
-                            {deletingId === ev._id ? "Deleting..." : "Delete"}
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
+                            {stageInfo.label}
+                          </span>
+                        </td>
+
+                        {/* Event Date */}
+                        <td className="py-2 pr-4 text-xs text-gray-500">
+                          {ev.startAt
+                            ? new Date(ev.startAt).toLocaleString()
+                            : "-"}
+                        </td>
+
+                        {/* Reported Attendees (only if stats published) */}
+                        <td className="py-2 pr-4 text-xs text-gray-700">
+                          {stats.isPublished && stats.totalAttendees != null
+                            ? stats.totalAttendees
+                            : "-"}
+                        </td>
+
+                        <td className="py-2 pr-4">{ev.likes ?? 0}</td>
+                        <td className="py-2 pr-4">{ev.views ?? 0}</td>
+
+                        <td className="py-2 pr-4">
+                          <div className="flex flex-wrap gap-2">
+                            <Link
+                              to={`/organizer/events/${ev._id}/edit`}
+                              className="px-2 py-1 border rounded text-xs"
+                            >
+                              Edit
+                            </Link>
+
+                            <Link
+                              to={`/organizer/events/${ev._id}/queries`}
+                              className="px-2 py-1 rounded text-xs bg-coffee-mid text-white"
+                            >
+                              Queries
+                            </Link>
+
+                            {/* Stats – enabled only for completed events */}
+                            <Link
+                              to={
+                                canEditStats
+                                  ? `/organizer/events/${ev._id}/stats`
+                                  : "#"
+                              }
+                              onClick={(e) => {
+                                if (!canEditStats) e.preventDefault();
+                              }}
+                              className={`px-2 py-1 rounded text-xs border ${
+                                canEditStats
+                                  ? "border-coffee-mid text-coffee-mid"
+                                  : "border-gray-300 text-gray-400 cursor-not-allowed"
+                              }`}
+                            >
+                              Stats
+                            </Link>
+
+                            <button
+                              onClick={() => handleDelete(ev._id)}
+                              disabled={deletingId === ev._id}
+                              className="px-2 py-1 rounded text-xs border border-red-500 text-red-600 disabled:opacity-60"
+                            >
+                              {deletingId === ev._id ? "Deleting..." : "Delete"}
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
             </div>

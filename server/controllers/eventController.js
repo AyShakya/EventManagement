@@ -3,37 +3,53 @@ const Event = require("../models/eventModel");
 const { default: mongoose } = require("mongoose");
 const asyncHandler = require("../utils/asyncHandler");
 const cloudinary = require("../config/cloudinary");
+const { mapEventForClient, computeStage } = require("../utils/EventHelper");
 
 //Individual Event Methods
 exports.getAllEvents = asyncHandler(async (req, res) => {
   const page = Math.max(1, Number(req.query.page) || 1);
   const limit = Math.min(100, Number(req.query.limit) || 8);
+  const q = (req.query.q || "").trim();
+
+  const filter = {};
+  if (q) {
+    const re = new RegExp(q.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "i");
+    filter.$or = [{ title: re }, { location: re }];
+  }
+
   const options = {
     page,
     limit,
     lean: true,
     select:
-      "title location description organizer views likes imageURL postedAt",
+      "title location description organizer views likes images imagePublicId startAt postedAt stats",
   };
 
-  const event = await Event.paginate({}, options);
-  if (!event) {
-    return res.status(200).json({ message: "No Event Found" });
+  const result = await Event.paginate(filter, options);
+  if (!result || !result.docs.length) {
+    return res.status(200).json({
+      message: "No Event Found",
+      events: [],
+      meta: null,
+    });
   }
+
+  const events = result.docs.map((ev) => mapEventForClient(ev));
+
   return res.status(200).json({
     message: "Events Fetched",
     meta: {
-      totalDocs: event.totalDocs,
-      limit: event.limit,
-      totalPages: event.totalPages,
-      currentPage: event.page,
-      pagingCounter: event.pagingCounter,
-      hasPrevPage: event.hasPrevPage,
-      hasNextPage: event.hasNextPage,
-      prevPage: event.prevPage,
-      nextPage: event.nextPage,
+      totalDocs: result.totalDocs,
+      limit: result.limit,
+      totalPages: result.totalPages,
+      currentPage: result.page,
+      pagingCounter: result.pagingCounter,
+      hasPrevPage: result.hasPrevPage,
+      hasNextPage: result.hasNextPage,
+      prevPage: result.prevPage,
+      nextPage: result.nextPage,
     },
-    events: event.docs,
+    events,
   });
 });
 
@@ -67,10 +83,12 @@ exports.getEventById = asyncHandler(async (req, res) => {
       ) || false;
   }
 
+  const normalized = mapEventForClient(ev);
+
   return res.status(200).json({
     message: "Event Sent",
     event: {
-      ...ev,
+      ...normalized,
       liked, 
     },
   });
@@ -113,7 +131,7 @@ exports.likeEvent = asyncHandler(async (req, res) => {
       }
 
       await session.commitTransaction();
-      return res.status(200).json({ message: "Event Liked", event });
+      return res.status(200).json({ message: "Event Liked", event: mapEventForClient(event) });
     }
 
     const userExists = await User.findById(userId).lean();
@@ -131,7 +149,7 @@ exports.likeEvent = asyncHandler(async (req, res) => {
     if (decrementedEvent) {
       await User.findByIdAndUpdate(userId, { $pull: { likedEvents: eventId } }, { session });
       await session.commitTransaction();
-      return res.status(200).json({ message: "Event Unliked", event: decrementedEvent });
+      return res.status(200).json({ message: "Event Unliked", event: mapEventForClient(decrementedEvent) });
     }
 
     const eventExists = await Event.findById(eventId).lean();
@@ -169,13 +187,15 @@ exports.getLikedEvents = asyncHandler(async (req, res) => {
     limit,
     lean: true,
     select:
-      "title location description organizer views likes imageURL postedAt",
+      "title location description organizer views likes images imagePublicId startAt postedAt stats",
   };
 
   const events = await Event.paginate(
     { _id: { $in: user.likedEvents } },
     options
   );
+  const likedEvents = events.docs.map((ev) => mapEventForClient(ev));
+
   return res.status(200).json({
     message: "Liked Events Fetched",
     meta: {
@@ -189,7 +209,7 @@ exports.getLikedEvents = asyncHandler(async (req, res) => {
       prevPage: events.prevPage,
       nextPage: events.nextPage,
     },
-    likedEvents: events.docs,
+    likedEvents,
   });
 });
 
@@ -202,13 +222,20 @@ exports.createEvent = asyncHandler(async (req, res) => {
     organizer: req.body.organizer || req.user?.id,
     views: req.body.views || 0,
     likes: req.body.likes || 0,
-    imageURL: req.body.imageURL,
+    images: Array.isArray(req.body.images)
+      ? req.body.images
+      : req.body.imageURL
+      ? [req.body.imageURL]
+      : [],
+    imagePublicId: req.body.imagePublicId || undefined,
     startAt: req.body.startAt || undefined,
     postedAt: req.body.postedAt || Date.now(),
   };
 
   const event = await Event.create(payload);
-  return res.status(201).json({ message: "Event Created Successfully", event });
+  const normalized = mapEventForClient(event.toObject());
+
+  return res.status(201).json({ message: "Event Created Successfully", event:normalized });
 });
 
 exports.updateEvent = asyncHandler(async (req, res) => {
@@ -217,7 +244,7 @@ exports.updateEvent = asyncHandler(async (req, res) => {
     return res.status(400).json({ message: "Invalid event id" });
 
   const updates = {};
-  const allowed = ["title", "location", "description", "imageURL", "postedAt", "startAt"];
+  const allowed = ["title", "location", "description", "images", "imageURL", "imagePublicId", "postedAt", "startAt"];
   allowed.forEach((k) => {
     if (req.body[k] !== undefined) updates[k] = req.body[k];
   });
@@ -233,10 +260,25 @@ exports.updateEvent = asyncHandler(async (req, res) => {
       .status(403)
       .json({ message: "Forbidden: You don't own this event" });
 
+  // If a new imagePublicId is provided and differs from old, delete old image
+  if (updates.imagePublicId && event.imagePublicId && updates.imagePublicId !== event.imagePublicId) {
+    try {
+      await cloudinary.uploader.destroy(event.imagePublicId);
+    } catch (e) {
+      console.error("Failed to delete old cloudinary image", e);
+    }
+  }
+  // normalize images if imageURL provided
+  if (updates.imageURL && !updates.images) {
+    updates.images = [updates.imageURL];
+  }
+
   Object.assign(event, updates);
   await event.save();
 
-  return res.status(200).json({ message: "Event Updated Successfully", event });
+  const normalized = mapEventForClient(event.toObject());
+
+  return res.status(200).json({ message: "Event Updated Successfully", event:normalized });
 });
 
 exports.deleteEvent = asyncHandler(async (req, res) => {
@@ -251,6 +293,14 @@ exports.deleteEvent = asyncHandler(async (req, res) => {
     return res
       .status(403)
       .json({ message: "Forbidden: You don't own this event" });
+  }
+
+  if (event.imagePublicId) {
+    try {
+      await cloudinary.uploader.destroy(event.imagePublicId);
+    } catch (err) {
+      console.error("[deleteEvent] failed to delete cloudinary image", err);
+    }
   }
 
   await event.deleteOne();
@@ -284,3 +334,123 @@ exports.uploadEventImage = asyncHandler(async (req, res) => {
   }
 });
 
+exports.updateEventStats = asyncHandler(async (req, res) => {
+  const {id} = req.params;
+  if (!mongoose.isValidObjectId(id)) {
+    return res.status(400).json({ message: "Invalid event id" });
+  }
+
+  const event = await Event.findById(id);
+  if (!event) {
+    return res.status(404).json({ message: "Event not found" });
+  }
+
+  if (event.organizer.toString() !== req.user.id) {
+    return res
+      .status(403)
+      .json({ message: "Forbidden: You don't own this event" });
+  }
+
+  const { stage } = computeStage(event.startAt);
+  if (stage !== "completed") {
+    return res.status(400).json({
+      message:
+        "Stats can only be filled after the event has started / completed",
+    });
+  }
+
+  const {
+    totalAttendees,
+    expectedAttendees,
+    averageRating,
+    revenue,
+    cost,
+    highlights,
+    notes,
+    isPublished,
+  } = req.body;
+
+  const statsUpdates = {};
+
+  if (totalAttendees !== undefined) {
+    const n = Number(totalAttendees);
+    if (Number.isNaN(n) || n < 0) {
+      return res
+        .status(400)
+        .json({ message: "totalAttendees must be a non-negative number" });
+    }
+    statsUpdates.totalAttendees = n;
+  }
+
+  if (expectedAttendees !== undefined) {
+    const n = Number(expectedAttendees);
+    if (Number.isNaN(n) || n < 0) {
+      return res
+        .status(400)
+        .json({ message: "expectedAttendees must be a non-negative number" });
+    }
+    statsUpdates.expectedAttendees = n;
+  }
+
+  if (averageRating !== undefined) {
+    const n = Number(averageRating);
+    if (Number.isNaN(n) || n < 0 || n > 5) {
+      return res
+        .status(400)
+        .json({ message: "averageRating must be between 0 and 5" });
+    }
+    statsUpdates.averageRating = n;
+  }
+
+  if (revenue !== undefined) {
+    const n = Number(revenue);
+    if (Number.isNaN(n) || n < 0) {
+      return res
+        .status(400)
+        .json({ message: "revenue must be a non-negative number" });
+    }
+    statsUpdates.revenue = n;
+  }
+
+  if (cost !== undefined) {
+    const n = Number(cost);
+    if (Number.isNaN(n) || n < 0) {
+      return res
+        .status(400)
+        .json({ message: "cost must be a non-negative number" });
+    }
+    statsUpdates.cost = n;
+  }
+
+  if (highlights !== undefined) {
+    statsUpdates.highlights = String(highlights);
+  }
+
+  if (notes !== undefined) {
+    statsUpdates.notes = String(notes);
+  }
+
+  if (isPublished !== undefined) {
+    statsUpdates.isPublished = Boolean(isPublished);
+  }
+
+  if (Object.keys(statsUpdates).length === 0) {
+    return res.status(400).json({ message: "Nothing to update in stats" });
+  }
+
+  event.stats = {
+    ...(event.stats || {}),
+    ...statsUpdates,
+    filled: true,
+    filledAt: new Date(),
+  };
+
+  await event.save();
+
+  // if you already have a mapEventForClient helper, you can use it here
+  const updated = mapEventForClient(event.toObject());
+
+  return res
+    .status(200)
+    .json({ message: "Event stats updated", event: updated });
+});

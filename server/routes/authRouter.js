@@ -33,8 +33,8 @@ authRouter.post('/refresh-token', authLimiter, authController.refreshToken);
 authRouter.post('/logout', csrfProtection, authenticateAccessToken, authController.logout);
 authRouter.post('/logout-all', csrfProtection, authenticateAccessToken, authController.logoutAll);
 
-authRouter.post('/reset-pass-otp', authController.resetOTP);
-authRouter.post('/reset-password', sendResetOtpLimiter, resetPasswordValidation, validateRequest, authController.resetPassword);
+authRouter.post('/reset-pass-otp', sendResetOtpLimiter, authController.resetOTP);
+authRouter.post('/reset-password', resetPasswordValidation, validateRequest, authController.resetPassword);
 
 authRouter.post('/send-verification', authenticateAccessToken, sendVerificationLimiter, authController.sendVerificationEmail);
 authRouter.post(

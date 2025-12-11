@@ -54,13 +54,24 @@ organizerRouter.get(
       limit,
       lean: true,
       sort: { postedAt: -1 },
-      select: "title location description organizer views likes imageURL postedAt",
+      select: "title location description organizer views likes imageURL postedAt startAt stats",
     };
 
     const result = await Event.paginate({ organizer: req.user.id }, options);
 
+    const events = result.docs.map((ev) => {
+      const images =
+        Array.isArray(ev.images) && ev.images.length
+          ? ev.images
+          : ev.imageURL
+          ? [ev.imageURL]
+          : [];
+      const imageURL = images[0] || null;
+      return { ...ev, images, imageURL };
+    });
+
     return res.status(200).json({
-      events: result.docs,
+      events,
       meta: {
         totalDocs: result.totalDocs,
         limit: result.limit,
@@ -88,15 +99,23 @@ organizerRouter.get(
   asyncHandler(async (req, res) => {
     const organizerId = req.user.id;
 
-    const [eventsCount, queriesCount] = await Promise.all([
+    const [eventsCount, queriesCount, eventsForAttendees] = await Promise.all([
       Event.countDocuments({ organizer: organizerId }),
       Query.countDocuments({ organizerId }),
+      Event.find({ organizer: organizerId })
+        .select("stats.totalAttendees")
+        .lean(),
     ]);
+
+    const totalAttendees = eventsForAttendees.reduce((sum, ev) => {
+      const n = ev.stats?.totalAttendees;
+      return sum + (typeof n === "number" ? n : 0);
+    }, 0);
 
     // attendees will be 0 for now, until we add registration model
     return res.status(200).json({
       events: eventsCount,
-      attendees: 0,
+      attendees: totalAttendees,
       queries: queriesCount,
     });
   })

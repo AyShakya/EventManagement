@@ -61,7 +61,7 @@ async function loginOrganizer(email, password){
   }
   const safeOrganizer = {
     id: organizer._id,
-    organizerName: organizer.organizerName,
+    userName: organizer.organizerName,
     email: organizer.email,
     userType: 'organizer',
   }

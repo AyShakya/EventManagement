@@ -1,5 +1,4 @@
 3. Maybe store the liked events differently and not in the user as it can become very large array.
 7. Social Logins.
-8. Frontend.
 10. Event calender backend.
 11. Some more finalised security checks
