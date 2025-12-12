@@ -13,7 +13,6 @@ const Login = () => {
   const emailRef = useRef(null);
 
   useEffect(() => {
-    // focus email for better UX
     emailRef.current?.focus();
   }, []);
 
@@ -26,30 +25,22 @@ const Login = () => {
       const res = await login(email.trim(), password, userType);
       setLoading(false);
 
-      // res shape: { user: { ... } } expected
       if (res && res.user) {
-        // If the backend returns userType reliably, navigate accordingly
         if (res.user.userType === "organizer") navigate("/organizer");
         else navigate("/user");
         return;
       }
-
-      // fallback
       navigate("/");
     } catch (err) {
       setLoading(false);
-
-      // prefer structured messages from backend
       const msg =
         err?.response?.data?.message ||
         err?.response?.data?.error ||
         err?.message ||
         "Login failed. Please try again.";
 
-      // common server hints: unverified email, locked, incorrect credentials
       if (/verify/i.test(msg) && !/reset/i.test(msg)) {
-        // show message plus a button/link to verify email
-        setError(`${msg} — check your inbox or click Verify below.`);
+        setError(`${msg} — check your inbox or click “Verify email” below.`);
       } else {
         setError(msg);
       }
@@ -57,71 +48,139 @@ const Login = () => {
   }
 
   return (
-    <div className="min-h-[60vh] flex items-center">
-      <div className="app-container mx-auto w-full max-w-md bg-white rounded-lg p-6 card-coffee">
-        <h2 className="text-2xl font-semibold mb-3">Login</h2>
-
-        {error && <div className="text-red-600 mb-3" role="alert">{error}</div>}
-
-        <form onSubmit={handleSubmit} className="space-y-3" aria-describedby={error ? "login-error" : undefined}>
-          <div>
-            <label htmlFor="email" className="block text-sm mb-1">Email</label>
-            <input
-              id="email"
-              ref={emailRef}
-              type="email"
-              required
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="w-full px-3 py-2 rounded border"
-              autoComplete="email"
-            />
+    <div className="min-h-screen bg-gradient-to-b from-coffee-cream to-coffee-mid text-gray-900 py-14">
+      <div className="app-container max-w-md w-full">
+        <div className="bg-white rounded-xl p-6 md:p-7 shadow card-coffee">
+          <div className="mb-5">
+            <h2 className="text-2xl font-semibold text-coffee-dark">
+              Welcome back
+            </h2>
+            <p className="text-sm text-gray-600 mt-1">
+              Sign in to continue discovering and managing events.
+            </p>
           </div>
 
-          <div>
-            <label htmlFor="password" className="block text-sm mb-1">Password</label>
-            <input
-              id="password"
-              type="password"
-              required
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-3 py-2 rounded border"
-              autoComplete="current-password"
-            />
-          </div>
-
-          <div>
-            <label htmlFor="userType" className="block text-sm mb-1">User type</label>
-            <select
-              id="userType"
-              value={userType}
-              onChange={(e) => setUserType(e.target.value)}
-              className="w-full px-3 py-2 rounded border"
+          {error && (
+            <div
+              id="login-error"
+              role="alert"
+              className="mb-4 text-sm text-red-700 bg-red-50 border border-red-200 px-3 py-2 rounded-md"
             >
-              <option value="user">User</option>
-              <option value="organizer">Organizer</option>
-            </select>
-          </div>
+              {error}
+            </div>
+          )}
 
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-            <button
-              type="submit"
-              disabled={loading}
-              className="bg-coffee-mid text-white px-4 py-2 rounded disabled:opacity-60"
-            >
-              {loading ? "Logging in..." : "Login"}
-            </button>
-
-            <div className="text-sm flex gap-3 items-center">
-              <Link to="/reset-pass-otp" className="text-gray-600 hover:underline">Forgot password?</Link>
-              <Link to="/verify-email" className="text-gray-600 hover:underline">Verify email</Link>
+          {/* user type toggle */}
+          <div className="mb-4">
+            <span className="block text-xs font-medium text-gray-600 mb-1">
+              Sign in as
+            </span>
+            <div className="inline-flex rounded-full bg-gray-100 p-1 text-xs">
+              <button
+                type="button"
+                onClick={() => setUserType("user")}
+                className={`px-3 py-1 rounded-full transition ${
+                  userType === "user"
+                    ? "bg-coffee-mid text-white shadow-sm"
+                    : "text-gray-600 hover:text-gray-800"
+                }`}
+              >
+                User
+              </button>
+              <button
+                type="button"
+                onClick={() => setUserType("organizer")}
+                className={`px-3 py-1 rounded-full transition ${
+                  userType === "organizer"
+                    ? "bg-coffee-mid text-white shadow-sm"
+                    : "text-gray-600 hover:text-gray-800"
+                }`}
+              >
+                Organizer
+              </button>
             </div>
           </div>
-        </form>
 
-        <div className="mt-4 text-sm text-center">
-          Don't have an account? <Link to="/register" className="text-coffee-mid underline">Register</Link>
+          <form
+            onSubmit={handleSubmit}
+            className="space-y-3"
+            aria-describedby={error ? "login-error" : undefined}
+          >
+            <div>
+              <label
+                htmlFor="email"
+                className="block text-sm font-medium text-gray-700 mb-1"
+              >
+                Email
+              </label>
+              <input
+                id="email"
+                ref={emailRef}
+                type="email"
+                required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="w-full px-3 py-2 rounded border text-sm focus:outline-none focus:ring-2 focus:ring-coffee-mid/70 focus:border-coffee-mid"
+                autoComplete="email"
+                placeholder="you@example.com"
+              />
+            </div>
+
+            <div>
+              <label
+                htmlFor="password"
+                className="block text-sm font-medium text-gray-700 mb-1"
+              >
+                Password
+              </label>
+              <input
+                id="password"
+                type="password"
+                required
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="w-full px-3 py-2 rounded border text-sm focus:outline-none focus:ring-2 focus:ring-coffee-mid/70 focus:border-coffee-mid"
+                autoComplete="current-password"
+                placeholder="••••••••"
+              />
+            </div>
+
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pt-1">
+              <button
+                type="submit"
+                disabled={loading}
+                className="inline-flex justify-center items-center bg-coffee-mid text-white px-4 py-2 rounded-lg text-sm font-medium disabled:opacity-60 hover:bg-coffee-dark transition"
+              >
+                {loading ? "Logging in..." : "Login"}
+              </button>
+
+              <div className="text-xs sm:text-sm flex flex-wrap gap-3 items-center">
+                <Link
+                  to="/reset-pass-otp"
+                  className="text-gray-600 hover:text-coffee-dark hover:underline"
+                >
+                  Forgot password?
+                </Link>
+                <span className="hidden sm:inline text-gray-300">•</span>
+                <Link
+                  to="/verify-email"
+                  className="text-gray-600 hover:text-coffee-dark hover:underline"
+                >
+                  Verify email
+                </Link>
+              </div>
+            </div>
+          </form>
+
+          <div className="mt-5 text-sm text-center text-gray-700">
+            Don&apos;t have an account?{" "}
+            <Link
+              to="/register"
+              className="text-coffee-mid font-medium hover:underline"
+            >
+              Create one
+            </Link>
+          </div>
         </div>
       </div>
     </div>
