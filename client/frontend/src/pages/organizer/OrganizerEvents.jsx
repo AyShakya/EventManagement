@@ -1,3 +1,4 @@
+// src/pages/organizer/OrganizerEvents.jsx
 import React, { useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import api, { csrfDelete } from "../../api/axiosClient";
@@ -44,7 +45,6 @@ export default function OrganizerEvents() {
     setDeletingId(id);
     try {
       await csrfDelete(`/api/event/${id}`);
-      // remove from local state
       setEvents((prev) => prev.filter((ev) => ev._id !== id));
     } catch (err) {
       console.error(err);
@@ -58,20 +58,57 @@ export default function OrganizerEvents() {
     }
   }
 
+  function renderStageBadge(startAt) {
+    const { stage, label } = getEventStage(startAt); // <— IMPORTANT
+
+    const map = {
+      upcoming: {
+        className: "bg-blue-50 text-blue-700 border-blue-200",
+      },
+      completed: {
+        className: "bg-emerald-50 text-emerald-700 border-emerald-200",
+      },
+      unscheduled: {
+        className: "bg-gray-50 text-gray-600 border-gray-200",
+      },
+    };
+
+    const cfg = map[stage] || map.unscheduled;
+
+    return (
+      <span
+        className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-medium border ${cfg.className}`}
+      >
+        {label}
+      </span>
+    );
+  }
+
   return (
     <div className="mt-8">
-      <div className="bg-white rounded-lg p-4 shadow card-coffee">
-        <div className="flex items-center justify-between mb-3">
-          <h2 className="text-lg font-semibold">Your events</h2>
+      <div className="bg-white rounded-xl p-5 shadow card-coffee">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
+          <div>
+            <h2 className="text-lg font-semibold text-coffee-dark">
+              Your events
+            </h2>
+            <p className="text-xs text-gray-500">
+              Manage dates, see stats, and review queries for each event.
+            </p>
+          </div>
           <Link
             to="/organizer/events/create"
-            className="bg-coffee-mid text-white px-3 py-1 rounded text-sm"
+            className="inline-flex items-center justify-center bg-coffee-mid text-white px-4 py-2 rounded-lg text-sm shadow-sm hover:bg-coffee-dark"
           >
             + Create new
           </Link>
         </div>
 
-        {err && <div className="text-red-600 mb-3">{err}</div>}
+        {err && (
+          <div className="text-red-600 mb-3 text-sm border border-red-200 bg-red-50 rounded px-3 py-2">
+            {err}
+          </div>
+        )}
 
         {loading ? (
           <div className="space-y-2">
@@ -80,107 +117,116 @@ export default function OrganizerEvents() {
             ))}
           </div>
         ) : events.length === 0 ? (
-          <div className="text-gray-500">
-            You have not created any events yet.
+          <div className="text-gray-500 text-sm">
+            You have not created any events yet.{" "}
+            <Link
+              to="/organizer/events/create"
+              className="text-coffee-mid underline"
+            >
+              Create your first event.
+            </Link>
           </div>
         ) : (
           <>
-            <div className="overflow-x-auto">
+            <div className="overflow-x-auto mt-1">
               <table className="min-w-full text-sm">
                 <thead>
                   <tr className="border-b text-left text-xs text-gray-500 uppercase">
-                    <th className="py-2 pr-4">Title</th>
-                    <th className="py-2 pr-4">Location</th>
-                    <th className="py-2 pr-4">Stage</th>
-                    <th className="py-2 pr-4">Event Date</th>
-                    <th className="py-2 pr-4">Reported Attendees</th>
-                    <th className="py-2 pr-4">Likes</th>
-                    <th className="py-2 pr-4">Views</th>
-                    <th className="py-2 pr-4">Actions</th>
+                    <th className="py-2 pr-4 font-semibold">Title</th>
+                    <th className="py-2 pr-4 font-semibold">Location</th>
+                    <th className="py-2 pr-4 font-semibold">Stage</th>
+                    <th className="py-2 pr-4 font-semibold">Event date</th>
+                    <th className="py-2 pr-4 font-semibold">
+                      Reported attendees
+                    </th>
+                    <th className="py-2 pr-4 font-semibold">Likes</th>
+                    <th className="py-2 pr-4 font-semibold">Views</th>
+                    <th className="py-2 pr-3 font-semibold">Actions</th>
                   </tr>
                 </thead>
 
                 <tbody>
                   {events.map((ev) => {
-                    const stageInfo = getEventStage(ev.startAt);
-                    const stats = ev.stats || {};
-                    const canEditStats = stageInfo.stage === "completed";
+                    const { stage } = getEventStage(ev.startAt);
+                    const reportedAttendees =
+                      ev.stats?.totalAttendees ?? "—";
+                    const statsDisabled = stage !== "completed"; // only completed can edit stats
 
                     return (
                       <tr key={ev._id} className="border-b last:border-0">
-                        <td className="py-2 pr-4 font-medium">
-                          <Link
-                            to={`/events/${ev._id}`}
-                            className="text-coffee-dark hover:underline"
-                          >
-                            {ev.title}
-                          </Link>
+                        <td className="py-2 pr-4 align-top">
+                          <div className="flex flex-col">
+                            <Link
+                              to={`/events/${ev._id}`}
+                              className="text-coffee-dark font-medium hover:underline line-clamp-2"
+                            >
+                              {ev.title}
+                            </Link>
+                            <span className="text-[11px] text-gray-400 mt-0.5">
+                              Posted{" "}
+                              {ev.postedAt
+                                ? new Date(
+                                    ev.postedAt
+                                  ).toLocaleDateString()
+                                : "-"}
+                            </span>
+                          </div>
                         </td>
 
-                        <td className="py-2 pr-4">{ev.location}</td>
-
-                        {/* Stage */}
-                        <td className="py-2 pr-4 text-xs">
-                          <span
-                            className={
-                              stageInfo.stage === "completed"
-                                ? "text-green-700"
-                                : stageInfo.stage === "upcoming"
-                                ? "text-blue-700"
-                                : "text-gray-600"
-                            }
-                          >
-                            {stageInfo.label}
-                          </span>
+                        <td className="py-2 pr-4 align-top text-gray-700">
+                          {ev.location}
                         </td>
 
-                        {/* Event Date */}
-                        <td className="py-2 pr-4 text-xs text-gray-500">
+                        <td className="py-2 pr-4 align-top">
+                          {renderStageBadge(ev.startAt)}
+                        </td>
+
+                        <td className="py-2 pr-4 align-top text-xs text-gray-600">
                           {ev.startAt
                             ? new Date(ev.startAt).toLocaleString()
-                            : "-"}
+                            : "Not set"}
                         </td>
 
-                        {/* Reported Attendees (only if stats published) */}
-                        <td className="py-2 pr-4 text-xs text-gray-700">
-                          {stats.isPublished && stats.totalAttendees != null
-                            ? stats.totalAttendees
-                            : "-"}
+                        <td className="py-2 pr-4 align-top text-center text-sm text-gray-700">
+                          {reportedAttendees}
                         </td>
 
-                        <td className="py-2 pr-4">{ev.likes ?? 0}</td>
-                        <td className="py-2 pr-4">{ev.views ?? 0}</td>
+                        <td className="py-2 pr-4 align-top text-sm">
+                          {ev.likes ?? 0}
+                        </td>
 
-                        <td className="py-2 pr-4">
+                        <td className="py-2 pr-4 align-top text-sm">
+                          {ev.views ?? 0}
+                        </td>
+
+                        <td className="py-2 pr-3 align-top">
                           <div className="flex flex-wrap gap-2">
                             <Link
                               to={`/organizer/events/${ev._id}/edit`}
-                              className="px-2 py-1 border rounded text-xs"
+                              className="px-2.5 py-1 rounded border text-xs hover:bg-gray-50"
                             >
                               Edit
                             </Link>
-
                             <Link
                               to={`/organizer/events/${ev._id}/queries`}
-                              className="px-2 py-1 rounded text-xs bg-coffee-mid text-white"
+                              className="px-2.5 py-1 rounded text-xs bg-coffee-mid text-white hover:bg-coffee-dark"
                             >
                               Queries
                             </Link>
 
-                            {/* Stats – enabled only for completed events */}
                             <Link
                               to={
-                                canEditStats
-                                  ? `/organizer/events/${ev._id}/stats`
-                                  : "#"
+                                statsDisabled
+                                  ? "#"
+                                  : `/organizer/events/${ev._id}/stats`
                               }
                               onClick={(e) => {
-                                if (!canEditStats) e.preventDefault();
+                                if (statsDisabled) e.preventDefault();
                               }}
-                              className={`px-2 py-1 rounded text-xs border ${
-                                canEditStats
-                                  ? "border-coffee-mid text-coffee-mid"
-                                  : "border-gray-300 text-gray-400 cursor-not-allowed"
+                              className={`px-2.5 py-1 rounded text-xs border ${
+                                statsDisabled
+                                  ? "border-gray-200 text-gray-400 cursor-not-allowed"
+                                  : "border-coffee-mid text-coffee-mid hover:bg-coffee-cream/40"
                               }`}
                             >
                               Stats
@@ -189,7 +235,7 @@ export default function OrganizerEvents() {
                             <button
                               onClick={() => handleDelete(ev._id)}
                               disabled={deletingId === ev._id}
-                              className="px-2 py-1 rounded text-xs border border-red-500 text-red-600 disabled:opacity-60"
+                              className="px-2.5 py-1 rounded text-xs border border-red-500 text-red-600 hover:bg-red-50 disabled:opacity-60"
                             >
                               {deletingId === ev._id ? "Deleting..." : "Delete"}
                             </button>
@@ -203,21 +249,23 @@ export default function OrganizerEvents() {
             </div>
 
             {meta && (
-              <div className="mt-3 flex items-center justify-end gap-3 text-xs">
+              <div className="mt-4 flex items-center justify-end gap-3 text-xs">
                 <button
                   onClick={() => goToPage(Math.max(1, page - 1))}
                   disabled={!meta.hasPrevPage}
-                  className="px-2 py-1 border rounded disabled:opacity-50"
+                  className="px-3 py-1 border rounded-lg disabled:opacity-50 bg-white hover:bg-gray-50"
                 >
                   Prev
                 </button>
-                <span>
-                  Page {meta.currentPage} / {meta.totalPages}
+                <span className="text-gray-600">
+                  Page{" "}
+                  <span className="font-semibold">{meta.currentPage}</span> of{" "}
+                  <span className="font-semibold">{meta.totalPages}</span>
                 </span>
                 <button
                   onClick={() => goToPage(Math.min(meta.totalPages, page + 1))}
                   disabled={!meta.hasNextPage}
-                  className="px-2 py-1 border rounded disabled:opacity-50"
+                  className="px-3 py-1 border rounded-lg disabled:opacity-50 bg-white hover:bg-gray-50"
                 >
                   Next
                 </button>

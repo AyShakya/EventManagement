@@ -26,52 +26,104 @@ export default function MyQueries() {
   }, []);
 
   return (
-    <div className="min-h-[60vh] py-10">
+    <div className="min-h-[60vh] py-8">
       <div className="app-container mx-auto">
-        <h1 className="text-2xl font-semibold mb-4">My queries & feedback</h1>
+        {/* Header */}
+        <div className="flex items-center justify-between mb-4">
+          <div>
+            <h1 className="text-2xl font-semibold text-coffee-dark">
+              My queries & feedback
+            </h1>
+            <p className="text-sm text-gray-600">
+              Track questions you&apos;ve asked and feedback you&apos;ve sent
+              to organizers.
+            </p>
+          </div>
+        </div>
 
-        {err && <div className="text-red-600 mb-3">{err}</div>}
+        {err && (
+          <div className="text-red-600 mb-3 text-sm bg-red-50 border border-red-100 rounded-md px-3 py-2">
+            {err}
+          </div>
+        )}
 
+        {/* Loading skeleton */}
         {loading ? (
           <div className="space-y-3">
             {[1, 2, 3].map((i) => (
-              <div key={i} className="h-16 bg-white rounded shadow animate-pulse" />
+              <div
+                key={i}
+                className="h-16 bg-white rounded-lg shadow-sm animate-pulse"
+              />
             ))}
           </div>
         ) : queries.length === 0 ? (
-          <div className="bg-white rounded p-4 shadow">
-            <p className="text-gray-600">
+          // Empty state
+          <div className="bg-white rounded-lg p-6 shadow card-coffee">
+            <h2 className="text-lg font-semibold text-gray-800 mb-1">
+              Nothing here yet
+            </h2>
+            <p className="text-sm text-gray-600">
               You haven&apos;t sent any queries or feedback yet.
             </p>
             <p className="text-xs text-gray-500 mt-1">
-              Use the &quot;Send feedback&quot; or &quot;Ask a question&quot; section
-              on an event to create one.
+              Use the &quot;Send feedback&quot; or &quot;Ask a question&quot;
+              section on an event to create one.
             </p>
           </div>
         ) : (
-          <div className="bg-white rounded p-4 shadow">
+          <div className="bg-white rounded-lg p-4 shadow card-coffee">
+            <div className="flex items-center justify-between mb-3">
+              <h2 className="text-sm font-semibold text-gray-700">
+                Last {queries.length} submissions
+              </h2>
+            </div>
+
             <ul className="space-y-3">
-              {queries.map((q) => (
-                <li key={q._id} className="border rounded p-3">
-                  <div className="flex items-center justify-between">
-                    <div className="text-sm font-medium">
-                      {q.subject || "Query"}
+              {queries.map((q) => {
+                const isResolved = q.status === "resolved";
+                return (
+                  <li
+                    key={q._id}
+                    className="border border-gray-100 rounded-lg p-3 hover:shadow-sm transition flex flex-col gap-1"
+                  >
+                    {/* Top row: subject + date + status pill */}
+                    <div className="flex flex-wrap items-center justify-between gap-2">
+                      <div className="text-sm font-medium text-gray-900">
+                        {q.subject || "Query"}
+                      </div>
+                      <div className="flex items-center gap-2 text-xs">
+                        <span className="text-gray-400">
+                          {new Date(
+                            q.sentAt || q.createdAt
+                          ).toLocaleString()}
+                        </span>
+                        <span
+                          className={`inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold ${
+                            isResolved
+                              ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
+                              : "bg-amber-50 text-amber-700 border border-amber-200"
+                          }`}
+                        >
+                          {isResolved ? "Resolved" : "Pending"}
+                        </span>
+                      </div>
                     </div>
-                    <div className="text-xs text-gray-400">
-                      {new Date(q.sentAt || q.createdAt).toLocaleString()}
-                    </div>
-                  </div>
-                  <div className="text-xs text-gray-500 mt-1">
-                    Status:{" "}
-                    <span className="font-medium">
-                      {q.status === "resolved" ? "Resolved" : "Pending"}
-                    </span>
-                  </div>
-                  <p className="text-sm text-gray-700 mt-2 whitespace-pre-wrap">
-                    {q.message}
-                  </p>
-                </li>
-              ))}
+
+                    {/* Message */}
+                    <p className="text-sm text-gray-700 mt-1 whitespace-pre-wrap">
+                      {q.message}
+                    </p>
+
+                    {/* Optional: event info if you add it in future
+                    {q.event && (
+                      <div className="mt-1 text-xs text-gray-500">
+                        About event: {q.event.title}
+                      </div>
+                    )} */}
+                  </li>
+                );
+              })}
             </ul>
           </div>
         )}

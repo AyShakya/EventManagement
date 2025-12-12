@@ -39,84 +39,137 @@ export default function LikedEvents() {
   }
 
   return (
-    <div className="min-h-[60vh] py-10">
+    <div className="min-h-[60vh] py-8">
       <div className="app-container mx-auto">
-        <h1 className="text-2xl font-semibold mb-4">Liked events</h1>
+        {/* Header */}
+        <div className="flex items-center justify-between mb-4">
+          <div>
+            <h1 className="text-2xl font-semibold text-coffee-dark">
+              Liked events
+            </h1>
+            <p className="text-sm text-gray-600">
+              Events you&apos;ve bookmarked with a like.
+            </p>
+          </div>
+          <Link
+            to="/events"
+            className="hidden sm:inline-flex text-sm px-3 py-1.5 rounded border border-coffee-mid text-coffee-mid hover:bg-coffee-mid hover:text-white transition"
+          >
+            Browse more events
+          </Link>
+        </div>
 
-        {err && <div className="text-red-600 mb-3">{err}</div>}
+        {err && (
+          <div className="text-red-600 mb-3 text-sm bg-red-50 border border-red-100 rounded-md px-3 py-2">
+            {err}
+          </div>
+        )}
 
+        {/* Loading skeleton */}
         {loading ? (
           <div className="space-y-3">
             {[1, 2, 3].map((i) => (
-              <div key={i} className="h-20 bg-white rounded shadow animate-pulse" />
+              <div
+                key={i}
+                className="h-24 bg-white rounded-lg shadow-sm animate-pulse"
+              />
             ))}
           </div>
         ) : events.length === 0 ? (
-          <div className="bg-white rounded p-4 shadow">
-            <p className="text-gray-600">
-              You haven&apos;t liked any events yet.
+          // Empty state
+          <div className="bg-white rounded-lg p-6 shadow card-coffee text-center">
+            <h2 className="text-lg font-semibold text-gray-800 mb-1">
+              No liked events yet
+            </h2>
+            <p className="text-sm text-gray-600">
+              Tap the ❤️ icon on any event to save it here.
             </p>
             <Link
               to="/events"
-              className="inline-block mt-3 text-sm text-coffee-mid underline"
+              className="inline-flex mt-4 text-sm px-4 py-2 rounded bg-coffee-mid text-white hover:bg-coffee-dark transition"
             >
-              Browse events
+              Discover events
             </Link>
           </div>
         ) : (
           <>
+            {/* List */}
             <ul className="space-y-3">
               {events.map((ev) => (
                 <li
                   key={ev._id}
-                  className="bg-white rounded p-4 shadow flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2"
+                  className="bg-white rounded-lg p-4 shadow-sm card-coffee flex flex-col sm:flex-row sm:items-stretch gap-3"
                 >
-                  <div>
-                    <h3 className="font-semibold">
-                      <Link to={`/events/${ev._id}`} className="hover:underline">
-                        {ev.title}
-                      </Link>
-                    </h3>
-                    <div className="text-xs text-gray-500">
-                      {ev.location} •{" "}
-                      {new Date(ev.postedAt).toLocaleDateString()}
+                  {/* Thumbnail */}
+                  <Link
+                    to={`/events/${ev._id}`}
+                    className="w-full sm:w-40 h-28 rounded-md overflow-hidden bg-gray-100 flex-shrink-0"
+                  >
+                    <img
+                      src={ev.imageURL || ev.images?.[0] || "/placeholder.jpg"}
+                      alt={ev.title}
+                      className="w-full h-full object-cover"
+                    />
+                  </Link>
+
+                  {/* Main content */}
+                  <div className="flex-1 flex flex-col justify-between">
+                    <div>
+                      <h3 className="font-semibold text-coffee-dark text-sm sm:text-base line-clamp-2">
+                        <Link
+                          to={`/events/${ev._id}`}
+                          className="hover:underline"
+                        >
+                          {ev.title}
+                        </Link>
+                      </h3>
+                      <div className="text-xs text-gray-500 mt-1 flex flex-wrap gap-2">
+                        <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-coffee-cream/60 text-gray-700">
+                          {ev.location}
+                        </span>
+                        <span className="text-gray-400">
+                          {new Date(ev.postedAt).toLocaleDateString()}
+                        </span>
+                      </div>
+                      <p className="text-sm text-gray-600 mt-2 line-clamp-2">
+                        {ev.description}
+                      </p>
                     </div>
-                    <p className="text-sm text-gray-600 mt-1">
-                      {ev.description?.slice(0, 160)}
-                      {ev.description?.length > 160 ? "…" : ""}
-                    </p>
-                  </div>
-                  <div className="text-xs text-gray-500 flex flex-col items-end gap-1">
-                    <span>
-                      ❤️ {ev.likes || 0} likes • 👁 {ev.views || 0} views
-                    </span>
-                    <Link
-                      to={`/events/${ev._id}`}
-                      className="px-3 py-1 rounded border text-xs"
-                    >
-                      View event
-                    </Link>
+
+                    <div className="mt-2 flex items-center justify-between text-xs text-gray-500">
+                      <span>
+                        ❤️ {ev.likes ?? 0} &nbsp;·&nbsp; 👁 {ev.views ?? 0}
+                      </span>
+                      <Link
+                        to={`/events/${ev._id}`}
+                        className="px-3 py-1.5 rounded border text-xs font-medium hover:bg-coffee-mid hover:text-white hover:border-coffee-mid transition"
+                      >
+                        View event
+                      </Link>
+                    </div>
                   </div>
                 </li>
               ))}
             </ul>
 
+            {/* Pagination */}
             {meta && meta.totalPages > 1 && (
-              <div className="flex items-center justify-center gap-3 mt-4 text-sm">
+              <div className="flex items-center justify-center gap-3 mt-5 text-xs sm:text-sm">
                 <button
                   onClick={() => goToPage(Math.max(1, page - 1))}
                   disabled={!meta.hasPrevPage}
-                  className="px-3 py-1 rounded border disabled:opacity-40"
+                  className="px-3 py-1.5 rounded border bg-white hover:bg-gray-50 disabled:opacity-40"
                 >
                   Prev
                 </button>
-                <span>
-                  Page {meta.currentPage} / {meta.totalPages}
+                <span className="text-gray-600">
+                  Page <strong>{meta.currentPage}</strong> of{" "}
+                  <strong>{meta.totalPages}</strong>
                 </span>
                 <button
                   onClick={() => goToPage(Math.min(meta.totalPages, page + 1))}
                   disabled={!meta.hasNextPage}
-                  className="px-3 py-1 rounded border disabled:opacity-40"
+                  className="px-3 py-1.5 rounded border bg-white hover:bg-gray-50 disabled:opacity-40"
                 >
                   Next
                 </button>

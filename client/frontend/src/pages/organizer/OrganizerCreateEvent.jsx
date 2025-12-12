@@ -73,7 +73,6 @@ export default function OrganizerCreateEvent() {
         location: location.trim(),
         description: description.trim(),
         imageURL: imageURL.trim() || undefined,
-        imagePublicId: imagePublicId || undefined,
         startAt: startAt ? new Date(startAt).toISOString() : undefined,
       };
 
@@ -102,121 +101,179 @@ export default function OrganizerCreateEvent() {
   }
 
   return (
-    <div className="min-h-[60vh] py-10">
-      <div className="app-container mx-auto max-w-3xl bg-white rounded-lg p-6 card-coffee">
-        <h2 className="text-2xl font-semibold mb-2">Create a new event</h2>
-        <p className="text-sm text-gray-600 mb-4">
-          Fill in the details for your event. You can edit it later from the
-          events list.
-        </p>
+    <div className="min-h-screen bg-gradient-to-b from-coffee-cream to-coffee-mid text-gray-900 py-10">
+      <div className="app-container mx-auto max-w-4xl">
+        {/* Header */}
+        <div className="mb-6">
+          <h1 className="text-2xl md:text-3xl font-bold text-coffee-dark">
+            Create a new event
+          </h1>
+          <p className="text-sm text-gray-600 mt-1">
+            Share the details of your event. You can always edit it later.
+          </p>
+        </div>
 
-        {error && <div className="text-red-600 mb-3">{error}</div>}
-        {success && <div className="text-green-600 mb-3">{success}</div>}
+        {/* Card */}
+        <div className="bg-white rounded-xl p-6 md:p-8 shadow card-coffee">
+          {error && (
+            <div className="mb-4 rounded border border-red-200 bg-red-50 px-4 py-2 text-sm text-red-700">
+              {error}
+            </div>
+          )}
+          {success && (
+            <div className="mb-4 rounded border border-emerald-200 bg-emerald-50 px-4 py-2 text-sm text-emerald-700">
+              {success}
+            </div>
+          )}
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Title */}
-          <div>
-            <label className="block text-sm font-medium mb-1">
-              Title <span className="text-red-500">*</span>
-            </label>
-            <input
-              className="w-full px-3 py-2 rounded border"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              placeholder="e.g. College Tech Fest 2025"
-              required
-            />
-          </div>
-
-          {/* Location */}
-          <div>
-            <label className="block text-sm font-medium mb-1">
-              Location <span className="text-red-500">*</span>
-            </label>
-            <input
-              className="w-full px-3 py-2 rounded border"
-              value={location}
-              onChange={(e) => setLocation(e.target.value)}
-              placeholder="e.g. Auditorium, Block A"
-              required
-            />
-          </div>
-
-          {/* Description */}
-          <div>
-            <label className="block text-sm font-medium mb-1">
-              Description <span className="text-red-500">*</span>
-            </label>
-            <textarea
-              className="w-full px-3 py-2 rounded border min-h-[120px] resize-vertical"
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              placeholder="Describe what's happening, audience, schedule, etc."
-              required
-            />
-            <p className="text-xs text-gray-400 mt-1">
-              Minimum 20 characters so users understand the event.
-            </p>
-          </div>
-
-          {/* Image upload */}
-          <div>
-            <label className="block text-sm font-medium mb-1">
-              Event image (optional)
-            </label>
-            <input type="file" accept="image/*" onChange={handleImageChange} />
-            {uploadingImage && (
-              <div className="text-xs text-gray-500 mt-1">
-                Uploading image...
+          <form onSubmit={handleSubmit} className="space-y-6">
+            {/* Basic info */}
+            <div>
+              <div className="flex items-center justify-between mb-3">
+                <h2 className="text-base font-semibold text-coffee-dark">
+                  Basic information
+                </h2>
+                <span className="text-[11px] uppercase tracking-wide text-gray-400">
+                  * Required fields
+                </span>
               </div>
-            )}
-            {imageURL && (
-              <div className="mt-2">
-                <div className="text-xs text-gray-500 mb-1">Preview:</div>
-                <div className="w-48 h-32 rounded overflow-hidden bg-gray-100">
-                  <img
-                    src={imageURL}
-                    alt="Event"
-                    className="w-full h-full object-cover"
+
+              <div className="grid md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-semibold text-gray-600 mb-1">
+                    Title <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    className="w-full px-3 py-2 rounded-lg border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-coffee-mid/60 focus:border-coffee-mid"
+                    value={title}
+                    onChange={(e) => setTitle(e.target.value)}
+                    placeholder="e.g. College Tech Fest 2025"
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-gray-600 mb-1">
+                    Location <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    className="w-full px-3 py-2 rounded-lg border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-coffee-mid/60 focus:border-coffee-mid"
+                    value={location}
+                    onChange={(e) => setLocation(e.target.value)}
+                    placeholder="e.g. Auditorium, Block A"
+                    required
                   />
                 </div>
               </div>
-            )}
-          </div>
 
-          {/* Event date & time */}
-          <div>
-            <label className="block text-sm font-medium mb-1">
-              Event date / time (optional)
-            </label>
-            <input
-              type="datetime-local"
-              className="w-full px-3 py-2 rounded border"
-              value={startAt}
-              onChange={(e) => setStartAt(e.target.value)}
-            />
-            <p className="text-xs text-gray-400 mt-1">
-              This is when the event actually happens (not when you post it).
-            </p>
-          </div>
+              <div className="mt-4">
+                <label className="block text-xs font-semibold text-gray-600 mb-1">
+                  Description <span className="text-red-500">*</span>
+                </label>
+                <textarea
+                  className="w-full px-3 py-2 rounded-lg border border-gray-200 text-sm min-h-[130px] resize-vertical focus:outline-none focus:ring-2 focus:ring-coffee-mid/60 focus:border-coffee-mid"
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                  placeholder="Describe what's happening, the audience, agenda, and why people should attend."
+                  required
+                />
+                <p className="text-[11px] text-gray-400 mt-1">
+                  Minimum 20 characters so users clearly understand the event.
+                </p>
+              </div>
+            </div>
 
-          <div className="flex items-center gap-3 mt-4">
-            <button
-              type="submit"
-              disabled={loading}
-              className="bg-coffee-mid text-white px-4 py-2 rounded disabled:opacity-60"
-            >
-              {loading ? "Creating..." : "Create event"}
-            </button>
-            <button
-              type="button"
-              onClick={() => navigate("/organizer/events")}
-              className="px-4 py-2 rounded border"
-            >
-              Cancel
-            </button>
-          </div>
-        </form>
+            {/* Layout split: image + date/time */}
+            <div className="grid md:grid-cols-2 gap-6">
+              {/* Image upload */}
+              <div>
+                <h2 className="text-sm font-semibold text-coffee-dark mb-2">
+                  Event image <span className="font-normal text-gray-500">(optional)</span>
+                </h2>
+                <p className="text-xs text-gray-500 mb-2">
+                  A good banner makes your event stand out in the feed.
+                </p>
+
+                <label className="block">
+                  <div className="border border-dashed border-gray-300 rounded-lg px-3 py-3 text-xs text-gray-600 cursor-pointer hover:border-coffee-mid/70">
+                    <div className="flex items-center justify-between gap-3">
+                      <span>Select image file</span>
+                      <span className="px-2 py-1 rounded bg-coffee-mid text-white text-[11px]">
+                        Upload
+                      </span>
+                    </div>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleImageChange}
+                      className="hidden"
+                    />
+                  </div>
+                </label>
+
+                {uploadingImage && (
+                  <div className="text-xs text-gray-500 mt-2">
+                    Uploading image...
+                  </div>
+                )}
+
+                {imageURL && (
+                  <div className="mt-3">
+                    <div className="text-xs text-gray-500 mb-1">Preview</div>
+                    <div className="w-full max-w-xs h-32 rounded-lg overflow-hidden bg-gray-100 border border-gray-200">
+                      <img
+                        src={imageURL}
+                        alt="Event"
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Date/time */}
+              <div>
+                <h2 className="text-sm font-semibold text-coffee-dark mb-2">
+                  Schedule
+                </h2>
+                <p className="text-xs text-gray-500 mb-2">
+                  This is when the event actually happens (not when you post it).
+                </p>
+
+                <label className="block text-xs font-semibold text-gray-600 mb-1">
+                  Event date &amp; time
+                </label>
+                <input
+                  type="datetime-local"
+                  className="w-full px-3 py-2 rounded-lg border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-coffee-mid/60 focus:border-coffee-mid"
+                  value={startAt}
+                  onChange={(e) => setStartAt(e.target.value)}
+                />
+                <p className="text-[11px] text-gray-400 mt-1">
+                  You can leave this empty if you haven&apos;t finalized the date.
+                </p>
+              </div>
+            </div>
+
+            {/* Actions */}
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-end gap-3 pt-4 border-t border-gray-100">
+              <button
+                type="button"
+                onClick={() => navigate("/organizer/events")}
+                className="px-4 py-2 rounded-lg border border-gray-300 text-sm bg-white hover:bg-gray-50"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                disabled={loading}
+                className="px-5 py-2 rounded-lg bg-coffee-mid text-white text-sm font-medium disabled:opacity-60"
+              >
+                {loading ? "Creating..." : "Create event"}
+              </button>
+            </div>
+          </form>
+        </div>
       </div>
     </div>
   );

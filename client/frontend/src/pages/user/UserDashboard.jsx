@@ -4,54 +4,41 @@ import api from "../../api/axiosClient";
 import { AuthContext } from "../../context/AuthContext";
 
 function ProfileCard({ user }) {
-  const initial =
-    (user?.userName || user?.name || "U").slice(0, 1).toUpperCase();
-
   return (
-    <div className="bg-white rounded-2xl p-5 shadow card-coffee flex gap-4 items-center border border-coffee-cream/60">
-      <div className="relative">
-        <div className="w-20 h-20 rounded-full bg-gradient-to-br from-coffee-cream to-coffee-mid flex items-center justify-center overflow-hidden shrink-0 border border-coffee-mid/20">
-          {user?.avatarURL ? (
-            <img
-              src={user.avatarURL}
-              alt={user.userName || user.name}
-              className="w-full h-full object-cover"
-            />
-          ) : (
-            <span className="text-2xl font-semibold text-coffee-dark">
-              {initial}
-            </span>
-          )}
-        </div>
-        <div className="absolute -bottom-1 -right-1 px-2 py-0.5 rounded-full text-[10px] font-medium bg-coffee-dark text-coffee-cream shadow-sm">
-          {user?.userType ? user.userType.toUpperCase() : "USER"}
-        </div>
+    <div className="bg-white rounded-2xl p-5 shadow card-coffee flex gap-4 items-start border border-coffee-cream/60">
+      <div className="w-20 h-20 rounded-full bg-gray-100 overflow-hidden shrink-0">
+        {user?.avatarURL ? (
+          <img
+            src={user.avatarURL}
+            alt={user.userName || user.name}
+            className="w-full h-full object-cover"
+          />
+        ) : (
+          <div className="w-full h-full flex items-center justify-center text-xl text-gray-400">
+            {(user?.userName || user?.name || "U").slice(0, 1).toUpperCase()}
+          </div>
+        )}
       </div>
 
-      <div className="flex-1">
-        <div className="flex items-start justify-between gap-2">
-          <div>
-            <div className="text-lg font-semibold text-coffee-dark">
+      <div className="flex-1 min-w-0">
+        {/* Flex-col on mobile, row on sm+ so buttons never sit on top of text */}
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+          <div className="min-w-0">
+            <div className="text-lg font-semibold text-coffee-dark truncate">
               {user?.userName || user?.name || "Unnamed User"}
             </div>
-            <div className="text-sm text-gray-600 flex items-center gap-1">
-              <span>📧</span>
-              <span>{user?.email || "no-email@example.com"}</span>
+            <div className="text-sm text-gray-500 truncate">
+              {user?.email || "no-email@example.com"}
             </div>
-            <div className="mt-1 text-xs text-gray-400">
-              Member since{" "}
-              <span className="font-medium">
-                {user?.createdAt
-                  ? new Date(user.createdAt).toLocaleDateString()
-                  : "—"}
-              </span>
+            <div className="text-xs text-gray-400 mt-1">
+              {user?.userType ? user.userType.toUpperCase() : "USER"}
             </div>
           </div>
 
-          <div className="text-right">
+          <div className="text-left sm:text-right">
             <Link
               to="/user/edit"
-              className="text-xs px-3 py-1.5 rounded-full border border-coffee-mid/50 text-coffee-mid hover:bg-coffee-mid hover:text-white transition"
+              className="inline-flex items-center justify-center text-xs px-3 py-1.5 rounded-full border border-coffee-mid/60 text-coffee-mid hover:bg-coffee-mid hover:text-white transition"
             >
               Edit profile
             </Link>
@@ -68,25 +55,17 @@ function ProfileCard({ user }) {
   );
 }
 
-function StatCard({ label, value, hint }) {
+function StatCard({ label, value }) {
   return (
-    <div className="bg-white rounded-2xl p-4 shadow card-coffee border border-coffee-cream/60 flex flex-col justify-between">
-      <div className="text-[11px] uppercase tracking-wide text-gray-500">
-        {label}
-      </div>
+    <div className="bg-white rounded-2xl p-4 shadow card-coffee border border-coffee-cream/60">
+      <div className="text-xs text-gray-500">{label}</div>
       <div className="mt-1 text-2xl font-semibold text-coffee-dark">
         {value ?? 0}
       </div>
-      {hint && (
-        <div className="mt-1 text-[11px] text-gray-400 leading-snug">
-          {hint}
-        </div>
-      )}
     </div>
   );
 }
 
-/* Verification banner component */
 function VerificationBanner({
   user,
   onResend,
@@ -96,57 +75,92 @@ function VerificationBanner({
   message,
 }) {
   const [token, setToken] = useState("");
+  const [hidden, setHidden] = useState(false);
+
+  if (hidden) return null;
 
   return (
-    <div className="bg-gradient-to-r from-yellow-50 to-amber-50 border border-yellow-200 rounded-2xl px-4 py-3 mb-6 shadow-sm">
+    <div className="bg-amber-50 border border-amber-200 rounded-xl px-4 py-3 mb-6 shadow-sm">
       <div className="flex items-start gap-3">
-        <div className="mt-0.5 text-yellow-500 text-lg">⚠️</div>
-        <div className="flex-1">
-          <div className="font-semibold text-yellow-900">
-            Email not verified
-          </div>
-          <p className="text-sm text-yellow-800 mt-1">
-            Your email <strong>{user?.email}</strong> is not verified yet.
-            Verify to unlock full functionality like notifications and feedback
-            confirmations.
-          </p>
+        {/* Icon */}
+        <div className="mt-0.5">
+          <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-amber-100 text-amber-700 text-sm">
+            !
+          </span>
+        </div>
 
-          <div className="mt-3 flex flex-col gap-3 lg:flex-row lg:items-center">
+        {/* Main content */}
+        <div className="flex-1 min-w-0">
+          <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
+            <div className="min-w-0">
+              <div className="font-medium text-amber-900">
+                Verify your email
+              </div>
+              <div className="text-xs sm:text-sm text-amber-800 mt-0.5">
+                We haven&apos;t verified{" "}
+                <strong>{user?.email || "your email"}</strong> yet. This helps
+                with notifications and feedback updates.
+              </div>
+              {message && (
+                <div className="mt-1 text-xs text-amber-900">{message}</div>
+              )}
+            </div>
+
+            {/* Dismiss button on the right (desktop) */}
+            <button
+              type="button"
+              onClick={() => setHidden(true)}
+              className="hidden sm:inline-flex ml-4 text-xs text-amber-700 hover:text-amber-900"
+            >
+              Dismiss
+            </button>
+          </div>
+
+          {/* Actions */}
+          <div className="mt-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+            {/* Left: resend */}
             <button
               onClick={onResend}
               disabled={resendLoading}
-              className="inline-flex items-center justify-center bg-yellow-600 text-white px-3 py-1.5 rounded-full text-xs font-medium shadow-sm disabled:opacity-60"
+              className="inline-flex items-center justify-center bg-amber-600 text-white px-3 py-1.5 rounded-full text-xs font-medium disabled:opacity-60"
             >
               {resendLoading ? "Sending..." : "Resend verification email"}
             </button>
 
-            <div className="flex items-center gap-2">
+            {/* Right: token + verify */}
+            <div className="flex flex-col sm:flex-row gap-2 sm:items-center">
               <input
                 value={token}
                 onChange={(e) => setToken(e.target.value)}
-                placeholder="Paste verification code"
-                className="px-3 py-1.5 rounded-full border text-xs bg-white outline-none focus:ring-1 focus:ring-yellow-500"
+                placeholder="Verification code"
+                className="px-2 py-1.5 rounded border border-amber-200 text-xs sm:text-sm w-full sm:w-44 bg-white/70 focus:outline-none focus:ring-1 focus:ring-amber-400"
               />
               <button
                 onClick={() => onVerifyToken(token)}
                 disabled={verifyLoading || token.trim().length === 0}
-                className="px-3 py-1.5 rounded-full text-xs font-medium bg-coffee-mid text-white disabled:opacity-60"
+                className="inline-flex items-center justify-center bg-coffee-mid text-white px-3 py-1.5 rounded-full text-xs font-medium disabled:opacity-60"
               >
-                {verifyLoading ? "Verifying..." : "Verify code"}
+                {verifyLoading ? "Verifying..." : "Verify"}
               </button>
             </div>
           </div>
-
-          {message && (
-            <div className="mt-2 text-xs text-yellow-900">{message}</div>
-          )}
         </div>
+
+        {/* Mobile dismiss (top-right) */}
+        <button
+          type="button"
+          onClick={() => setHidden(true)}
+          className="sm:hidden ml-2 mt-0.5 text-xs text-amber-500 hover:text-amber-700"
+        >
+          ✕
+        </button>
       </div>
     </div>
   );
 }
 
-/* Main User dashboard */
+
+
 export default function UserDashboard() {
   const { user: authUser, dispatch } = useContext(AuthContext);
   const [user, setUser] = useState(authUser || null);
@@ -157,7 +171,6 @@ export default function UserDashboard() {
   const [err, setErr] = useState("");
   const navigate = useNavigate();
 
-  // verification UI state
   const [resendLoading, setResendLoading] = useState(false);
   const [verifyLoading, setVerifyLoading] = useState(false);
   const [verifMessage, setVerifMessage] = useState("");
@@ -167,7 +180,6 @@ export default function UserDashboard() {
     (async () => {
       setLoading(true);
       try {
-        // fetch profile if not in context / refresh
         if (!authUser) {
           const me = await api.get("/api/user/me").catch(() => ({ data: {} }));
           if (!mounted) return;
@@ -252,7 +264,7 @@ export default function UserDashboard() {
       try {
         dispatch?.({ type: "SET_USER", payload: updatedUser });
       } catch {
-        // ignore
+        /* ignore */
       }
 
       setVerifMessage(msg);
@@ -267,44 +279,35 @@ export default function UserDashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-coffee-cream via-[#f5ece0] to-coffee-mid text-gray-900 py-10">
+    <div className="min-h-screen bg-gradient-to-b from-coffee-cream to-coffee-mid text-gray-900 py-10">
       <div className="app-container">
         {/* Header */}
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-6">
           <div>
             <h1 className="text-3xl font-bold text-coffee-dark">
               Welcome back{user?.userName ? `, ${user.userName}` : ""}
             </h1>
             <p className="text-sm text-gray-600 mt-1">
-              Overview of your account, events you&apos;ve engaged with, and
-              your activity.
+              Overview of your account and activity
             </p>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap gap-2">
             <button
               onClick={() => navigate("/events")}
-              className="bg-coffee-dark text-coffee-cream px-4 py-2 rounded-full text-sm font-medium shadow-sm hover:bg-coffee-mid transition"
+              className="bg-coffee-dark text-coffee-cream px-4 py-2 rounded-full text-sm"
             >
-              Browse events
+              Browse Events
             </button>
             <Link
               to="/user/settings"
-              className="text-sm text-gray-700 underline"
+              className="text-sm text-gray-800 underline underline-offset-4"
             >
               Account settings
             </Link>
           </div>
         </div>
 
-        {/* Global error (if any) */}
-        {err && (
-          <div className="mb-4 bg-red-50 border border-red-200 text-red-700 text-sm px-4 py-2 rounded-lg">
-            {err}
-          </div>
-        )}
-
-        {/* Verification banner */}
         {user && !user.emailVerified && (
           <VerificationBanner
             user={user}
@@ -316,43 +319,27 @@ export default function UserDashboard() {
           />
         )}
 
-        {/* Top row */}
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 mb-6">
-          <div className="lg:col-span-1">
+        {/* ⬇⬇ TOP ROW FIX: flex layout instead of grid, no overlap possible */}
+        <div className="flex flex-col lg:flex-row gap-6 mb-6">
+          <div className="lg:w-[320px] w-full">
             <ProfileCard user={user || {}} />
           </div>
 
-          <div className="lg:col-span-3 grid grid-cols-1 md:grid-cols-3 gap-4">
-            <StatCard
-              label="Total likes"
-              value={stats.likes}
-              hint="Events you’ve shown love to."
-            />
-            <StatCard
-              label="Queries sent"
-              value={stats.queries}
-              hint="Questions or feedback submitted."
-            />
-            <StatCard
-              label="Events attended"
-              value={stats.attended}
-              hint="Based on events marked attended."
-            />
+          <div className="flex-1 min-w-0 grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <StatCard label="Total likes" value={stats.likes} />
+            <StatCard label="Queries" value={stats.queries} />
+            <StatCard label="Attended" value={stats.attended} />
           </div>
         </div>
 
-        {/* Main content */}
+        {/* main content */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Recent queries */}
           <div className="lg:col-span-2 bg-white rounded-2xl p-4 shadow card-coffee border border-coffee-cream/60">
             <div className="flex items-center justify-between mb-3">
               <h3 className="text-lg font-semibold text-coffee-dark">
-                Recent queries & feedback
+                Recent queries
               </h3>
-              <Link
-                to="/user/queries"
-                className="text-sm text-coffee-mid hover:underline"
-              >
+              <Link to="/user/queries" className="text-sm text-coffee-mid">
                 See all
               </Link>
             </div>
@@ -362,42 +349,31 @@ export default function UserDashboard() {
                 {[1, 2, 3].map((i) => (
                   <div
                     key={i}
-                    className="h-12 bg-gray-100 rounded-lg animate-pulse"
+                    className="h-12 bg-gray-100 rounded animate-pulse"
                   />
                 ))}
               </div>
             ) : recentQueries.length === 0 ? (
               <div className="text-gray-500 text-sm">
-                You haven&apos;t sent any queries or feedback yet. Use the
-                &quot;Send feedback&quot; or &quot;Ask a question&quot; button
-                on an event to create one.
+                No queries yet. Use the feedback form on an event to create one.
               </div>
             ) : (
               <ul className="space-y-3">
                 {recentQueries.map((q) => (
                   <li
                     key={q._id}
-                    className="p-3 border border-gray-100 rounded-xl hover:shadow-sm hover:border-coffee-cream/90 transition flex flex-col"
+                    className="p-3 border rounded-xl hover:shadow-sm transition flex flex-col"
                   >
-                    <div className="flex items-center justify-between gap-2">
-                      <div className="text-sm font-medium text-coffee-dark line-clamp-1">
-                        {q.subject || "Query"}
+                    <div className="flex items-center justify-between gap-3">
+                      <div className="text-sm font-medium text-coffee-dark truncate">
+                        {q.subject}
                       </div>
-                      <div className="text-[11px] text-gray-400">
-                        {new Date(
-                          q.createdAt || q.sentAt
-                        ).toLocaleDateString()}
+                      <div className="text-xs text-gray-400 whitespace-nowrap">
+                        {new Date(q.createdAt).toLocaleDateString()}
                       </div>
                     </div>
-                    <div className="mt-1 text-[11px] text-gray-500">
-                      Status:{" "}
-                      <span className="font-medium">
-                        {q.status === "resolved" ? "Resolved" : "Pending"}
-                      </span>
-                    </div>
-                    <div className="text-sm text-gray-600 mt-1">
-                      {q.message?.slice(0, 200)}
-                      {q.message?.length > 200 ? "…" : ""}
+                    <div className="text-sm text-gray-600 mt-1 line-clamp-2">
+                      {q.message}
                     </div>
                   </li>
                 ))}
@@ -405,34 +381,33 @@ export default function UserDashboard() {
             )}
           </div>
 
-          {/* Sidebar */}
           <div className="bg-white rounded-2xl p-4 shadow card-coffee border border-coffee-cream/60">
-            <h3 className="text-lg font-semibold text-coffee-dark mb-3">
+            <h3 className="text-lg font-semibold mb-3 text-coffee-dark">
               Quick actions
             </h3>
             <div className="flex flex-col gap-3">
               <Link
                 to="/events"
-                className="block bg-coffee-mid text-white px-3 py-2 rounded-full text-center text-sm font-medium shadow-sm hover:bg-coffee-dark transition"
+                className="block bg-coffee-mid text-white px-3 py-2 rounded-full text-center text-sm"
               >
                 Browse events
               </Link>
               <Link
                 to="/user/liked"
-                className="block px-3 py-2 rounded-full border text-center text-sm hover:bg-gray-50"
+                className="block px-3 py-2 rounded-full border text-center text-sm"
               >
                 Liked events
               </Link>
               <Link
                 to="/user/queries"
-                className="block px-3 py-2 rounded-full border text-center text-sm hover:bg-gray-50"
+                className="block px-3 py-2 rounded-full border text-center text-sm"
               >
                 My queries
               </Link>
             </div>
 
             <div className="mt-6">
-              <h4 className="text-sm font-semibold text-gray-700 mb-2">
+              <h4 className="text-sm font-medium text-gray-700 mb-2">
                 Recently attended
               </h4>
               {loading ? (
@@ -440,7 +415,7 @@ export default function UserDashboard() {
                   {[1, 2, 3].map((i) => (
                     <div
                       key={i}
-                      className="h-10 bg-gray-100 rounded-lg animate-pulse"
+                      className="h-10 bg-gray-100 rounded animate-pulse"
                     />
                   ))}
                 </div>
@@ -455,12 +430,10 @@ export default function UserDashboard() {
                       key={ev._id}
                       className="flex items-center justify-between gap-2"
                     >
-                      <div className="truncate max-w-[160px]">
-                        {ev.title || "Event"}
-                      </div>
-                      <div className="text-[11px] text-gray-400">
+                      <div className="truncate">{ev.title}</div>
+                      <div className="text-xs text-gray-400 whitespace-nowrap">
                         {new Date(
-                          ev.attendedAt || ev.startAt || ev.postedAt
+                          ev.attendedAt || ev.postedAt
                         ).toLocaleDateString()}
                       </div>
                     </li>
@@ -471,7 +444,6 @@ export default function UserDashboard() {
           </div>
         </div>
 
-        {/* Nested routes (if any) */}
         <div className="mt-8">
           <Outlet />
         </div>
