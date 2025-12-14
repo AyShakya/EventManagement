@@ -39,28 +39,28 @@ export default function LikedEvents() {
   }
 
   return (
-    <div className="min-h-[60vh] py-8">
+    <div className="min-h-[70vh] py-10 bg-gradient-to-b from-coffee-cream/70 to-coffee-mid/20">
       <div className="app-container mx-auto">
         {/* Header */}
-        <div className="flex items-center justify-between mb-4">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-6">
           <div>
-            <h1 className="text-2xl font-semibold text-coffee-dark">
+            <h1 className="text-2xl sm:text-3xl font-bold text-coffee-dark">
               Liked events
             </h1>
-            <p className="text-sm text-gray-600">
-              Events you&apos;ve bookmarked with a like.
+            <p className="text-sm text-gray-600 mt-1">
+              All the events you&apos;ve saved with ❤️ in one place.
             </p>
           </div>
           <Link
             to="/events"
-            className="hidden sm:inline-flex text-sm px-3 py-1.5 rounded border border-coffee-mid text-coffee-mid hover:bg-coffee-mid hover:text-white transition"
+            className="inline-flex items-center justify-center text-sm px-3 py-1.5 rounded-full border border-coffee-mid text-coffee-mid hover:bg-coffee-mid hover:text-white transition"
           >
             Browse more events
           </Link>
         </div>
 
         {err && (
-          <div className="text-red-600 mb-3 text-sm bg-red-50 border border-red-100 rounded-md px-3 py-2">
+          <div className="text-red-700 mb-4 text-sm bg-red-50 border border-red-100 rounded-md px-3 py-2">
             {err}
           </div>
         )}
@@ -71,22 +71,22 @@ export default function LikedEvents() {
             {[1, 2, 3].map((i) => (
               <div
                 key={i}
-                className="h-24 bg-white rounded-lg shadow-sm animate-pulse"
+                className="h-24 bg-white rounded-lg shadow-sm animate-pulse card-coffee"
               />
             ))}
           </div>
         ) : events.length === 0 ? (
           // Empty state
-          <div className="bg-white rounded-lg p-6 shadow card-coffee text-center">
-            <h2 className="text-lg font-semibold text-gray-800 mb-1">
+          <div className="bg-white rounded-xl p-6 sm:p-7 shadow card-coffee text-center">
+            <h2 className="text-lg font-semibold text-gray-900 mb-1">
               No liked events yet
             </h2>
             <p className="text-sm text-gray-600">
-              Tap the ❤️ icon on any event to save it here.
+              Tap the ❤️ icon on any event to save it here for later.
             </p>
             <Link
               to="/events"
-              className="inline-flex mt-4 text-sm px-4 py-2 rounded bg-coffee-mid text-white hover:bg-coffee-dark transition"
+              className="inline-flex mt-5 text-sm px-4 py-2.5 rounded-full bg-coffee-mid text-white hover:bg-coffee-dark transition"
             >
               Discover events
             </Link>
@@ -98,12 +98,12 @@ export default function LikedEvents() {
               {events.map((ev) => (
                 <li
                   key={ev._id}
-                  className="bg-white rounded-lg p-4 shadow-sm card-coffee flex flex-col sm:flex-row sm:items-stretch gap-3"
+                  className="bg-white rounded-xl p-4 sm:p-5 shadow-sm card-coffee flex flex-col sm:flex-row sm:items-stretch gap-3"
                 >
                   {/* Thumbnail */}
                   <Link
                     to={`/events/${ev._id}`}
-                    className="w-full sm:w-40 h-28 rounded-md overflow-hidden bg-gray-100 flex-shrink-0"
+                    className="w-full sm:w-40 h-28 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0"
                   >
                     <img
                       src={ev.imageURL || ev.images?.[0] || "/placeholder.jpg"}
@@ -123,26 +123,29 @@ export default function LikedEvents() {
                           {ev.title}
                         </Link>
                       </h3>
-                      <div className="text-xs text-gray-500 mt-1 flex flex-wrap gap-2">
-                        <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-coffee-cream/60 text-gray-700">
+
+                      <div className="mt-1 flex flex-wrap items-center gap-2 text-xs text-gray-500">
+                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full bg-coffee-cream/70 text-gray-700">
                           {ev.location}
                         </span>
                         <span className="text-gray-400">
                           {new Date(ev.postedAt).toLocaleDateString()}
                         </span>
                       </div>
+
                       <p className="text-sm text-gray-600 mt-2 line-clamp-2">
                         {ev.description}
                       </p>
                     </div>
 
-                    <div className="mt-2 flex items-center justify-between text-xs text-gray-500">
-                      <span>
-                        ❤️ {ev.likes ?? 0} &nbsp;·&nbsp; 👁 {ev.views ?? 0}
+                    <div className="mt-3 flex items-center justify-between text-xs text-gray-500">
+                      <span className="inline-flex items-center gap-3">
+                        <span>❤️ {ev.likes ?? 0}</span>
+                        <span>👁 {ev.views ?? 0}</span>
                       </span>
                       <Link
                         to={`/events/${ev._id}`}
-                        className="px-3 py-1.5 rounded border text-xs font-medium hover:bg-coffee-mid hover:text-white hover:border-coffee-mid transition"
+                        className="px-3 py-1.5 rounded-full border text-xs font-medium hover:bg-coffee-mid hover:text-white hover:border-coffee-mid transition"
                       >
                         View event
                       </Link>
@@ -154,11 +157,11 @@ export default function LikedEvents() {
 
             {/* Pagination */}
             {meta && meta.totalPages > 1 && (
-              <div className="flex items-center justify-center gap-3 mt-5 text-xs sm:text-sm">
+              <div className="flex items-center justify-center gap-3 mt-6 text-xs sm:text-sm">
                 <button
                   onClick={() => goToPage(Math.max(1, page - 1))}
                   disabled={!meta.hasPrevPage}
-                  className="px-3 py-1.5 rounded border bg-white hover:bg-gray-50 disabled:opacity-40"
+                  className="px-3 py-1.5 rounded-full border bg-white hover:bg-gray-50 disabled:opacity-40"
                 >
                   Prev
                 </button>
@@ -169,7 +172,7 @@ export default function LikedEvents() {
                 <button
                   onClick={() => goToPage(Math.min(meta.totalPages, page + 1))}
                   disabled={!meta.hasNextPage}
-                  className="px-3 py-1.5 rounded border bg-white hover:bg-gray-50 disabled:opacity-40"
+                  className="px-3 py-1.5 rounded-full border bg-white hover:bg-gray-50 disabled:opacity-40"
                 >
                   Next
                 </button>

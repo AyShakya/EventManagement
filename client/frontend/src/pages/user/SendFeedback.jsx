@@ -27,7 +27,7 @@ export const SendFeedback = () => {
     }
   }, [user]);
 
-  // optional: try to show event title (safe fallback to id only)
+  // optional: show event title (safe fallback to id only)
   useEffect(() => {
     let mounted = true;
     if (!eventId) return;
@@ -108,11 +108,11 @@ export const SendFeedback = () => {
   }
 
   return (
-    <div className="min-h-screen py-10 bg-gradient-to-b from-coffee-cream to-coffee-mid">
+    <div className="min-h-screen bg-gradient-to-b from-coffee-cream to-coffee-mid text-gray-900 py-14">
       <div className="app-container mx-auto w-full max-w-3xl">
         <div className="bg-white rounded-xl p-6 md:p-7 shadow card-coffee">
           {/* Header */}
-          <div className="flex items-start justify-between gap-4 mb-4">
+          <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 mb-5">
             <div>
               <h2 className="text-2xl font-semibold text-coffee-dark">
                 Send feedback
@@ -124,9 +124,9 @@ export const SendFeedback = () => {
             </div>
 
             {eventId && (
-              <div className="hidden sm:flex flex-col items-end text-right text-xs text-gray-500">
+              <div className="flex flex-col items-start sm:items-end text-xs text-gray-500">
                 <span className="uppercase tracking-wide">Event</span>
-                <span className="mt-1 inline-flex items-center px-2 py-0.5 rounded-full bg-coffee-cream/70 text-[11px] font-medium text-gray-700 max-w-[180px] truncate">
+                <span className="mt-1 inline-flex items-center px-2.5 py-0.5 rounded-full bg-coffee-cream/70 text-[11px] font-medium text-gray-700 max-w-[220px] truncate">
                   {eventTitle || `ID: ${eventId}`}
                 </span>
               </div>
@@ -146,7 +146,7 @@ export const SendFeedback = () => {
           )}
 
           <form onSubmit={handleSubmit} className="space-y-4">
-            {/* Name + Email row on bigger screens */}
+            {/* Name + Email row */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="block font-semibold text-xs uppercase tracking-wide text-gray-600 mb-1.5">
@@ -172,7 +172,7 @@ export const SendFeedback = () => {
                   className="w-full px-3 py-2 rounded-md border border-gray-200 focus:outline-none focus:ring-2 focus:ring-coffee-mid/50"
                 />
                 <p className="mt-1 text-[11px] text-gray-400">
-                  Used only so the organizer can follow up if needed.
+                  Only used so the organizer can follow up if needed.
                 </p>
               </div>
             </div>

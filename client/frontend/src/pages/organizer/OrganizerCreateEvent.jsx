@@ -15,6 +15,7 @@ export default function OrganizerCreateEvent() {
   const [imageURL, setImageURL] = useState("");
   const [uploadingImage, setUploadingImage] = useState(false);
   const [imagePublicId, setImagePublicId] = useState("");
+  const [registrationFormURL, setRegistrationFormURL] = useState("");
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -28,6 +29,12 @@ export default function OrganizerCreateEvent() {
     }
     if (imageURL && !/^https?:\/\/.+/i.test(imageURL.trim())) {
       return "Image URL must be a valid http(s) url";
+    }
+    if (
+      registrationFormURL &&
+      !/^https?:\/\/.+/i.test(registrationFormURL.trim())
+    ) {
+      return "Registration form URL must be a valid http(s) url";
     }
     return null;
   }
@@ -75,6 +82,10 @@ export default function OrganizerCreateEvent() {
         imageURL: imageURL.trim() || undefined,
         startAt: startAt ? new Date(startAt).toISOString() : undefined,
       };
+
+      if (registrationFormURL.trim()) {
+        payload.registrationFormURL = registrationFormURL.trim();
+      }
 
       // if user picked a date/time, send it as postedAt
       if (startAt) {
@@ -188,7 +199,8 @@ export default function OrganizerCreateEvent() {
               {/* Image upload */}
               <div>
                 <h2 className="text-sm font-semibold text-coffee-dark mb-2">
-                  Event image <span className="font-normal text-gray-500">(optional)</span>
+                  Event image{" "}
+                  <span className="font-normal text-gray-500">(optional)</span>
                 </h2>
                 <p className="text-xs text-gray-500 mb-2">
                   A good banner makes your event stand out in the feed.
@@ -237,7 +249,8 @@ export default function OrganizerCreateEvent() {
                   Schedule
                 </h2>
                 <p className="text-xs text-gray-500 mb-2">
-                  This is when the event actually happens (not when you post it).
+                  This is when the event actually happens (not when you post
+                  it).
                 </p>
 
                 <label className="block text-xs font-semibold text-gray-600 mb-1">
@@ -250,9 +263,27 @@ export default function OrganizerCreateEvent() {
                   onChange={(e) => setStartAt(e.target.value)}
                 />
                 <p className="text-[11px] text-gray-400 mt-1">
-                  You can leave this empty if you haven&apos;t finalized the date.
+                  You can leave this empty if you haven&apos;t finalized the
+                  date.
                 </p>
               </div>
+            </div>
+
+            {/* Registration form URL */}
+            <div>
+              <label className="block text-sm font-medium mb-1 text-coffee-dark">
+                Registration form link (optional)
+              </label>
+              <input
+                className="w-full px-3 py-2 rounded border"
+                value={registrationFormURL}
+                onChange={(e) => setRegistrationFormURL(e.target.value)}
+                placeholder="https://your-form.com/register"
+              />
+              <p className="text-xs text-gray-400 mt-1">
+                If you use Google Forms, Typeform, etc., paste the link here.
+                Users will be redirected when they click “Attend / Register”.
+              </p>
             </div>
 
             {/* Actions */}

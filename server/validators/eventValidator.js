@@ -40,6 +40,11 @@ const createEventValidation = [
     .isISO8601()
     .toDate()
     .withMessage("Posted date must be a valid date"),
+
+  check("registrationFormURL")
+    .optional()
+    .isURL()
+    .withMessage("Registration form URL must be a valid URL"),
 ];
 
 module.exports = { createEventValidation };

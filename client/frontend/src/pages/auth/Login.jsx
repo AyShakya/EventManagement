@@ -161,13 +161,6 @@ const Login = () => {
                 >
                   Forgot password?
                 </Link>
-                <span className="hidden sm:inline text-gray-300">•</span>
-                <Link
-                  to="/verify-email"
-                  className="text-gray-600 hover:text-coffee-dark hover:underline"
-                >
-                  Verify email
-                </Link>
               </div>
             </div>
           </form>

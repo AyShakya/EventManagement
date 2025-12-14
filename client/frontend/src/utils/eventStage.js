@@ -1,6 +1,6 @@
 export function getEventStage(startAt) {
   if (!startAt) {
-    return { stage: "no-date", label: "Unscheduled" };
+    return { stage: "unscheduled", label: "Unscheduled" };
   }
 
   const now = new Date();

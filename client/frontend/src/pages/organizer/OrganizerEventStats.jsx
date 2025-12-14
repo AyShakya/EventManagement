@@ -45,9 +45,7 @@ export default function OrganizerEventStats() {
             : ""
         );
         setTotalAttendees(
-          stats.totalAttendees !== undefined
-            ? String(stats.totalAttendees)
-            : ""
+          stats.totalAttendees !== undefined ? String(stats.totalAttendees) : ""
         );
         setAverageRating(
           stats.averageRating !== undefined ? String(stats.averageRating) : ""
@@ -129,10 +127,10 @@ export default function OrganizerEventStats() {
         statsPayload.averageRating = Number(averageRating);
       }
       if (revenue.trim() !== "") {
-        statsPayload.revenue = revenue.trim();
+        statsPayload.revenue = Number(revenue);
       }
       if (cost.trim() !== "") {
-        statsPayload.cost = cost.trim();
+        statsPayload.cost = Number(cost);
       }
       if (highlights.trim() !== "") {
         statsPayload.highlights = highlights.trim();
@@ -140,11 +138,9 @@ export default function OrganizerEventStats() {
       statsPayload.isPublished = Boolean(isPublished);
 
       const csrf = await fetchCsrfToken();
-      const res = await api.patch(
-        `/api/event/${eventId}/stats`,
-        { stats: statsPayload },
-        { headers: { "X-CSRF-Token": csrf } }
-      );
+      const res = await api.patch(`/api/event/${eventId}/stats`, statsPayload, {
+        headers: { "X-CSRF-Token": csrf },
+      });
 
       setSuccess(res?.data?.message || "Event stats saved.");
     } catch (err) {
@@ -225,7 +221,9 @@ export default function OrganizerEventStats() {
           {!isCompleted && (
             <div className="mb-4 text-xs text-yellow-800 bg-yellow-50 border border-yellow-200 px-3 py-2 rounded-md">
               You can draft stats anytime, but{" "}
-              <strong>they can only be saved once the event is completed</strong>
+              <strong>
+                they can only be saved once the event is completed
+              </strong>
               . When the event date is in the past and you publish, a recap
               section appears on the public event page.
             </div>

@@ -22,7 +22,7 @@ const eventSchema = new mongoose.Schema({
   attendees: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
   startAt: { type: Date },
   postedAt: { type: Date, default: Date.now, required: true },
-
+  registrationFormURL: { type: String },
   stats: {
     filled: { type: Boolean, default: false }, 
     filledAt: { type: Date },

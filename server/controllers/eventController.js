@@ -22,7 +22,7 @@ exports.getAllEvents = asyncHandler(async (req, res) => {
     limit,
     lean: true,
     select:
-      "title location description organizer views likes images imagePublicId startAt postedAt stats",
+      "title location description organizer views likes images imageURL imagePublicId startAt postedAt stats registrationFormURL",
   };
 
   const result = await Event.paginate(filter, options);
@@ -57,7 +57,7 @@ exports.getEventById = asyncHandler(async (req, res) => {
   const { id } = req.params;
   if (!mongoose.isValidObjectId(id))
     return res.status(404).json({ message: "Invalid Event Id" });
-  
+
   const ev = await Event.findById(id).lean();
   if (!ev) return res.status(404).json({ message: "Missing Event" });
 
@@ -67,15 +67,13 @@ exports.getEventById = asyncHandler(async (req, res) => {
 
   if (shouldIncrement) {
     await Event.updateOne({ _id: id }, { $inc: { views: 1 } }).exec();
-    ev.views = (ev.views || 0) + 1; 
+    ev.views = (ev.views || 0) + 1;
   }
 
   let liked = false;
 
   if (req.user && req.user.userType === "user") {
-    const user = await User.findById(req.user.id)
-      .select("likedEvents")
-      .lean();
+    const user = await User.findById(req.user.id).select("likedEvents").lean();
 
     liked =
       user?.likedEvents?.some(
@@ -89,7 +87,7 @@ exports.getEventById = asyncHandler(async (req, res) => {
     message: "Event Sent",
     event: {
       ...normalized,
-      liked, 
+      liked,
     },
   });
 });
@@ -108,34 +106,36 @@ exports.likeEvent = asyncHandler(async (req, res) => {
     session.startTransaction();
 
     const userAdded = await User.findOneAndUpdate(
-      { _id: userId, likedEvents: { $ne: eventId }},
-      { $addToSet: {likedEvents: eventId }},
+      { _id: userId, likedEvents: { $ne: eventId } },
+      { $addToSet: { likedEvents: eventId } },
       { new: true, session }
     ).lean();
 
-    if (userAdded){
+    if (userAdded) {
       const event = await Event.findByIdAndUpdate(
         eventId,
         { $inc: { likes: 1 } },
         { new: true, session }
       ).lean();
 
-      if(!event){
+      if (!event) {
         await User.findByIdAndUpdate(
           userId,
-          { $pull: {likedEvents: eventId } },
-          {session}
+          { $pull: { likedEvents: eventId } },
+          { session }
         );
         await session.abortTransaction();
         return res.status(404).json({ message: "Event not found" });
       }
 
       await session.commitTransaction();
-      return res.status(200).json({ message: "Event Liked", event: mapEventForClient(event) });
+      return res
+        .status(200)
+        .json({ message: "Event Liked", event: mapEventForClient(event) });
     }
 
     const userExists = await User.findById(userId).lean();
-    if(!userExists){
+    if (!userExists) {
       await session.abortTransaction();
       return res.status(404).json({ message: "User not found" });
     }
@@ -147,9 +147,16 @@ exports.likeEvent = asyncHandler(async (req, res) => {
     ).lean();
 
     if (decrementedEvent) {
-      await User.findByIdAndUpdate(userId, { $pull: { likedEvents: eventId } }, { session });
+      await User.findByIdAndUpdate(
+        userId,
+        { $pull: { likedEvents: eventId } },
+        { session }
+      );
       await session.commitTransaction();
-      return res.status(200).json({ message: "Event Unliked", event: mapEventForClient(decrementedEvent) });
+      return res.status(200).json({
+        message: "Event Unliked",
+        event: mapEventForClient(decrementedEvent),
+      });
     }
 
     const eventExists = await Event.findById(eventId).lean();
@@ -158,14 +165,17 @@ exports.likeEvent = asyncHandler(async (req, res) => {
       return res.status(404).json({ message: "Event not found" });
     }
 
-    await User.findByIdAndUpdate(userId, { $pull: {likedEvents: eventId } }, {session});
+    await User.findByIdAndUpdate(
+      userId,
+      { $pull: { likedEvents: eventId } },
+      { session }
+    );
     await session.commitTransaction();
     return res.status(200).json({ message: "Event Unliked", event: null });
   } catch (err) {
     await session.abortTransaction();
     throw err;
-  }
-  finally {
+  } finally {
     session.endSession();
   }
 });
@@ -187,7 +197,7 @@ exports.getLikedEvents = asyncHandler(async (req, res) => {
     limit,
     lean: true,
     select:
-      "title location description organizer views likes images imagePublicId startAt postedAt stats",
+      "title location description organizer views likes images imageURL imagePublicId startAt postedAt stats registrationFormURL",
   };
 
   const events = await Event.paginate(
@@ -230,12 +240,15 @@ exports.createEvent = asyncHandler(async (req, res) => {
     imagePublicId: req.body.imagePublicId || undefined,
     startAt: req.body.startAt || undefined,
     postedAt: req.body.postedAt || Date.now(),
+    registrationFormURL: req.body.registrationFormURL || undefined,
   };
 
   const event = await Event.create(payload);
   const normalized = mapEventForClient(event.toObject());
 
-  return res.status(201).json({ message: "Event Created Successfully", event:normalized });
+  return res
+    .status(201)
+    .json({ message: "Event Created Successfully", event: normalized });
 });
 
 exports.updateEvent = asyncHandler(async (req, res) => {
@@ -244,7 +257,17 @@ exports.updateEvent = asyncHandler(async (req, res) => {
     return res.status(400).json({ message: "Invalid event id" });
 
   const updates = {};
-  const allowed = ["title", "location", "description", "images", "imageURL", "imagePublicId", "postedAt", "startAt"];
+  const allowed = [
+    "title",
+    "location",
+    "description",
+    "images",
+    "imageURL",
+    "imagePublicId",
+    "postedAt",
+    "startAt",
+    "registrationFormURL",
+  ];
   allowed.forEach((k) => {
     if (req.body[k] !== undefined) updates[k] = req.body[k];
   });
@@ -261,7 +284,11 @@ exports.updateEvent = asyncHandler(async (req, res) => {
       .json({ message: "Forbidden: You don't own this event" });
 
   // If a new imagePublicId is provided and differs from old, delete old image
-  if (updates.imagePublicId && event.imagePublicId && updates.imagePublicId !== event.imagePublicId) {
+  if (
+    updates.imagePublicId &&
+    event.imagePublicId &&
+    updates.imagePublicId !== event.imagePublicId
+  ) {
     try {
       await cloudinary.uploader.destroy(event.imagePublicId);
     } catch (e) {
@@ -278,7 +305,9 @@ exports.updateEvent = asyncHandler(async (req, res) => {
 
   const normalized = mapEventForClient(event.toObject());
 
-  return res.status(200).json({ message: "Event Updated Successfully", event:normalized });
+  return res
+    .status(200)
+    .json({ message: "Event Updated Successfully", event: normalized });
 });
 
 exports.deleteEvent = asyncHandler(async (req, res) => {
@@ -314,7 +343,9 @@ exports.uploadEventImage = asyncHandler(async (req, res) => {
   }
 
   try {
-    const base64 = `data:${req.file.mimetype};base64,${req.file.buffer.toString("base64")}`;
+    const base64 = `data:${req.file.mimetype};base64,${req.file.buffer.toString(
+      "base64"
+    )}`;
 
     const result = await cloudinary.uploader.upload(base64, {
       folder: "events",
@@ -335,7 +366,7 @@ exports.uploadEventImage = asyncHandler(async (req, res) => {
 });
 
 exports.updateEventStats = asyncHandler(async (req, res) => {
-  const {id} = req.params;
+  const { id } = req.params;
   if (!mongoose.isValidObjectId(id)) {
     return res.status(400).json({ message: "Invalid event id" });
   }

@@ -23,6 +23,7 @@ export default function OrganizerEditEvent() {
   const [startAt, setStartAt] = useState("");
   const [imageURL, setImageURL] = useState("");
   const [imagePublicId, setImagePublicId] = useState("");
+  const [registrationFormURL, setRegistrationFormURL] = useState("");
 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -76,6 +77,12 @@ export default function OrganizerEditEvent() {
     if (imageURL && !/^https?:\/\/.+/i.test(imageURL.trim())) {
       return "Image URL must be a valid http(s) url";
     }
+    if (
+      registrationFormURL &&
+      !/^https?:\/\/.+/i.test(registrationFormURL.trim())
+    ) {
+      return "Registration form URL must be a valid http(s) url";
+    }
     return null;
   }
 
@@ -120,6 +127,12 @@ export default function OrganizerEditEvent() {
         imageURL: imageURL.trim() || undefined,
         startAt: startAt ? new Date(startAt).toISOString() : undefined,
       };
+
+      if (registrationFormURL.trim()) {
+        payload.registrationFormURL = registrationFormURL.trim();
+      } else {
+        payload.registrationFormURL = ""; // or omit, depending on how you want to clear it
+      }
 
       const csrf = await fetchCsrfToken();
       const res = await api.patch(`/api/event/${id}`, payload, {
@@ -264,9 +277,7 @@ export default function OrganizerEditEvent() {
                 </label>
 
                 {uploadingImage && (
-                  <div className="text-xs text-gray-500 mt-2">
-                    Uploading...
-                  </div>
+                  <div className="text-xs text-gray-500 mt-2">Uploading...</div>
                 )}
 
                 {imageURL && (
@@ -302,9 +313,27 @@ export default function OrganizerEditEvent() {
                   onChange={(e) => setStartAt(e.target.value)}
                 />
                 <p className="text-[11px] text-gray-400 mt-1">
-                  This is when the event actually happens (not when you posted it).
+                  This is when the event actually happens (not when you posted
+                  it).
                 </p>
               </div>
+            </div>
+
+            {/* Registration form URL */}
+            <div>
+              <label className="block text-sm font-medium mb-1">
+                Registration form link (optional)
+              </label>
+              <input
+                className="w-full px-3 py-2 rounded border"
+                value={registrationFormURL}
+                onChange={(e) => setRegistrationFormURL(e.target.value)}
+                placeholder="https://your-form.com/register"
+              />
+              <p className="text-xs text-gray-400 mt-1">
+                If you use Google Forms, Typeform, etc., paste the link here.
+                Users will be redirected when they click “Attend / Register”.
+              </p>
             </div>
 
             {/* Actions */}

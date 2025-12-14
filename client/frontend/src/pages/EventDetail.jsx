@@ -25,8 +25,6 @@ export default function EventDetail() {
   const [likes, setLikes] = useState(0);
   const [attending, setAttending] = useState(false);
   const [queries, setQueries] = useState([]);
-  const [queryText, setQueryText] = useState("");
-  const [qLoading, setQLoading] = useState(false);
 
   useEffect(() => {
     let mounted = true;
@@ -42,11 +40,11 @@ export default function EventDetail() {
         setLiked(Boolean(ev?.liked));
         setAttending(Boolean(ev?.isAttending));
 
+        // organizer can see messages for this event
         if (user && user.userType === "organizer") {
           const qres = await api
             .get(`/api/query/event/${id}`)
             .catch(() => ({ data: { queries: [] } }));
-
           if (!mounted) return;
           setQueries(qres.data?.queries || []);
         } else {
@@ -86,7 +84,24 @@ export default function EventDetail() {
   }
 
   async function handleAttend() {
+    if (!event) return;
+    const stage = getEventStage(event.startAt);
+
+    // completed events are view-only
+    if (stage.stage === "completed") return;
+
     if (!user) return navigate("/login");
+
+    const url = (event.registrationFormURL || "").trim();
+
+    // If organizer provided an external registration link -> open it
+    if (url) {
+      // optional: you can also ping /attend here before redirect for analytics
+      window.open(url, "_blank", "noopener,noreferrer");
+      return;
+    }
+
+    // fallback: internal "attend" toggle
     try {
       const res = await api.post(`/api/event/${id}/attend`);
       if (res.data && res.data.success) setAttending(true);
@@ -95,38 +110,9 @@ export default function EventDetail() {
     }
   }
 
-  async function postQuery(e) {
-    e.preventDefault();
-    if (!user) return navigate("/login");
-    if (!queryText || queryText.trim().length < 5) return;
-    setQLoading(true);
-    try {
-      const payload = {
-        subject: `Query about ${event?.title || ""}`,
-        message: queryText.trim(),
-      };
-      const res = await csrfPost(`/api/query/event/${id}/feedback`, payload);
-      if (res && (res.status === 201 || res.data?.queryId)) {
-        setQueryText("");
-        if (user.userType === "organizer") {
-          try {
-            const qres = await api.get(`/api/query/event/${id}`);
-            setQueries(qres.data?.queries || []);
-          } catch {
-            // ignore refresh errors
-          }
-        }
-      }
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setQLoading(false);
-    }
-  }
-
   if (loading)
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-coffee-cream to-coffee-mid">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-coffee-cream via-[#f5ece0] to-coffee-mid">
         <div className="bg-white/80 rounded-lg px-6 py-4 shadow card-coffee text-sm text-gray-600">
           Loading event…
         </div>
@@ -135,7 +121,7 @@ export default function EventDetail() {
 
   if (err)
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-coffee-cream to-coffee-mid">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-coffee-cream via-[#f5ece0] to-coffee-mid">
         <div className="bg-white/90 rounded-lg px-6 py-4 shadow card-coffee text-red-600">
           {err}
         </div>
@@ -144,7 +130,7 @@ export default function EventDetail() {
 
   if (!event)
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-coffee-cream to-coffee-mid">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-coffee-cream via-[#f5ece0] to-coffee-mid">
         <div className="bg-white/90 rounded-lg px-6 py-4 shadow card-coffee">
           Event not found
         </div>
@@ -156,16 +142,25 @@ export default function EventDetail() {
   const showPublicStats = stageInfo.stage === "completed" && stats.isPublished;
 
   const heroImage =
-    (Array.isArray(event.images) && event.images[0]) || "/placeholder.jpg";
+    (Array.isArray(event.images) && event.images[0]) ||
+    event.imageURL ||
+    "/placeholder.jpg";
 
   const isCompleted = stageInfo.stage === "completed";
+  const registrationURL = (event.registrationFormURL || "").trim();
+  const hasExternalRegistration = Boolean(registrationURL);
+
   const attendButtonLabel = isCompleted
     ? "Event completed"
+    : hasExternalRegistration
+    ? "Register on form"
     : attending
     ? "Registered"
     : "Attend / Register";
 
-  const attendDisabled = isCompleted || attending;
+  const attendDisabled = isCompleted || (!hasExternalRegistration && attending);
+
+  const isOrganizerView = user?.userType === "organizer";
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-coffee-cream via-[#f5ece0] to-coffee-mid text-gray-900 py-10">
@@ -202,13 +197,13 @@ export default function EventDetail() {
 
                   <span
                     className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-medium
-                  ${
-                    stageInfo.stage === "completed"
-                      ? "bg-green-50 text-green-700 border border-green-200"
-                      : stageInfo.stage === "upcoming"
-                      ? "bg-blue-50 text-blue-700 border border-blue-200"
-                      : "bg-gray-50 text-gray-600 border border-gray-200"
-                  }`}
+                    ${
+                      stageInfo.stage === "completed"
+                        ? "bg-green-50 text-green-700 border border-green-200"
+                        : stageInfo.stage === "upcoming"
+                        ? "bg-blue-50 text-blue-700 border border-blue-200"
+                        : "bg-gray-50 text-gray-600 border border-gray-200"
+                    }`}
                   >
                     {stageInfo.label}
                   </span>
@@ -364,6 +359,13 @@ export default function EventDetail() {
                 </button>
               </div>
 
+              {hasExternalRegistration && !isCompleted && (
+                <p className="mt-2 text-[11px] text-gray-500">
+                  Registration is handled on the organizer&apos;s external form.
+                  Clicking “Register on form” will open it in a new tab.
+                </p>
+              )}
+
               {/* Organizer card */}
               <div className="mt-8 border-t pt-5">
                 <div className="flex items-center gap-4">
@@ -418,9 +420,7 @@ export default function EventDetail() {
 
                 <dl className="space-y-3 text-sm">
                   <div>
-                    <dt className="text-xs text-gray-500 uppercase">
-                      When
-                    </dt>
+                    <dt className="text-xs text-gray-500 uppercase">When</dt>
                     <dd className="mt-0.5 font-medium">
                       {formatDateTime(event.startAt)}
                     </dd>
@@ -458,65 +458,47 @@ export default function EventDetail() {
                 </dl>
               </div>
 
-              {/* Questions card */}
-              <div className="bg-white rounded-xl p-4 border border-gray-100">
-                <h4 className="font-semibold mb-2 text-sm">
-                  Questions & comments
-                </h4>
+              {/* Organizer-only: attendee messages */}
+              {isOrganizerView && (
+                <div className="bg-white rounded-xl p-4 border border-gray-100">
+                  <h4 className="font-semibold mb-2 text-sm">
+                    Attendee messages & feedback
+                  </h4>
 
-                {queries.length === 0 ? (
-                  <div className="text-gray-500 text-xs">
-                    No questions yet — be the first to ask.
-                  </div>
-                ) : (
-                  <ul className="space-y-2 max-h-52 overflow-auto pr-1 text-sm">
-                    {queries.map((q) => (
-                      <li
-                        key={q._id}
-                        className="p-2 border rounded bg-gray-50/60"
-                      >
-                        <div className="flex items-center justify-between gap-2">
-                          <div className="text-xs font-semibold">
-                            {q.subject || "Question"}
+                  {queries.length === 0 ? (
+                    <div className="text-gray-500 text-xs">
+                      No messages yet. Attendees can use the “Send feedback”
+                      form on this event.
+                    </div>
+                  ) : (
+                    <ul className="space-y-2 max-h-52 overflow-auto pr-1 text-sm">
+                      {queries.map((q) => (
+                        <li
+                          key={q._id}
+                          className="p-2 border rounded bg-gray-50/60"
+                        >
+                          <div className="flex items-center justify-between gap-2">
+                            <div className="text-xs font-semibold">
+                              {q.subject || "Message"}
+                            </div>
+                            <div className="text-[10px] text-gray-400 whitespace-nowrap">
+                              {new Date(q.createdAt).toLocaleString()}
+                            </div>
                           </div>
-                          <div className="text-[10px] text-gray-400 whitespace-nowrap">
-                            {new Date(q.createdAt).toLocaleString()}
+                          <div className="text-xs text-gray-700 mt-1">
+                            {q.message}
                           </div>
-                        </div>
-                        <div className="text-xs text-gray-700 mt-1">
-                          {q.message}
-                        </div>
-                      </li>
-                    ))}
-                  </ul>
-                )}
+                        </li>
+                      ))}
+                    </ul>
+                  )}
 
-                <form onSubmit={postQuery} className="mt-3 space-y-2">
-                  <textarea
-                    value={queryText}
-                    onChange={(e) => setQueryText(e.target.value)}
-                    rows={3}
-                    placeholder="Ask a question or leave a comment"
-                    className="w-full px-3 py-2 border rounded text-sm focus:outline-none focus:ring-1 focus:ring-coffee-mid focus:border-coffee-mid"
-                  />
-                  <div className="flex gap-2">
-                    <button
-                      type="submit"
-                      disabled={qLoading}
-                      className="bg-coffee-mid text-white px-3 py-1.5 rounded text-sm disabled:opacity-60"
-                    >
-                      {qLoading ? "Posting…" : "Post"}
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setQueryText("")}
-                      className="px-3 py-1.5 rounded border text-sm"
-                    >
-                      Clear
-                    </button>
-                  </div>
-                </form>
-              </div>
+                  <p className="mt-2 text-[11px] text-gray-400">
+                    Full list available in your organizer dashboard under
+                    Queries for this event.
+                  </p>
+                </div>
+              )}
             </aside>
           </div>
         </div>

@@ -3,11 +3,12 @@ import { Link } from "react-router-dom";
 import api from "../api/axiosClient";
 import { getEventStage } from "../utils/eventStage";
 
+/* ---------- Shared event card (used in Featured section) ---------- */
 function EventCard({ ev }) {
   const cover =
-    (Array.isArray(ev.images) && ev.images[0]) ||
     ev.imageURL ||
-    "/placeholder.jpg";
+    (Array.isArray(ev.images) && ev.images.length > 0 && ev.images[0]) ||
+    "";
 
   const stageInfo = getEventStage(ev.startAt);
 
@@ -18,11 +19,18 @@ function EventCard({ ev }) {
     >
       {/* Image */}
       <div className="relative h-40 w-full bg-gray-100 overflow-hidden">
-        <img
-          src={cover}
-          alt={ev.title}
-          className="h-full w-full object-cover group-hover:scale-[1.03] transition-transform duration-200"
-        />
+        {cover ? (
+          <img
+            src={cover}
+            alt={ev.title}
+            className="h-full w-full object-cover group-hover:scale-[1.03] transition-transform duration-200"
+          />
+        ) : (
+          <div className="h-full w-full flex flex-col items-center justify-center bg-gradient-to-br from-gray-100 to-gray-200 text-xs text-gray-600">
+            <span className="font-medium">No image</span>
+          </div>
+        )}
+
         <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-black/15 to-transparent" />
 
         {/* Stage chip */}
@@ -80,9 +88,10 @@ function EventCard({ ev }) {
   );
 }
 
+/* ------------------------- Home page ------------------------- */
 const Home = () => {
   const [featured, setFeatured] = useState([]);
-  const [latest, setLatest] = useState([]);
+  const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [q, setQ] = useState("");
   const [error, setError] = useState("");
@@ -91,13 +100,15 @@ const Home = () => {
     (async () => {
       setLoading(true);
       try {
+        // just first page (8) is fine for home
         const res = await api.get("/api/event?page=1&limit=8");
-        const events = (res.data && res.data.events) || [];
-        const sortedByLikes = [...events].sort(
+        const all = (res.data && res.data.events) || [];
+        setEvents(all);
+
+        const sortedByLikes = [...all].sort(
           (a, b) => (b.likes || 0) - (a.likes || 0)
         );
         setFeatured(sortedByLikes.slice(0, 4));
-        setLatest(events.slice(0, 8));
       } catch (e) {
         console.error(e);
         setError(e?.response?.data?.message || "Failed to load events");
@@ -117,8 +128,17 @@ const Home = () => {
     window.location.href = `/events?q=${encodeURIComponent(trimmed)}`;
   }
 
+  // quick stats for “overview” section
+  const totalEvents = events.length;
+  const upcomingCount = events.filter(
+    (ev) => getEventStage(ev.startAt).stage === "upcoming"
+  ).length;
+  const completedCount = events.filter(
+    (ev) => getEventStage(ev.startAt).stage === "completed"
+  ).length;
+
   return (
-    <div className="min-h-screen bg-gradient-to-b from-coffee-cream via-[#f5ece0] to-coffee-mid text-gray-900">
+    <div className="min-h-screen bg-gradient-to-b from-coffee-cream via-[#f5ece0] to-coffee-mid text-gray-900 flex flex-col">
       {/* Hero */}
       <section className="py-14 px-4 md:px-6 bg-coffee-hero text-coffee-cream">
         <div className="app-container mx-auto flex flex-col lg:flex-row items-center gap-10">
@@ -164,7 +184,7 @@ const Home = () => {
             <div className="mt-5 flex flex-wrap gap-4 text-[11px] text-coffee-cream/80">
               <div className="flex items-center gap-2">
                 <span className="h-2 w-2 rounded-full bg-green-400" />
-                Live and upcoming events displayed in real-time.
+                Live and upcoming events handled in real-time.
               </div>
               <div>Track likes, views & post-event stats.</div>
             </div>
@@ -188,7 +208,7 @@ const Home = () => {
                     value={q}
                     onChange={(e) => setQ(e.target.value)}
                     placeholder="Try: Hackathon, Music, Workshop..."
-                    className="flex-1 px-3 py-2 rounded-lg border text-sm focus:outline-none focus:ring-1 focus:ring-coffee-mid focus:border-coffee-mid"
+                    className="flex-1 px-3 py-2 text-coffee-mid rounded-lg border text-sm focus:outline-none focus:ring-1 focus:ring-coffee-mid focus:border-coffee-mid"
                   />
                   <button
                     type="submit"
@@ -229,14 +249,55 @@ const Home = () => {
       </section>
 
       {/* Main content */}
-      <main className="app-container mx-auto px-4 py-10">
+      <main className="app-container mx-auto px-4 py-10 flex-1 w-full">
         {error && (
           <div className="mb-4 bg-red-50 border border-red-200 text-red-700 text-sm px-4 py-3 rounded-xl">
             {error}
           </div>
         )}
 
-        {/* Featured */}
+        {/* Quick overview stats */}
+        <section className="mb-8">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div className="bg-white rounded-2xl p-4 shadow-sm border border-coffee-cream/60">
+              <div className="text-xs uppercase tracking-wide text-gray-500">
+                Total events
+              </div>
+              <div className="mt-1 text-2xl font-semibold text-coffee-dark">
+                {totalEvents}
+              </div>
+              <p className="text-[11px] text-gray-500 mt-1">
+                Across all stages on the platform.
+              </p>
+            </div>
+
+            <div className="bg-white rounded-2xl p-4 shadow-sm border border-coffee-cream/60">
+              <div className="text-xs uppercase tracking-wide text-gray-500">
+                Upcoming
+              </div>
+              <div className="mt-1 text-2xl font-semibold text-coffee-dark">
+                {upcomingCount}
+              </div>
+              <p className="text-[11px] text-gray-500 mt-1">
+                Events that haven&apos;t started yet.
+              </p>
+            </div>
+
+            <div className="bg-white rounded-2xl p-4 shadow-sm border border-coffee-cream/60">
+              <div className="text-xs uppercase tracking-wide text-gray-500">
+                Completed
+              </div>
+              <div className="mt-1 text-2xl font-semibold text-coffee-dark">
+                {completedCount}
+              </div>
+              <p className="text-[11px] text-gray-500 mt-1">
+                With potential post-event stats & highlights.
+              </p>
+            </div>
+          </div>
+        </section>
+
+        {/* Featured events */}
         <section className="mb-10">
           <div className="flex items-center justify-between mb-4">
             <div>
@@ -251,7 +312,7 @@ const Home = () => {
               to="/events"
               className="text-xs md:text-sm text-coffee-mid hover:underline"
             >
-              See all
+              See all events
             </Link>
           </div>
 
@@ -265,8 +326,8 @@ const Home = () => {
               ))}
             </div>
           ) : featured.length === 0 ? (
-            <div className="text-gray-500 text-sm">
-              No featured events yet. Check back soon.
+            <div className="text-gray-500 text-sm bg-white rounded-2xl p-6 shadow-sm">
+              No featured events yet. Check back soon, or browse all events.
             </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -277,49 +338,44 @@ const Home = () => {
           )}
         </section>
 
-        {/* Latest */}
-        <section>
-          <div className="flex items-center justify-between mb-4">
-            <div>
-              <h2 className="text-xl md:text-2xl font-bold text-coffee-dark">
-                Latest events
-              </h2>
-              <p className="text-xs text-gray-500 mt-1">
-                Freshly added events from organizers.
-              </p>
-            </div>
-            <Link
-              to="/events"
-              className="text-xs md:text-sm text-coffee-mid hover:underline"
-            >
-              View all events
-            </Link>
+        {/* How it helps / value proposition */}
+        <section className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
+          <div className="bg-white rounded-2xl p-6 shadow-sm border border-coffee-cream/60">
+            <h3 className="text-lg font-semibold text-coffee-dark mb-2">
+              For attendees
+            </h3>
+            <ul className="text-sm text-gray-700 space-y-2 list-disc list-inside">
+              <li>Browse events by stage: upcoming, completed, unscheduled.</li>
+              <li>Like events to save them in your personal list.</li>
+              <li>Send feedback or questions directly to organizers.</li>
+              <li>
+                See post-event stats (attendance, ratings, highlights) when
+                organizers publish them.
+              </li>
+            </ul>
           </div>
 
-          {loading ? (
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {[1, 2, 3].map((i) => (
-                <div
-                  key={i}
-                  className="h-28 bg-white rounded-2xl shadow-sm animate-pulse"
-                />
-              ))}
-            </div>
-          ) : latest.length === 0 ? (
-            <div className="text-gray-500 text-sm">
-              No events found. Organizers will add something soon.
-            </div>
-          ) : (
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {latest.map((ev) => (
-                <EventCard key={ev._id} ev={ev} />
-              ))}
-            </div>
-          )}
+          <div className="bg-white rounded-2xl p-6 shadow-sm border border-coffee-cream/60">
+            <h3 className="text-lg font-semibold text-coffee-dark mb-2">
+              For organizers
+            </h3>
+            <ul className="text-sm text-gray-700 space-y-2 list-disc list-inside">
+              <li>Create and manage events from a dedicated dashboard.</li>
+              <li>Track views, likes, queries, and attendee interest.</li>
+              <li>
+                After the event, record stats like attendance, revenue, and
+                highlights.
+              </li>
+              <li>
+                Optionally publish a recap so your event page becomes a
+                showcase.
+              </li>
+            </ul>
+          </div>
         </section>
 
         {/* CTA strip */}
-        <section className="mt-12 bg-white rounded-2xl p-6 md:p-7 shadow-sm border border-coffee-cream/60">
+        <section className="mt-4 bg-white rounded-2xl p-6 md:p-7 shadow-sm border border-coffee-cream/60">
           <div className="flex flex-col md:flex-row items-center justify-between gap-4">
             <div>
               <h3 className="text-lg md:text-xl font-semibold text-coffee-dark">
@@ -348,8 +404,16 @@ const Home = () => {
         </section>
       </main>
 
-      <footer className="text-center py-8 text-xs text-gray-700">
-        © {new Date().getFullYear()} CoffeeEvents · Built with MERN
+      {/* Footer with better contrast */}
+      <footer className="mt-12 bg-gradient-to-r from-[#1a0605] to-[#2b0d0f] text-coffee-cream/80 text-sm border-t-4 border-coffee-mid">
+        <div className="app-container mx-auto px-4 py-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <span className="font-semibold">
+            © {new Date().getFullYear()} CoffeeEvents · Built with MERN Stack
+          </span>
+          <span className="text-xs text-coffee-cream/60">
+            For campus events, fests, tech talks & community meetups ☕
+          </span>
+        </div>
       </footer>
     </div>
   );
