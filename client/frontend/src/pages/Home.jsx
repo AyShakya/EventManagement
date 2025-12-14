@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import api from "../api/axiosClient";
 import { getEventStage } from "../utils/eventStage";
 
@@ -95,6 +95,7 @@ const Home = () => {
   const [loading, setLoading] = useState(true);
   const [q, setQ] = useState("");
   const [error, setError] = useState("");
+  const navigate = useNavigate();
 
   useEffect(() => {
     (async () => {
@@ -121,11 +122,22 @@ const Home = () => {
   function onSearchSubmit(e) {
     e.preventDefault();
     const trimmed = q.trim();
+
     if (!trimmed) {
-      window.location.href = "/events";
+      navigate("/events");
       return;
     }
-    window.location.href = `/events?q=${encodeURIComponent(trimmed)}`;
+
+    navigate(`/events?q=${encodeURIComponent(trimmed)}`);
+  }
+  function onSearchSubmit(e) {
+    e.preventDefault();
+    const trimmed = q.trim();
+    if (!trimmed) {
+      navigate("/events");
+      return;
+    }
+    navigate(`/events?q=${encodeURIComponent(trimmed)}`);
   }
 
   // quick stats for “overview” section

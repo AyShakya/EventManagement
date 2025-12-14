@@ -299,12 +299,6 @@ export default function UserDashboard() {
             >
               Browse Events
             </button>
-            <Link
-              to="/user/settings"
-              className="text-sm text-gray-800 underline underline-offset-4"
-            >
-              Account settings
-            </Link>
           </div>
         </div>
 

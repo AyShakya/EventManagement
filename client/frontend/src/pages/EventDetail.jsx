@@ -25,6 +25,7 @@ export default function EventDetail() {
   const [likes, setLikes] = useState(0);
   const [attending, setAttending] = useState(false);
   const [queries, setQueries] = useState([]);
+  const [copied, setCopied] = useState(false);
 
   useEffect(() => {
     let mounted = true;
@@ -352,10 +353,12 @@ export default function EventDetail() {
                 <button
                   onClick={() => {
                     navigator.clipboard?.writeText(window.location.href);
+                    setCopied(true);
+                    setTimeout(() => setCopied(false), 1200);
                   }}
                   className="inline-flex items-center px-3 py-2 rounded-full border text-xs hover:bg-gray-50 transition"
                 >
-                  Copy link
+                  {copied ? "Copied!" : "Copy link"}
                 </button>
               </div>
 
@@ -400,7 +403,7 @@ export default function EventDetail() {
                     {event.organizer?._id && (
                       <Link
                         to={`/organizer/${event.organizer._id}`}
-                        className="mt-1 inline-block text-xs text-coffee-mid hover:underline"
+                        className="text-xs text-coffee-mid hover:underline"
                       >
                         View profile
                       </Link>
@@ -441,18 +444,12 @@ export default function EventDetail() {
 
                   <div className="border-t border-gray-200 pt-3 flex items-center justify-between">
                     <div>
-                      <dt className="text-xs text-gray-500 uppercase">
-                        Likes
-                      </dt>
+                      <dt className="text-xs text-gray-500 uppercase">Likes</dt>
                       <dd className="mt-0.5 font-medium">{likes}</dd>
                     </div>
                     <div>
-                      <dt className="text-xs text-gray-500 uppercase">
-                        Views
-                      </dt>
-                      <dd className="mt-0.5 font-medium">
-                        {event.views || 0}
-                      </dd>
+                      <dt className="text-xs text-gray-500 uppercase">Views</dt>
+                      <dd className="mt-0.5 font-medium">{event.views || 0}</dd>
                     </div>
                   </div>
                 </dl>
