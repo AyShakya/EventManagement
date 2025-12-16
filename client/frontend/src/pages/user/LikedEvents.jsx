@@ -105,11 +105,17 @@ export default function LikedEvents() {
                     to={`/events/${ev._id}`}
                     className="w-full sm:w-40 h-28 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0"
                   >
-                    <img
-                      src={ev.imageURL || ev.images?.[0] || "/placeholder.jpg"}
-                      alt={ev.title}
-                      className="w-full h-full object-cover"
-                    />
+                    {ev.imageURL || ev.images?.[0] ? (
+                      <img
+                        src={ev.imageURL || ev.images[0]}
+                        alt={ev.title}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-xs text-gray-400 bg-gray-100">
+                        No image
+                      </div>
+                    )}
                   </Link>
 
                   {/* Main content */}

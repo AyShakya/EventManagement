@@ -24,7 +24,14 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     (async () => {
       try {
-        const res = await api.post("/api/auth/refresh-token");
+        const csrf = await fetchCsrfToken();
+        const res = await api.post(
+          "/api/auth/refresh-token",
+          {},
+          {
+            headers: { "X-CSRF-Token": csrf },
+          }
+        );
         if (res.data && res.data.user) {
           dispatch({ type: "SET_USER", payload: res.data.user });
         } else {
@@ -41,7 +48,12 @@ export const AuthProvider = ({ children }) => {
       userType === "organizer"
         ? "/api/auth/login-organizer"
         : "/api/auth/login-user";
-    const resp = await api.post(route, { email, password, userType });
+    const csrf = await fetchCsrfToken();
+    const resp = await api.post(
+      route,
+      { email, password, userType },
+      { headers: { "X-CSRF-Token": csrf } }
+    );
     if (resp.data && resp.data.user) {
       dispatch({ type: "SET_USER", payload: resp.data.user });
     }
@@ -50,13 +62,17 @@ export const AuthProvider = ({ children }) => {
 
   const register = async (userName, email, password, userType = "user") => {
     const payload = { userName, email, password, userType };
-    const resp = await api.post("/api/auth/register", payload);
+    const csrf = await fetchCsrfToken();
+    const resp = await api.post("/api/auth/register", payload, {
+      headers: { "X-CSRF-Token": csrf },
+    });
+
     return resp.data;
   };
 
   const logout = async () => {
     const csrf = await fetchCsrfToken();
-    await api.post("/api/auth/logout", null, {
+    await api.post("/api/auth/logout", {}, {
       headers: { "X-CSRF-Token": csrf },
     });
     dispatch({ type: "CLEAR_USER" });
@@ -64,14 +80,16 @@ export const AuthProvider = ({ children }) => {
 
   const logoutAll = async () => {
     const csrf = await fetchCsrfToken();
-    await api.post("/api/auth/logout-all", null, {
+    await api.post("/api/auth/logout-all", {}, {
       headers: { "X-CSRF-Token": csrf },
     });
     dispatch({ type: "CLEAR_USER" });
   };
 
   return (
-    <AuthContext.Provider value={{ ...state, dispatch, login, register, logout, logoutAll }}>
+    <AuthContext.Provider
+      value={{ ...state, dispatch, login, register, logout, logoutAll }}
+    >
       {children}
     </AuthContext.Provider>
   );

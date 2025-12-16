@@ -126,7 +126,7 @@ userRouter.get(
       limit,
       lean: true,
       sort: { postedAt: -1 },
-      select: "title location description organizer views likes imageURL postedAt",
+      select: "title location description organizer views likes images imageURL imagePublicId startAt postedAt",
     };
 
     const result = await Event.paginate(

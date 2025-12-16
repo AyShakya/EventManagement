@@ -48,14 +48,14 @@ function ProfileCard({ user }) {
             </div>
           </div>
 
-          <div className="text-left sm:text-right">
+          {/* <div className="text-left sm:text-right">
             <Link
               to="/organizer/settings"
               className="inline-flex items-center justify-center text-xs px-3 py-1.5 rounded-full border border-coffee-mid/60 text-coffee-mid hover:bg-coffee-mid hover:text-white transition"
             >
               Edit profile
             </Link>
-          </div>
+          </div> */}
         </div>
 
         {user?.bio && (

@@ -51,7 +51,13 @@ const limiter = rateLimit({
 });
 
 //CSRF Protection
-const csrfProtection = csrf({ cookie: true });
+const csrfProtection = csrf({
+  cookie: {
+    httpOnly: true,
+    secure: isProd,
+    sameSite: isProd ? "none" : "lax",
+  } 
+});
 
 //Middlewares
 app.use(express.urlencoded({ extended: false }));
@@ -81,10 +87,18 @@ app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 app.use(
   cors({
-    origin: process.env.CLIENT_URL || "http://localhost:5173",
+    origin: process.env.CLIENT_URL,
     credentials: true,
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    allowedHeaders: [
+      "Content-Type",
+      "Authorization",
+      "X-CSRF-Token",
+    ],
+    exposedHeaders: ["set-cookie"],
   })
 );
+
 app.set("trust proxy", 1);
 
 //Security Headers
@@ -94,10 +108,10 @@ if (isProd) {
     helmet.contentSecurityPolicy({
       useDefaults: true,
       directives: {
-        "default-src": ["'self'"],
+        "default-src": ["'self'", process.env.CLIENT_URL],
         "script-src": ["'self'"],
         "style-src": ["'self'", "'unsafe-inline'"],
-        "img-src": ["'self'", "data:", "https://res.cloudinary.com"],
+        "img-src": ["'self'", "data:", "https://res.cloudinary.com", "https://*.vercel.app"],
       },
     })
   );
