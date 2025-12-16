@@ -6,7 +6,7 @@ const {
 const bcrypt = require("bcrypt");
 const { User, Organizer } = require("../models/userModel.js");
 const EmailToken = require("../models/emailTokenModel.js");
-const transporter = require("../config/nodemailer.js");
+const transporter = require("../config/nodeMailer.js");
 const {
   createAccessToken,
   createRefreshTokenForUser,

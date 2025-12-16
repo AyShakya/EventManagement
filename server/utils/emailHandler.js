@@ -1,4 +1,4 @@
-const transporter = require("../config/nodemailer");
+const transporter = require("../config/nodeMailer");
 const EmailToken = require("../models/emailTokenModel");
 const { generateRandomTokenHex, hashToken } = require("./tokenUtils");
 const {User, Organizer} = require("../models/userModel");

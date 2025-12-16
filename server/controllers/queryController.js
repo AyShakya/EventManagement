@@ -3,7 +3,7 @@ const sanitizeHtml = require('sanitize-html');
 const asyncHandler = require("../utils/asyncHandler");
 const Event = require("../models/eventModel");
 const { Organizer, User } = require("../models/userModel");
-const transporter = require("../config/nodemailer");
+const transporter = require("../config/nodeMailer");
 
 function sanitizeInput(str) {
   if (!str) return '';
