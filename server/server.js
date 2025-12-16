@@ -42,6 +42,14 @@ if (process.env.NODE_ENV === "production" && missing.length > 0) {
 const app = express();
 const PORT = process.env.PORT || 5000;
 const isProd = process.env.NODE_ENV === "production";
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, 
+  max: 20,                
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { message: "Too many authentication attempts. Try again later." },
+});
+
 
 //Rate Limiter
 const limiter = rateLimit({
@@ -159,7 +167,7 @@ app.use(limiter);
     });
 
     //Paths
-    app.use("/api/auth", authRouter);
+    app.use("/api/auth", authLimiter, authRouter);
     app.use("/api/event", eventRouter);
     app.use("/api/query", queryRouter);
     app.use("/api/organizer", organizerRouter);

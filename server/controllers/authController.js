@@ -186,11 +186,11 @@ exports.refreshToken = async (req, res, next) => {
       return res.status(401).json({ message: "Refresh token expired" });
     }
 
-    console.log("[refreshToken] found token for", {
-      modelType: found.modelType,
-      accountId: found.account._id.toString(),
-      expiresAt: found.tokenObj.expiresAt,
-    });
+    // console.log("[refreshToken] found token for", {
+    //   modelType: found.modelType,
+    //   accountId: found.account._id.toString(),
+    //   expiresAt: found.tokenObj.expiresAt,
+    // });
 
     let rotatedResult;
     try {
@@ -202,7 +202,7 @@ exports.refreshToken = async (req, res, next) => {
         req.get("User-Agent") || ""
       );
     } catch (err) {
-      console.error("[refreshToken] rotate failed:", err.message);
+      // console.error("[refreshToken] rotate failed:", err.message);
       // res.clearCookie(ACCESS_COOKIE_NAME, cookieOptions(0));
       // res.clearCookie(REFRESH_COOKIE_NAME, cookieOptions(0));
       return res.status(401).json({ message: "Invalid refresh token" });
