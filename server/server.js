@@ -93,18 +93,19 @@ app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 //   credentials: true,
 // }));
 const allowedOrigins = [
-  process.env.CLIENT_URL,
-  "http://localhost:5173",
+  process.env.CLIENT_URL,        
+  "http://localhost:5173",       
 ];
 app.use(
   cors({
     origin: function (origin, callback) {
       if (!origin) return callback(null, true);
-
       if (allowedOrigins.includes(origin)) {
         return callback(null, true);
       }
-
+      if (origin.endsWith(".vercel.app")) {
+        return callback(null, true);
+      }
       return callback(new Error("CORS not allowed"));
     },
     credentials: true,
@@ -117,6 +118,7 @@ app.use(
     exposedHeaders: ["set-cookie"],
   })
 );
+
 
 app.set("trust proxy", 1);
 
