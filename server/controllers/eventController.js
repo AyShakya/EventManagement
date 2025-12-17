@@ -283,7 +283,6 @@ exports.updateEvent = asyncHandler(async (req, res) => {
       .status(403)
       .json({ message: "Forbidden: You don't own this event" });
 
-  // If a new imagePublicId is provided and differs from old, delete old image
   if (
     updates.imagePublicId &&
     event.imagePublicId &&
@@ -295,7 +294,7 @@ exports.updateEvent = asyncHandler(async (req, res) => {
       console.error("Failed to delete old cloudinary image", e);
     }
   }
-  // normalize images if imageURL provided
+
   if (updates.imageURL && !updates.images) {
     updates.images = [updates.imageURL];
   }
@@ -478,7 +477,6 @@ exports.updateEventStats = asyncHandler(async (req, res) => {
 
   await event.save();
 
-  // if you already have a mapEventForClient helper, you can use it here
   const updated = mapEventForClient(event.toObject());
 
   return res

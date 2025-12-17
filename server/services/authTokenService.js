@@ -153,15 +153,12 @@ async function rotateRefreshToken(
       userAgent,
     };
 
-    // Replace the old token entry with the new one
     account.refreshTokens.splice(idx, 1, newTokenObj);
 
-    // Drop any expired tokens and enforce MAX_REFRESH_TOKENS
     account.refreshTokens = account.refreshTokens
       .filter((rt) => rt.expiresAt > now)
       .slice(-Math.max(1, MAX_REFRESH_TOKENS));
 
-    // Save inside the transaction
     await account.save({ session });
 
     await session.commitTransaction();

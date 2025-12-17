@@ -7,7 +7,6 @@ const transporter = require("../config/nodeMailer");
 
 function sanitizeInput(str) {
   if (!str) return '';
-  // remove dangerous HTML
   return sanitizeHtml(String(str), { allowedTags: [], allowedAttributes: {} }).trim();
 }
 

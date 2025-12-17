@@ -1,4 +1,3 @@
-// Helper: normalize images/imageURL for frontend
 function normalizeEventImages(ev) {
   const images =
     Array.isArray(ev.images) && ev.images.length
@@ -26,7 +25,6 @@ function computeStage(startAt) {
   return { stage: "completed", hasStarted: true };
 }
 
-// Main mapper: everything the frontend should see for an Event
 function mapEventForClient(ev) {
   const normalized = normalizeEventImages(ev);
   const stageInfo = computeStage(normalized.startAt);

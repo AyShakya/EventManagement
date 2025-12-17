@@ -1,4 +1,3 @@
-// src/pages/organizer/OrganizerEvents.jsx
 import React, { useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import api, { csrfDelete } from "../../api/axiosClient";
@@ -59,7 +58,7 @@ export default function OrganizerEvents() {
   }
 
   function renderStageBadge(startAt) {
-    const { stage, label } = getEventStage(startAt); // <— IMPORTANT
+    const { stage, label } = getEventStage(startAt); 
 
     const map = {
       upcoming: {
@@ -150,7 +149,7 @@ export default function OrganizerEvents() {
                     const { stage } = getEventStage(ev.startAt);
                     const reportedAttendees =
                       ev.stats?.totalAttendees ?? "—";
-                    const statsDisabled = stage !== "completed"; // only completed can edit stats
+                    const statsDisabled = stage !== "completed"; 
 
                     return (
                       <tr key={ev._id} className="border-b last:border-0">

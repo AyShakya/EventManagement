@@ -50,7 +50,6 @@ const authLimiter = rateLimit({
   message: { message: "Too many authentication attempts. Try again later." },
 });
 
-
 //Rate Limiter
 const limiter = rateLimit({
   windowMs: 60 * 1000,
@@ -79,19 +78,6 @@ if (!isProd) {
 
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
-// CORS: whitelist approach
-// const clientOrigin = process.env.SERVER_URL;
-// const additionalOrigins = (process.env.ADDITIONAL_CLIENT_ORIGINS || '').split(',').map(s => s.trim()).filter(Boolean);
-// const allowedOrigins = new Set([clientOrigin, ...additionalOrigins]);
-// app.use(cors({
-//   origin: (origin, callback) => {
-//     // allow requests with no origin (mobile apps, curl)
-//     if (!origin) return callback(null, true);
-//     if (allowedOrigins.has(origin)) return callback(null, true);
-//     return callback(new Error('CORS policy: origin not allowed'), false);
-//   },
-//   credentials: true,
-// }));
 const allowedOrigins = [
   process.env.CLIENT_URL,        
   "http://localhost:5173",       
@@ -228,8 +214,6 @@ app.use(limiter);
         } catch (err) {
           console.error("Error while closing MongoDB connection", err);
         }
-
-        // give some time then exit
         setTimeout(() => process.exit(0), 1000).unref();
 
       } catch (error) {

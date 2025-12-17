@@ -1,4 +1,3 @@
-/* ---------------- RequestResetOTP.jsx ---------------- */
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import api from "../../api/axiosClient";
@@ -27,7 +26,6 @@ export default function RequestResetOTP() {
           "If that email exists, we’ve sent a reset code."
       );
 
-      // 👉 Redirect user to the reset page, with email prefilled in query
       setTimeout(() => {
         navigate(`/reset-password?email=${encodeURIComponent(email)}`);
       }, 800);

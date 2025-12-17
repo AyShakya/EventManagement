@@ -1,4 +1,3 @@
-// src/pages/organizer/OrganizerCreateEvent.jsx
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { csrfPost } from "../../api/axiosClient";
@@ -87,7 +86,6 @@ export default function OrganizerCreateEvent() {
         payload.registrationFormURL = registrationFormURL.trim();
       }
 
-      // if user picked a date/time, send it as postedAt
       if (startAt) {
         payload.postedAt = new Date(startAt).toISOString();
       }
@@ -95,7 +93,6 @@ export default function OrganizerCreateEvent() {
       const res = await csrfPost("/api/event", payload);
       setSuccess(res?.data?.message || "Event created successfully.");
 
-      // small delay so user sees success
       setTimeout(() => {
         navigate("/organizer/events");
       }, 800);

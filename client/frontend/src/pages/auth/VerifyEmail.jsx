@@ -1,4 +1,3 @@
-/* ---------------- VerifyEmail.jsx ---------------- */
 import React, { useEffect, useState } from "react";
 import { useSearchParams, useNavigate, Link } from "react-router-dom";
 import api from "../../api/axiosClient";
@@ -39,7 +38,6 @@ export default function VerifyEmail() {
 
         setSuccess(msg);
 
-        // short redirect to login after success
         setTimeout(() => navigate("/login"), 1200);
       } catch (err) {
         console.error(err);
@@ -61,7 +59,6 @@ export default function VerifyEmail() {
     };
   }, [token, navigate]);
 
-  // Kept in case you want to wire a "resend" UI later
   async function resend(email) {
     try {
       await api.post("/api/auth/resend-verify", { email });

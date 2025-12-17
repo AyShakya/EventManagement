@@ -1,4 +1,3 @@
-// src/pages/user/MyQueries.jsx
 import React, { useEffect, useState } from "react";
 import api from "../../api/axiosClient";
 
@@ -58,7 +57,6 @@ export default function MyQueries() {
             ))}
           </div>
         ) : queries.length === 0 ? (
-          // Empty state
           <div className="bg-white rounded-xl p-6 sm:p-7 shadow card-coffee">
             <h2 className="text-lg font-semibold text-gray-900 mb-1">
               Nothing here yet

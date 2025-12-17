@@ -103,8 +103,8 @@ export default function EventsList() {
   const q = searchParams.get("q") || "";
 
   const [searchTerm, setSearchTerm] = useState(q);
-  const [sortBy, setSortBy] = useState("latest"); // latest | popular | upcoming
-  const [stageFilter, setStageFilter] = useState("all"); // all | upcoming | completed | unscheduled
+  const [sortBy, setSortBy] = useState("latest"); 
+  const [stageFilter, setStageFilter] = useState("all"); 
 
   const limit = 8;
 
@@ -152,7 +152,6 @@ export default function EventsList() {
   const processedEvents = useMemo(() => {
     let list = [...events];
 
-    // stage filter
     if (stageFilter !== "all") {
       list = list.filter((ev) => {
         const s = getEventStage(ev.startAt);
@@ -184,10 +183,8 @@ export default function EventsList() {
         const db = new Date(b.startAt || b.postedAt || 0).getTime();
 
         if (sa === "completed") {
-          // For completed, newer first
           return db - da;
         }
-        // For upcoming / unscheduled, earlier first
         return da - db;
       });
     }
@@ -195,7 +192,7 @@ export default function EventsList() {
     return list;
   }, [events, sortBy, stageFilter]);
 
-  const pageEvents = processedEvents.slice(0, limit); // safety: never show more than `limit`
+  const pageEvents = processedEvents.slice(0, limit);
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-coffee-cream via-[#f5ece0] to-coffee-mid">

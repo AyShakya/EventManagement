@@ -1,7 +1,6 @@
-// middlewares/uploadMiddleware.js
 const multer = require("multer");
 
-const storage = multer.memoryStorage(); // <--- only keeps file in memory
+const storage = multer.memoryStorage(); 
 
 function fileFilter(req, file, cb) {
   if (!file.mimetype.startsWith("image/")) {

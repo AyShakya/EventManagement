@@ -2,21 +2,18 @@
 @tailwind components;
 @tailwind utilities;
 
-/* layout helper (explicit CSS instead of @apply) */
 .app-container {
-  max-width: 72rem; /* tailwind max-w-6xl = 72rem */
+  max-width: 72rem; 
   margin-left: auto;
   margin-right: auto;
-  padding-left: 1rem;  /* px-4 */
+  padding-left: 1rem;  
   padding-right: 1rem;
 }
 
-/* background gradient helper */
 .bg-coffee-hero {
   background: linear-gradient(180deg, #E8DBC4 0%, #7a3036 45%, #561C24 100%);
 }
 
-/* helper card shadow */
 .card-coffee {
   box-shadow: 0 6px 18px rgba(86,28,36,0.18);
 }

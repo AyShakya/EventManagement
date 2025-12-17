@@ -21,7 +21,6 @@ function ProfileCard({ user }) {
       </div>
 
       <div className="flex-1 min-w-0">
-        {/* Flex-col on mobile, row on sm+ so buttons never sit on top of text */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
           <div className="min-w-0">
             <div className="text-lg font-semibold text-coffee-dark truncate">
@@ -264,7 +263,6 @@ export default function UserDashboard() {
       try {
         dispatch?.({ type: "SET_USER", payload: updatedUser });
       } catch {
-        /* ignore */
       }
 
       setVerifMessage(msg);
@@ -313,7 +311,6 @@ export default function UserDashboard() {
           />
         )}
 
-        {/* ⬇⬇ TOP ROW FIX: flex layout instead of grid, no overlap possible */}
         <div className="flex flex-col lg:flex-row gap-6 mb-6">
           <div className="lg:w-[320px] w-full">
             <ProfileCard user={user || {}} />

@@ -1,4 +1,3 @@
-// src/pages/organizer/OrganizerEditEvent.jsx
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import api, { fetchCsrfToken } from "../../api/axiosClient";
@@ -7,7 +6,6 @@ import { uploadEventImage } from "../../api/uploadImage";
 function toLocalDateTimeInput(iso) {
   if (!iso) return "";
   const d = new Date(iso);
-  // yyyy-MM-ddTHH:mm (datetime-local format)
   return new Date(d.getTime() - d.getTimezoneOffset() * 60000)
     .toISOString()
     .slice(0, 16);
@@ -131,7 +129,7 @@ export default function OrganizerEditEvent() {
       if (registrationFormURL.trim()) {
         payload.registrationFormURL = registrationFormURL.trim();
       } else {
-        payload.registrationFormURL = ""; // or omit, depending on how you want to clear it
+        payload.registrationFormURL = ""; 
       }
 
       const csrf = await fetchCsrfToken();

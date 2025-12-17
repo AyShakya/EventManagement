@@ -41,7 +41,6 @@ export default function EventDetail() {
         setLiked(Boolean(ev?.liked));
         setAttending(Boolean(ev?.isAttending));
 
-        // organizer can see messages for this event
         if (user && user.userType === "organizer") {
           const qres = await api
             .get(`/api/query/event/${id}`)
@@ -88,21 +87,17 @@ export default function EventDetail() {
     if (!event) return;
     const stage = getEventStage(event.startAt);
 
-    // completed events are view-only
     if (stage.stage === "completed") return;
 
     if (!user) return navigate("/login");
 
     const url = (event.registrationFormURL || "").trim();
 
-    // If organizer provided an external registration link -> open it
     if (url) {
-      // optional: you can also ping /attend here before redirect for analytics
       window.open(url, "_blank", "noopener,noreferrer");
       return;
     }
 
-    // fallback: internal "attend" toggle
     try {
       const res = await api.post(`/api/event/${id}/attend`);
       if (res.data && res.data.success) setAttending(true);

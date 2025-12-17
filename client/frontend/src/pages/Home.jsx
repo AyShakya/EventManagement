@@ -3,7 +3,6 @@ import { Link, useNavigate } from "react-router-dom";
 import api from "../api/axiosClient";
 import { getEventStage } from "../utils/eventStage";
 
-/* ---------- Shared event card (used in Featured section) ---------- */
 function EventCard({ ev }) {
   const cover =
     ev.imageURL ||
@@ -88,7 +87,6 @@ function EventCard({ ev }) {
   );
 }
 
-/* ------------------------- Home page ------------------------- */
 const Home = () => {
   const [featured, setFeatured] = useState([]);
   const [events, setEvents] = useState([]);
@@ -101,7 +99,6 @@ const Home = () => {
     (async () => {
       setLoading(true);
       try {
-        // just first page (8) is fine for home
         const res = await api.get("/api/event?page=1&limit=8");
         const all = (res.data && res.data.events) || [];
         setEvents(all);
@@ -140,7 +137,6 @@ const Home = () => {
     navigate(`/events?q=${encodeURIComponent(trimmed)}`);
   }
 
-  // quick stats for “overview” section
   const totalEvents = events.length;
   const upcomingCount = events.filter(
     (ev) => getEventStage(ev.startAt).stage === "upcoming"
@@ -416,7 +412,7 @@ const Home = () => {
         </section>
       </main>
 
-      {/* Footer with better contrast */}
+      {/* Footer */}
       <footer className="mt-12 bg-gradient-to-r from-[#1a0605] to-[#2b0d0f] text-coffee-cream/80 text-sm border-t-4 border-coffee-mid">
         <div className="app-container mx-auto px-4 py-6 flex flex-col sm:flex-row items-center justify-between gap-4">
           <span className="font-semibold">

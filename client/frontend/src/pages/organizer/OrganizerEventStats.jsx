@@ -1,8 +1,7 @@
-// src/pages/organizer/OrganizerEventStats.jsx
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams, Link } from "react-router-dom";
 import api, { fetchCsrfToken } from "../../api/axiosClient";
-import { getEventStage } from "../../utils/eventStage"; // reuse shared helper
+import { getEventStage } from "../../utils/eventStage"; 
 
 export default function OrganizerEventStats() {
   const { id: eventId } = useParams();
@@ -14,7 +13,6 @@ export default function OrganizerEventStats() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
-  // form fields for stats
   const [expectedAttendees, setExpectedAttendees] = useState("");
   const [totalAttendees, setTotalAttendees] = useState("");
   const [averageRating, setAverageRating] = useState("");

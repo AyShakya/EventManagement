@@ -1,4 +1,3 @@
-// src/pages/user/SendFeedback.jsx
 import React, { useContext, useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { AuthContext } from "../../context/AuthContext";
@@ -27,11 +26,9 @@ export const SendFeedback = () => {
     }
   }, [user]);
 
-  // optional: show event title (safe fallback to id only)
   useEffect(() => {
     let mounted = true;
     if (!eventId) return;
-
     (async () => {
       try {
         const res = await api
@@ -41,7 +38,6 @@ export const SendFeedback = () => {
         const ev = res.data?.event || res.data;
         if (ev?.title) setEventTitle(ev.title);
       } catch {
-        // ignore, we just won't show title
       }
     })();
 
@@ -64,50 +60,43 @@ export const SendFeedback = () => {
   }
 
   async function handleSubmit(e) {
-    e.preventDefault();
-    setError("");
-    setSuccess("");
-    const v = validate();
-    if (v) {
-      setError(v);
-      return;
-    }
-    setLoading(true);
-    try {
-      const payload = {
-        subject: subject.trim(),
-        message: message.trim(),
-        senderName: senderName.trim() || undefined,
-        senderEmail: senderEmail.trim() || undefined,
-      };
-
-      const res = await csrfPost(
-        `/api/query/event/${eventId}/feedback`,
-        payload
-      );
-      setLoading(false);
-
-      if (res && (res.status === 201 || res.data)) {
-        setSuccess("Feedback submitted. Thank you!");
-        setTimeout(() => {
-          navigate("/user/queries");
-        }, 900);
-      } else {
-        setError("Failed to submit feedback. Please try again.");
-      }
-    } catch (err) {
-      setLoading(false);
-      console.error(err);
-      const msg =
-        err?.response?.data?.message ||
-        err?.response?.data?.error ||
-        err.message ||
-        "Failed to submit feedback";
-      setError(msg);
-    } finally {
-      setLoading(false);
-    }
+  e.preventDefault();
+  setError("");
+  setSuccess("");
+  const v = validate();
+  if (v) {
+    setError(v);
+    return;
   }
+  setLoading(true);
+  try {
+    const payload = {
+      subject: subject.trim(),
+      message: message.trim(),
+      senderName: senderName.trim() || undefined,
+      senderEmail: senderEmail.trim() || undefined,
+    };
+    await csrfPost(
+      `/api/query/event/${eventId}/feedback`,
+      payload
+    );
+    setSuccess("Feedback submitted. Thank you!");
+    setTimeout(() => {
+      navigate("/user/queries");
+    }, 900);
+
+  } catch (err) {
+    console.error(err);
+    const msg =
+      err?.response?.data?.message ||
+      err?.response?.data?.error ||
+      err.message ||
+      "Failed to submit feedback";
+    setError(msg);
+  } finally {
+    setLoading(false);
+  }
+}
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-coffee-cream to-coffee-mid text-gray-900 py-14">

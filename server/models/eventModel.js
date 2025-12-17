@@ -32,8 +32,8 @@ const eventSchema = new mongoose.Schema({
 
     averageRating: { type: Number, min: 0, max: 5 }, 
 
-    revenue: { type: Number, min: 0 }, // total revenue (tickets, sponsors, etc.)
-    cost: { type: Number, min: 0 },    // cost of running the event
+    revenue: { type: Number, min: 0 }, 
+    cost: { type: Number, min: 0 },    
 
     highlights: { type: String }, 
     notes: { type: String },      

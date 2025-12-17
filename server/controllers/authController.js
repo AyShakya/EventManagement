@@ -80,15 +80,6 @@ exports.login = async (req, res, next) => {
       cookieOptions(refreshAge)
     );
 
-    // const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
-    //   expiresIn: "7d",
-    // });
-    // res.cookie("token", token, {
-    //   httpOnly: true,
-    //   secure: process.env.NODE_ENV === "production",
-    //   sameSite: process.env.NODE_ENV === "production" ? "none" : "strict",
-    //   maxAge: 7 * 24 * 60 * 60 * 1000,
-    // });
     const responseUser = {
       ...safeUser,
       emailVerified: !!userDoc.isEmailVerified,
@@ -457,7 +448,6 @@ exports.resendVerify = async (req, res, next) => {
         .json({ message: "Email is already verified" });
     }
 
-    // clean up any old verifyEmail tokens for this user+modelType
     await EmailToken.deleteMany({
       userId: account._id,
       modelType: kind === "organizer" ? "Organizer" : "User",

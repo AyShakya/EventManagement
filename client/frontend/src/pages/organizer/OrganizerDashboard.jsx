@@ -154,7 +154,6 @@ export default function OrganizerDashboard() {
           </div>
         </div>
 
-        {/* Top row: profile + stats (structure preserved, no overlap) */}
         <div className="flex flex-col lg:flex-row gap-6 mb-6">
           <div className="lg:w-[320px] w-full">
             <ProfileCard user={user || {}} />

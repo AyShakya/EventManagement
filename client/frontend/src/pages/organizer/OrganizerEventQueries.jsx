@@ -1,4 +1,3 @@
-// src/pages/organizer/OrganizerEventQueries.jsx
 import React, { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import api, { fetchCsrfToken } from "../../api/axiosClient";
@@ -18,13 +17,11 @@ export default function OrganizerEventQueries() {
       setLoading(true);
       setErr("");
       try {
-        // fetch event for header
         const evRes = await api.get(`/api/event/${eventId}`);
         const ev = evRes.data?.event || evRes.data;
         if (!mounted) return;
         setEvent(ev);
 
-        // fetch queries for this event (organizer-only endpoint)
         const qRes = await api.get(`/api/query/event/${eventId}`);
         if (!mounted) return;
         setQueries(qRes.data?.queries || []);

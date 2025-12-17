@@ -1,4 +1,3 @@
-// routes/organizerRouter.js
 const express = require("express");
 const { authenticateAccessToken, requireUserType } = require("../middlewares/authMiddleware");
 const { Organizer } = require("../models/userModel");
@@ -8,13 +7,8 @@ const asyncHandler = require("../utils/asyncHandler");
 
 const organizerRouter = express.Router();
 
-// all routes here require organizer auth
 organizerRouter.use(authenticateAccessToken, requireUserType("organizer"));
 
-/**
- * GET /api/organizer/me
- * Return basic profile of logged-in organizer (no password, no refresh tokens)
- */
 organizerRouter.get(
   "/me",
   asyncHandler(async (req, res) => {
@@ -28,7 +22,7 @@ organizerRouter.get(
 
     const safeUser = {
       id: organizer._id,
-      userName: organizer.organizerName, // 👈 match frontend
+      userName: organizer.organizerName, 
       email: organizer.email,
       userType: organizer.userType || "organizer",
       emailVerified: !!organizer.isEmailVerified,
@@ -38,11 +32,6 @@ organizerRouter.get(
   })
 );
 
-/**
- * GET /api/organizer/me/events
- * Return events created by this organizer, with pagination.
- * Supports: ?page=&limit=
- */
 organizerRouter.get(
   "/me/events",
   asyncHandler(async (req, res) => {
@@ -87,13 +76,6 @@ organizerRouter.get(
   })
 );
 
-/**
- * GET /api/organizer/me/stats
- * Simple stats for dashboard.
- * - events: total events created
- * - attendees: (0 for now, until we add attend model)
- * - queries: number of queries/feedback for this organizer's events
- */
 organizerRouter.get(
   "/me/stats",
   asyncHandler(async (req, res) => {
@@ -112,7 +94,6 @@ organizerRouter.get(
       return sum + (typeof n === "number" ? n : 0);
     }, 0);
 
-    // attendees will be 0 for now, until we add registration model
     return res.status(200).json({
       events: eventsCount,
       attendees: totalAttendees,

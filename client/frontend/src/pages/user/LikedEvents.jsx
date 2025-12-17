@@ -1,4 +1,3 @@
-// src/pages/user/LikedEvents.jsx
 import React, { useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import api from "../../api/axiosClient";
@@ -76,7 +75,6 @@ export default function LikedEvents() {
             ))}
           </div>
         ) : events.length === 0 ? (
-          // Empty state
           <div className="bg-white rounded-xl p-6 sm:p-7 shadow card-coffee text-center">
             <h2 className="text-lg font-semibold text-gray-900 mb-1">
               No liked events yet

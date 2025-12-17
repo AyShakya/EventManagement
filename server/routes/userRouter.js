@@ -1,4 +1,3 @@
-// routes/userRouter.js
 const express = require("express");
 const { authenticateAccessToken, requireUserType } = require("../middlewares/authMiddleware");
 const { User } = require("../models/userModel");
@@ -8,13 +7,8 @@ const asyncHandler = require("../utils/asyncHandler");
 
 const userRouter = express.Router();
 
-// All routes here: must be logged in as normal user
 userRouter.use(authenticateAccessToken, requireUserType("user"));
 
-/**
- * GET /api/user/me
- * Return basic profile of logged-in user (no password, no refreshTokens)
- */
 userRouter.get(
   "/me",
   asyncHandler(async (req, res) => {
@@ -31,7 +25,6 @@ userRouter.get(
       userName: user.userName,
       email: user.email,
       userType: user.userType || "user",
-      // map DB flag → frontend flag
       emailVerified: !!user.isEmailVerified,
     };
 
@@ -39,12 +32,6 @@ userRouter.get(
   })
 );
 
-/**
- * GET /api/user/me/stats
- * - likes: count of likedEvents
- * - queries: total queries sent
- * - attended: (0 for now, until we implement attendance)
- */
 userRouter.get(
   "/me/stats",
   asyncHandler(async (req, res) => {
@@ -56,7 +43,6 @@ userRouter.get(
 
     const [queriesCount] = await Promise.all([
       Query.countDocuments({ senderId: userId }),
-      // when we add attendance model, we’ll count that here too
     ]);
 
     const likes = user?.likedEvents?.length || 0;
@@ -64,16 +50,11 @@ userRouter.get(
     return res.status(200).json({
       likes,
       queries: queriesCount,
-      attended: 0, // placeholder
+      attended: 0, 
     });
   })
 );
 
-/**
- * GET /api/user/me/queries
- * Recent queries sent by this user
- * Supports ?limit=
- */
 userRouter.get(
   "/me/queries",
   asyncHandler(async (req, res) => {
@@ -89,26 +70,14 @@ userRouter.get(
   })
 );
 
-/**
- * GET /api/user/me/attended
- * For now we don't have attendance model, so just return empty.
- * (Keeps UserDashboard happy and easy to upgrade later.)
- */
 userRouter.get(
   "/me/attended",
   asyncHandler(async (req, res) => {
     const limit = Math.min(50, Number(req.query.limit) || 10);
-
-    // TODO: when we add Event attendance/registration model,
-    // actually query attended events here
     return res.status(200).json({ events: [], meta: { total: 0, limit } });
   })
 );
 
-/**
- * GET /api/user/me/liked
- * Paginated liked events for this user
- */
 userRouter.get(
   "/me/liked",
   asyncHandler(async (req, res) => {
