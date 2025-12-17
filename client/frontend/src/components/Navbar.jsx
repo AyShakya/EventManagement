@@ -20,9 +20,9 @@ const NavbarCoffeeGrain = () => {
 
   return (
     <nav className="sticky top-0 z-40 shadow-lg backdrop-blur-md bg-[radial-gradient(circle_at_top,_#723030,_#2B0D0F_55%,_#140607_100%)]">
-      <div className="app-container flex items-center justify-between h-[4.5rem] px-4 md:px-6">
+      <div className="max-w-7xl mx-auto flex items-center justify-between h-[4rem] px-4 sm:px-6 lg:px-8">
         {/* LEFT SIDE - LOGO */}
-        <div className="flex items-center gap-8">
+        <div className="flex items-center gap-6">
           <Link
             to="/"
             className="flex items-center gap-3 group hover:opacity-80 transition-opacity duration-300"

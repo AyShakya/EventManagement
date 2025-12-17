@@ -104,6 +104,8 @@ export const SendFeedback = () => {
         err.message ||
         "Failed to submit feedback";
       setError(msg);
+    } finally {
+      setLoading(false);
     }
   }
 
