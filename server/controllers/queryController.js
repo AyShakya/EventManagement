@@ -12,63 +12,49 @@ function sanitizeInput(str) {
 
 exports.sendFeedback = asyncHandler(async (req, res) => {
   const eventId = req.params.id;
-  if (!eventId) return res.status(400).json({ message: 'Missing event id' });
+  if (!eventId) {
+    return res.status(400).json({ message: "Missing event id" });
+  }
 
   const subject = sanitizeInput(req.body.subject);
   const message = sanitizeInput(req.body.message);
-  const senderName = sanitizeInput(req.body.senderName || (req.user && req.user.userName) || 'Anonymous');
-  const senderEmail = sanitizeInput(req.body.senderEmail || (req.user && req.user.email) || '');
+  const senderName = sanitizeInput(
+    req.body.senderName || (req.user && req.user.userName) || "Anonymous"
+  );
+  const senderEmail = sanitizeInput(
+    req.body.senderEmail || (req.user && req.user.email) || ""
+  );
 
   if (!subject || !message) {
-    return res.status(400).json({ message: 'Subject and message are required' });
+    return res
+      .status(400)
+      .json({ message: "Subject and message are required" });
   }
 
   const event = await Event.findById(eventId).lean();
-  if (!event) return res.status(404).json({ message: 'Event not found' });
-
-  let organizer = null;
-  if(event.organizer) {
-    organizer = await Organizer.findById(event.organizer).select('+email').lean();
-    // if (!organizer) {
-    //   organizer = await User.findById(event.organizer).select('+email').lean();
-    // }
+  if (!event) {
+    return res.status(404).json({ message: "Event not found" });
   }
 
   const queryDoc = new Query({
-    senderId: req.user?.id || req.user?._id || undefined,
+    senderId: req.user?.id || req.user?._id,
     senderName,
     senderEmail,
     eventId,
-    organizerId: organizer?._id || undefined,
+    organizerId: event.organizer || undefined,
     subject,
     message,
-    status: 'pending',
+    status: "pending",
   });
 
   await queryDoc.save();
 
-   if (organizer && organizer.email) {
-    const mailOptions = {
-      from: process.env.SENDER_EMAIL, 
-      to: organizer.email,
-      subject: `[Feedback] ${subject} — ${event.title}`,
-      html: `
-        <p>You have received new feedback for your event <strong>${event.title}</strong>.</p>
-        <p><strong>From:</strong> ${senderName} ${senderEmail ? `(${senderEmail})` : ''}</p>
-        <p><strong>Subject:</strong> ${subject}</p>
-        <p><strong>Message:</strong></p>
-        <div style="white-space:pre-wrap;">${message}</div>
-        <p><a href="${process.env.SERVER_URL}/organizer/events/${eventId}/queries">View in dashboard</a></p>
-        <hr/>
-        <small>Event ID: ${eventId} | Query ID: ${queryDoc._id}</small>
-      `,
-      text: `Feedback for ${event.title}\nFrom: ${senderName} ${senderEmail ? `(${senderEmail})` : ''}\n\nSubject: ${subject}\n\n${message}\n\nEvent ID: ${eventId}\nQuery ID: ${queryDoc._id}`
-    };
-
-    await transporter.sendMail(mailOptions);
-  }
-  return res.status(201).json({ message: 'Feedback submitted', queryId: queryDoc._id });
+  return res.status(201).json({
+    message: "Feedback submitted successfully",
+    queryId: queryDoc._id,
+  });
 });
+
 
 exports.getYourQueries = asyncHandler(async (req, res) => {
   const userId = req.user?.id;
