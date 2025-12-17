@@ -139,8 +139,6 @@ ________________________________________________________________________________
 
 ✉ Email
 
-  • Feedback notifications
-  
   • Email verification
   
   • Password reset via OTP
