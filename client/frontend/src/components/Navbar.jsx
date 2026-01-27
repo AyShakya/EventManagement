@@ -31,7 +31,7 @@ const NavbarCoffeeGrain = () => {
               CE
             </div>
             <span className="text-xl font-bold tracking-wide text-coffee-cream hidden sm:inline">
-              CoffeeEvents
+              EventEase
             </span>
           </Link>
 
