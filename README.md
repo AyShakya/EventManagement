@@ -1,20 +1,20 @@
-☕ CoffeeEvents — Full-Stack Event Management Platform
+CoffeeEvents — Full-Stack Event Management Platform
 
 CoffeeEvents is a production-ready full-stack event management platform where users can discover, like, and give feedback on events, while organizers can create and manage events with analytics, images, and dashboards.
 
 The application is built with modern web technologies, follows industry-grade security practices, and is deployed using cloud-native infrastructure.
 ____________________________________________________________________________________________________________________________________________________________________________________________________________________________
 
-🌐 Live URLs
+Live URLs
 
 Frontend (Vercel):
-👉 https://event-management-brown-iota.vercel.app/
+ https://event-management-brown-iota.vercel.app/
 
 Backend API (Render):
-👉 https://eventmanagement-e3om.onrender.com
+ https://eventmanagement-e3om.onrender.com
 ____________________________________________________________________________________________________________________________________________________________________________________________________________________________
 
-🧱 Architecture Overview
+Architecture Overview
 
 This is a monorepo containing:
 
@@ -30,7 +30,7 @@ This is a monorepo containing:
 - Cross-domain communication is secured using CORS + CSRF
 ____________________________________________________________________________________________________________________________________________________________________________________________________________________________
 
-🛠 Tech Stack
+Tech Stack
 
 🔹 Frontend
 
@@ -80,30 +80,30 @@ ________________________________________________________________________________
   
   • Brevo (SMTP) – Email delivery
 
-🔐 Authentication & Security
+Authentication & Security
 
 This project uses industry-grade security practices:
 
-✅ JWT authentication with access & refresh tokens
+ • JWT authentication with access & refresh tokens
 
-✅ Tokens stored in HTTP-only cookies
+ • Tokens stored in HTTP-only cookies
 
-✅ Refresh token rotation
+ • Refresh token rotation
 
-✅ CSRF protection using double-submit cookie pattern
+ • CSRF protection using double-submit cookie pattern
 
-✅ Secure CORS configuration (supports Vercel preview domains)
+ • Secure CORS configuration (supports Vercel preview domains)
 
-✅ Rate limiting against abuse
+ • Rate limiting against abuse
 
-✅ Password hashing with bcrypt
+ • Password hashing with bcrypt
 
-✅ Email verification & password reset via OTP
+ • Email verification & password reset via OTP
 ____________________________________________________________________________________________________________________________________________________________________________________________________________________________
 
-🧩 Core Features
+Core Features
 
-👤 User
+ User
   
   • Register & login
   
@@ -129,7 +129,7 @@ ________________________________________________________________________________
   
   • Manage user queries & feedback
 
-🖼 Media
+ Media
 
   • Secure image uploads
   
@@ -137,14 +137,14 @@ ________________________________________________________________________________
   
   • Optimized image delivery
 
-✉ Email
+ Email
 
   • Email verification
   
   • Password reset via OTP
 ____________________________________________________________________________________________________________________________________________________________________________________________________________________________
 
-🚀 Deployment
+Deployment
 
   Backend (Render)
   
@@ -167,7 +167,7 @@ ________________________________________________________________________________
   └──Output Directory: dist
 ____________________________________________________________________________________________________________________________________________________________________________________________________________________________
 
-🧪 Production Considerations
+Production Considerations
 
   Backend may sleep on inactivity (Render free tier)
   
@@ -178,7 +178,7 @@ ________________________________________________________________________________
   Frontend remains always live via Vercel CDN
 ____________________________________________________________________________________________________________________________________________________________________________________________________________________________
 
-🧠 Key Learnings & Highlights
+Key Learnings & Highlights
 
   • Cross-domain authentication with cookies
   
@@ -193,7 +193,7 @@ ________________________________________________________________________________
   • Real-world production debugging
 ____________________________________________________________________________________________________________________________________________________________________________________________________________________________
 
-📌 Future Improvements (Optional)
+Future Improvements (Optional)
 
   • Background job queue (email retries)
   
@@ -205,7 +205,14 @@ ________________________________________________________________________________
   
   • Performance monitoring & alerts
 ____________________________________________________________________________________________________________________________________________________________________________________________________________________________
+ Possible Underlying Issues:
+  • Refresh Token Not Implemented correctly: Reason can be one of these.
+          - Refresh endpoint called too frequently
+          - Frontend retry loop
+          - Axios interceptor misconfigured
+          - Refresh token rotation implemented incorrectly
+____________________________________________________________________________________________________________________________________________________________________________________________________________________________
 
-👨‍💻 Author
+Author
 
 Built and deployed as a real-world full-stack learning project, focused on understanding production practices, security considerations, and clean architecture—while accepting there’s still plenty to improve.
