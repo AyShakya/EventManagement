@@ -36,7 +36,7 @@ const OrganizerEventStats = React.lazy(
 
 function AppRoutes() {
   return (
-    <Suspense fallback={<div className="p-8 text-center">Loading...</div>}>
+    <Suspense fallback={<div className="p-8 text-center text-coffee-dark">Loading...</div>}>
       <Routes>
         {/* Public */}
         <Route path="/" element={<Home />} />
@@ -86,8 +86,10 @@ const App = () => {
   return (
     <AuthProvider>
       <BrowserRouter>
-        <Navbar />
-        <AppRoutes />
+        <div className="site-shell">
+          <Navbar />
+          <AppRoutes />
+        </div>
       </BrowserRouter>
     </AuthProvider>
   );

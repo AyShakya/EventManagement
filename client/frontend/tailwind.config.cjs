@@ -7,10 +7,10 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        'coffee-dark': "#561C24",
-        'coffee-mid':  "#6D2932",
-        'coffee-sand': "#C7B7A3",
-        'coffee-cream':"#E8DBC4"
+        'coffee-dark': "#2A1812",
+        'coffee-mid':  "#8A5A3B",
+        'coffee-sand': "#D7C4AE",
+        'coffee-cream':"#F2E8DA"
       },
       borderRadius: {
         'xl-4': '1.5rem'

@@ -2,18 +2,71 @@
 @tailwind components;
 @tailwind utilities;
 
-.app-container {
-  max-width: 72rem; 
-  margin-left: auto;
-  margin-right: auto;
-  padding-left: 1rem;  
-  padding-right: 1rem;
+:root {
+  color-scheme: light;
 }
 
-.bg-coffee-hero {
-  background: linear-gradient(180deg, #E8DBC4 0%, #7a3036 45%, #561C24 100%);
+@layer base {
+  html,
+  body,
+  #root {
+    min-height: 100%;
+  }
+
+  body {
+    @apply bg-[#f6f1ea] text-[#2e211b] antialiased;
+    font-family: "Inter", "Avenir Next", "Segoe UI", sans-serif;
+    background-image: radial-gradient(circle at top right, #f0dfca 0%, #f6f1ea 45%, #efe7dc 100%);
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: "Playfair Display", "Times New Roman", serif;
+    letter-spacing: -0.01em;
+  }
+
+  a,
+  button,
+  input,
+  select,
+  textarea {
+    transition: all 180ms ease;
+  }
 }
 
-.card-coffee {
-  box-shadow: 0 6px 18px rgba(86,28,36,0.18);
+@layer components {
+  .app-container {
+    max-width: 76rem;
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+
+  .bg-coffee-hero {
+    background: linear-gradient(130deg, #1d120f 0%, #3b241c 38%, #7a4c33 100%);
+  }
+
+  .card-coffee {
+    box-shadow: 0 14px 38px rgba(47, 31, 25, 0.12);
+    border-radius: 1rem;
+  }
+}
+
+nav {
+  border-bottom: 1px solid rgba(137, 102, 76, 0.28);
+}
+
+input,
+select,
+textarea {
+  border-color: rgba(137, 102, 76, 0.3) !important;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  box-shadow: 0 0 0 3px rgba(150, 103, 66, 0.16);
 }
