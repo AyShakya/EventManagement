@@ -6,6 +6,7 @@ import PublicOnlyRoute from "./components/PublicOnlyRoute";
 import Navbar from "./components/Navbar";
 import { SendFeedback } from "./pages/user/SendFeedback";
 import "./App.css";
+import PageSkeleton from "./components/PageSkeleton";
 
 // lazy pages
 const Home = React.lazy(() => import("./pages/Home"));
@@ -36,7 +37,7 @@ const OrganizerEventStats = React.lazy(
 
 function AppRoutes() {
   return (
-    <Suspense fallback={<div className="p-8 text-center text-coffee-dark">Loading...</div>}>
+    <Suspense fallback={<PageSkeleton title="Loading page" cards={2} />}>
       <Routes>
         {/* Public */}
         <Route path="/" element={<Home />} />

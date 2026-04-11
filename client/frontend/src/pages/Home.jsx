@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import api from "../api/axiosClient";
 import { getEventStage } from "../utils/eventStage";
+import PageSkeleton from "../components/PageSkeleton";
 
 function EventCard({ ev }) {
   const cover =
@@ -119,17 +120,6 @@ const Home = () => {
   function onSearchSubmit(e) {
     e.preventDefault();
     const trimmed = q.trim();
-
-    if (!trimmed) {
-      navigate("/events");
-      return;
-    }
-
-    navigate(`/events?q=${encodeURIComponent(trimmed)}`);
-  }
-  function onSearchSubmit(e) {
-    e.preventDefault();
-    const trimmed = q.trim();
     if (!trimmed) {
       navigate("/events");
       return;
@@ -146,7 +136,7 @@ const Home = () => {
   ).length;
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-coffee-cream via-[#f5ece0] to-coffee-mid text-gray-900 flex flex-col">
+    <div className="min-h-screen bg-gradient-to-b from-coffee-cream via-[#f5ece0] to-coffee-mid text-gray-900 flex flex-col page-content">
       {/* Hero */}
       <section className="py-14 px-4 md:px-6 bg-coffee-hero text-coffee-cream">
         <div className="app-container mx-auto flex flex-col lg:flex-row items-center gap-10">
@@ -329,7 +319,7 @@ const Home = () => {
               {[1, 2, 3, 4].map((i) => (
                 <div
                   key={i}
-                  className="h-56 bg-white rounded-2xl shadow-sm animate-pulse"
+                  className="h-56 skeleton-block"
                 />
               ))}
             </div>

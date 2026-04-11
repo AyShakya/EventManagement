@@ -8,3 +8,14 @@
   min-height: 100vh;
   background: linear-gradient(180deg, rgba(255, 255, 255, 0.12) 0%, rgba(255, 255, 255, 0) 30%);
 }
+
+.site-shell main,
+.site-shell section,
+.site-shell article {
+  scroll-margin-top: 6rem;
+}
+
+button:hover,
+a:hover {
+  transform: translateY(-1px);
+}
