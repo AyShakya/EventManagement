@@ -78,7 +78,8 @@ export default function MyQueries() {
               </h2>
             </div>
 
-            <ul className="space-y-3">
+            <div className="max-h-[65vh] overflow-y-auto pr-1">
+              <ul className="space-y-3">
               {queries.map((q) => {
                 const isResolved = q.status === "resolved";
                 return (
@@ -124,7 +125,8 @@ export default function MyQueries() {
                   </li>
                 );
               })}
-            </ul>
+              </ul>
+            </div>
           </div>
         )}
       </div>
