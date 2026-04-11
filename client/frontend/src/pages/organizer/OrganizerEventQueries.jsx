@@ -86,8 +86,7 @@ export default function OrganizerEventQueries() {
             </h2>
             {event && (
               <p className="text-xs text-gray-500 mt-1">
-                {event.location} •{" "}
-                {new Date(event.postedAt).toLocaleDateString()}
+                {event.location} • {new Date(event.postedAt).toLocaleDateString()}
               </p>
             )}
             <p className="text-xs text-gray-500 mt-1">
@@ -113,10 +112,7 @@ export default function OrganizerEventQueries() {
         {loading ? (
           <div className="space-y-2">
             {[1, 2, 3].map((i) => (
-              <div
-                key={i}
-                className="h-16 bg-gray-100 rounded animate-pulse"
-              />
+              <div key={i} className="h-16 bg-gray-100 rounded animate-pulse" />
             ))}
           </div>
         ) : queries.length === 0 ? (
@@ -124,91 +120,79 @@ export default function OrganizerEventQueries() {
             There are no queries or feedback for this event yet.
           </div>
         ) : (
-          <div className="space-y-3">
-            {queries.map((q) => {
-              const isResolved = q.status === "resolved";
-              return (
-                <div
-                  key={q._id}
-                  className="border border-gray-100 rounded-lg p-3.5 hover:shadow-sm transition flex flex-col gap-1"
-                >
-                  {/* First row: subject + timestamp + status pill */}
-                  <div className="flex flex-wrap items-center justify-between gap-2">
-                    <div className="text-sm font-semibold text-gray-900">
-                      {q.subject || "Query"}
-                    </div>
-                    <div className="flex items-center gap-2 text-xs">
-                      <span className="text-gray-400">
-                        {new Date(
-                          q.sentAt || q.createdAt
-                        ).toLocaleString()}
-                      </span>
-                      <span
-                        className={`inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold ${
-                          isResolved
-                            ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
-                            : "bg-amber-50 text-amber-700 border border-amber-200"
-                        }`}
-                      >
-                        {isResolved ? "Resolved" : "Pending"}
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* From info */}
-                  <div className="text-xs text-gray-500">
-                    From:{" "}
-                    <span className="font-medium">
-                      {q.senderName || "Anonymous"}
-                    </span>{" "}
-                    {q.senderEmail && (
-                      <span className="text-gray-400">
-                        ({q.senderEmail})
-                      </span>
-                    )}
-                  </div>
-
-                  {/* Message */}
-                  <p className="text-sm text-gray-700 mt-1 whitespace-pre-wrap">
-                    {q.message}
-                  </p>
-
-                  {/* Actions */}
-                  <div className="mt-2 flex items-center justify-between">
-                    <span className="text-[11px] text-gray-500">
-                      Status:{" "}
-                      <span className="font-semibold">
-                        {isResolved ? "Resolved" : "Pending"}
-                      </span>
-                    </span>
-
-                    <div className="flex gap-2">
-                      {isResolved ? (
-                        <button
-                          disabled={updatingId === q._id}
-                          onClick={() => updateStatus(q._id, "pending")}
-                          className="px-3 py-1 rounded text-xs border text-gray-700 hover:bg-gray-50 disabled:opacity-60"
+          <div className="max-h-[65vh] overflow-y-auto pr-1">
+            <div className="space-y-3">
+              {queries.map((q) => {
+                const isResolved = q.status === "resolved";
+                return (
+                  <div
+                    key={q._id}
+                    className="border border-gray-100 rounded-lg p-3.5 hover:shadow-sm transition flex flex-col gap-1"
+                  >
+                    {/* First row: subject + timestamp + status pill */}
+                    <div className="flex flex-wrap items-center justify-between gap-2">
+                      <div className="text-sm font-semibold text-gray-900">
+                        {q.subject || "Query"}
+                      </div>
+                      <div className="flex items-center gap-2 text-xs">
+                        <span className="text-gray-400">
+                          {new Date(q.sentAt || q.createdAt).toLocaleString()}
+                        </span>
+                        <span
+                          className={`inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold ${
+                            isResolved
+                              ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
+                              : "bg-amber-50 text-amber-700 border border-amber-200"
+                          }`}
                         >
-                          {updatingId === q._id
-                            ? "Updating..."
-                            : "Mark as pending"}
-                        </button>
-                      ) : (
-                        <button
-                          disabled={updatingId === q._id}
-                          onClick={() => updateStatus(q._id, "resolved")}
-                          className="px-3 py-1 rounded text-xs bg-coffee-mid text-white hover:bg-coffee-dark disabled:opacity-60"
-                        >
-                          {updatingId === q._id
-                            ? "Updating..."
-                            : "Mark as resolved"}
-                        </button>
+                          {isResolved ? "Resolved" : "Pending"}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* From info */}
+                    <div className="text-xs text-gray-500">
+                      From: <span className="font-medium">{q.senderName || "Anonymous"}</span>{" "}
+                      {q.senderEmail && (
+                        <span className="text-gray-400">({q.senderEmail})</span>
                       )}
                     </div>
+
+                    {/* Message */}
+                    <p className="text-sm text-gray-700 mt-1 whitespace-pre-wrap">
+                      {q.message}
+                    </p>
+
+                    {/* Actions */}
+                    <div className="mt-2 flex items-center justify-between">
+                      <span className="text-[11px] text-gray-500">
+                        Status: <span className="font-semibold">{isResolved ? "Resolved" : "Pending"}</span>
+                      </span>
+
+                      <div className="flex gap-2">
+                        {isResolved ? (
+                          <button
+                            disabled={updatingId === q._id}
+                            onClick={() => updateStatus(q._id, "pending")}
+                            className="px-3 py-1 rounded text-xs border text-gray-700 hover:bg-gray-50 disabled:opacity-60"
+                          >
+                            {updatingId === q._id ? "Updating..." : "Mark as pending"}
+                          </button>
+                        ) : (
+                          <button
+                            disabled={updatingId === q._id}
+                            onClick={() => updateStatus(q._id, "resolved")}
+                            className="px-3 py-1 rounded text-xs bg-coffee-mid text-white hover:bg-coffee-dark disabled:opacity-60"
+                          >
+                            {updatingId === q._id ? "Updating..." : "Mark as resolved"}
+                          </button>
+                        )}
+                      </div>
+                    </div>
                   </div>
-                </div>
-              );
-            })}
+                );
+              })}
+            </div>
           </div>
         )}
       </div>

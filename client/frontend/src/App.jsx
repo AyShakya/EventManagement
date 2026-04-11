@@ -18,6 +18,8 @@ const VerifyEmail = React.lazy(() => import("./pages/auth/VerifyEmail"));
 const RequestResetOTP = React.lazy(() => import("./pages/auth/RequestResetOTP"));
 const ResetPassword = React.lazy(() => import("./pages/auth/ResetPassword"));
 const NotFound = React.lazy(() => import("./pages/NotFound"));
+const AccessDenied = React.lazy(() => import("./pages/AccessDenied"));
+const ErrorPage = React.lazy(() => import("./pages/ErrorPage"));
 
 // user pages
 const UserDashboard = React.lazy(() => import("./pages/user/UserDashboard"));
@@ -53,6 +55,8 @@ function AppRoutes() {
         </Route>
 
         <Route path="/verify-email" element={<VerifyEmail />} />
+        <Route path="/request-denied" element={<AccessDenied />} />
+        <Route path="/error" element={<ErrorPage />} />
 
         {/* User Only */}
         <Route element={<ProtectedRoute requiredUserType="user" />}>
