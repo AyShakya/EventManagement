@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import api from "../api/axiosClient";
 import { getEventStage } from "../utils/eventStage";
+import PageSkeleton from "../components/PageSkeleton";
 
 function EventCard({ ev }) {
   const cover = (Array.isArray(ev.images) && ev.images[0]) || ev.imageURL || "";
@@ -195,7 +196,7 @@ export default function EventsList() {
   const pageEvents = processedEvents.slice(0, limit);
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-coffee-cream via-[#f5ece0] to-coffee-mid">
+    <div className="min-h-screen bg-gradient-to-b from-coffee-cream via-[#f5ece0] to-coffee-mid page-content">
       <div className="app-container py-10">
         {/* Header / hero strip */}
         <header className="mb-6">
@@ -286,13 +287,14 @@ export default function EventsList() {
 
         {/* Content */}
         {loading ? (
-          <div className="py-14 text-center text-gray-600">
+          <div className="py-10">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {[1, 2, 3, 4, 5, 6].map((i) => (
-                <div
-                  key={i}
-                  className="h-52 bg-white rounded-2xl shadow-sm animate-pulse"
-                />
+                <div key={i} className="surface-card p-4 space-y-3">
+                  <div className="skeleton-block h-28 w-full" />
+                  <div className="skeleton-block h-4 w-4/5" />
+                  <div className="skeleton-block h-3 w-2/3" />
+                </div>
               ))}
             </div>
           </div>

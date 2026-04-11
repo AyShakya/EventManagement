@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import api, { fetchCsrfToken } from "../../api/axiosClient";
+import PageSkeleton from "../../components/PageSkeleton";
 import { uploadEventImage } from "../../api/uploadImage";
 
 function toLocalDateTimeInput(iso) {
@@ -155,17 +156,11 @@ export default function OrganizerEditEvent() {
   }
 
   if (loading) {
-    return (
-      <div className="min-h-screen bg-gradient-to-b from-coffee-cream to-coffee-mid flex items-center">
-        <div className="app-container mx-auto text-gray-700">
-          Loading event...
-        </div>
-      </div>
-    );
+    return <PageSkeleton title="Loading event editor" cards={2} />;
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-coffee-cream to-coffee-mid text-gray-900 py-10">
+    <div className="min-h-screen bg-gradient-to-b from-coffee-cream to-coffee-mid text-gray-900 py-10 page-content">
       <div className="app-container mx-auto max-w-4xl">
         {/* Header */}
         <div className="mb-6 flex items-center justify-between gap-3">

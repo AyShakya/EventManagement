@@ -3,6 +3,7 @@ import { useParams, Link, useNavigate } from "react-router-dom";
 import api, { csrfPost } from "../api/axiosClient";
 import { AuthContext } from "../context/AuthContext";
 import { getEventStage } from "../utils/eventStage";
+import PageSkeleton from "../components/PageSkeleton";
 
 function formatDateTime(dt) {
   if (!dt) return "TBA";
@@ -106,14 +107,7 @@ export default function EventDetail() {
     }
   }
 
-  if (loading)
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-coffee-cream via-[#f5ece0] to-coffee-mid">
-        <div className="bg-white/80 rounded-lg px-6 py-4 shadow card-coffee text-sm text-gray-600">
-          Loading event…
-        </div>
-      </div>
-    );
+  if (loading) return <PageSkeleton title="Loading event" cards={2} />;
 
   if (err)
     return (
@@ -159,7 +153,7 @@ export default function EventDetail() {
   const isOrganizerView = user?.userType === "organizer";
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-coffee-cream via-[#f5ece0] to-coffee-mid text-gray-900 py-10">
+    <div className="min-h-screen bg-gradient-to-b from-coffee-cream via-[#f5ece0] to-coffee-mid text-gray-900 py-10 page-content">
       <div className="app-container">
         {/* breadcrumb */}
         <div className="mb-4 text-xs text-gray-500 flex items-center gap-1">

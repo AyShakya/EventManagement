@@ -45,6 +45,16 @@
     padding-right: 1rem;
   }
 
+  .page-content {
+    width: 100%;
+    animation: fadeUp 280ms ease-out;
+  }
+
+  .surface-card {
+    @apply bg-white rounded-2xl border border-coffee-cream/70 shadow-sm;
+    box-shadow: 0 14px 38px rgba(47, 31, 25, 0.1);
+  }
+
   .bg-coffee-hero {
     background: linear-gradient(130deg, #1d120f 0%, #3b241c 38%, #7a4c33 100%);
   }
@@ -52,6 +62,37 @@
   .card-coffee {
     box-shadow: 0 14px 38px rgba(47, 31, 25, 0.12);
     border-radius: 1rem;
+  }
+
+  .skeleton-block {
+    border-radius: 0.65rem;
+    background: linear-gradient(110deg, rgba(199, 164, 136, 0.16) 8%, rgba(199, 164, 136, 0.35) 18%, rgba(199, 164, 136, 0.16) 33%);
+    background-size: 200% 100%;
+    animation: shimmer 1.3s linear infinite;
+  }
+}
+
+@keyframes shimmer {
+  to {
+    background-position-x: -200%;
+  }
+}
+
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .page-content,
+  .skeleton-block {
+    animation: none;
   }
 }
 

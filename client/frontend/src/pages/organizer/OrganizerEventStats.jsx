@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams, Link } from "react-router-dom";
 import api, { fetchCsrfToken } from "../../api/axiosClient";
-import { getEventStage } from "../../utils/eventStage"; 
+import PageSkeleton from "../../components/PageSkeleton";
+import { getEventStage } from "../../utils/eventStage";
 
 export default function OrganizerEventStats() {
   const { id: eventId } = useParams();
@@ -73,13 +74,7 @@ export default function OrganizerEventStats() {
   }, [eventId]);
 
   if (loading) {
-    return (
-      <div className="min-h-[60vh] flex items-center">
-        <div className="app-container mx-auto text-sm text-gray-600">
-          Loading event stats…
-        </div>
-      </div>
-    );
+    return <PageSkeleton title="Loading event stats" cards={2} />;
   }
 
   if (!event) {
