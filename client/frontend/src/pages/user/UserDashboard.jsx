@@ -79,29 +79,29 @@ function VerificationBanner({
   if (hidden) return null;
 
   return (
-    <div className="bg-amber-50 border border-amber-200 rounded-xl px-4 py-3 mb-6 shadow-sm">
-      <div className="flex items-start gap-3">
+    <div className="bg-[#f9f9ef] border border-[#e8e7cc] rounded-[1.8rem] px-6 py-5 mb-8 shadow-[0_15px_35px_rgba(39,29,19,0.08)]">
+      <div className="flex items-start gap-4">
         {/* Icon */}
-        <div className="mt-0.5">
-          <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-amber-100 text-amber-700 text-sm">
+        <div className="mt-1">
+          <span className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-[#eceac8] text-[#9f402d] text-lg font-bold">
             !
           </span>
         </div>
 
         {/* Main content */}
         <div className="flex-1 min-w-0">
-          <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex flex-col gap-1 sm:flex-row sm:items-start sm:justify-between">
             <div className="min-w-0">
-              <div className="font-medium text-amber-900">
+              <div className="text-2xl font-semibold italic text-[#1f100d] font-serif">
                 Verify your email
               </div>
-              <div className="text-xs sm:text-sm text-amber-800 mt-0.5">
+              <div className="text-base text-[#54443d] mt-1">
                 We haven&apos;t verified{" "}
-                <strong>{user?.email || "your email"}</strong> yet. This helps
-                with notifications and feedback updates.
+                <strong className="text-[#1f100d]">{user?.email || "your email"}</strong> yet. This helps
+                with notifications and security.
               </div>
               {message && (
-                <div className="mt-1 text-xs text-amber-900">{message}</div>
+                <div className="mt-2 text-sm font-medium text-[#9f402d]">{message}</div>
               )}
             </div>
 
@@ -109,35 +109,35 @@ function VerificationBanner({
             <button
               type="button"
               onClick={() => setHidden(true)}
-              className="hidden sm:inline-flex ml-4 text-xs text-amber-700 hover:text-amber-900"
+              className="hidden sm:inline-flex ml-4 text-xs uppercase tracking-widest text-[#5c5048] hover:text-[#1f100d] font-bold"
             >
               Dismiss
             </button>
           </div>
 
           {/* Actions */}
-          <div className="mt-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+          <div className="mt-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             {/* Left: resend */}
             <button
               onClick={onResend}
               disabled={resendLoading}
-              className="inline-flex items-center justify-center bg-amber-600 text-white px-3 py-1.5 rounded-full text-xs font-medium disabled:opacity-60"
+              className="inline-flex items-center justify-center bg-[#33110e] text-white px-6 py-2.5 rounded-full text-sm font-medium disabled:opacity-60 hover:bg-[#4b1a15] transition shadow-md"
             >
               {resendLoading ? "Sending..." : "Resend verification email"}
             </button>
 
             {/* Right: token + verify */}
-            <div className="flex flex-col sm:flex-row gap-2 sm:items-center">
+            <div className="flex flex-col sm:flex-row gap-3 sm:items-center">
               <input
                 value={token}
                 onChange={(e) => setToken(e.target.value)}
-                placeholder="Verification code"
-                className="px-2 py-1.5 rounded border border-amber-200 text-xs sm:text-sm w-full sm:w-44 bg-white/70 focus:outline-none focus:ring-1 focus:ring-amber-400"
+                placeholder="Paste code here"
+                className="px-5 py-2.5 rounded-full bg-[#e8e7cc] border-0 text-sm w-full sm:w-52 focus:outline-none focus:ring-2 focus:ring-[#9f402d]/40 placeholder:text-[#a5a08c]"
               />
               <button
                 onClick={() => onVerifyToken(token)}
                 disabled={verifyLoading || token.trim().length === 0}
-                className="inline-flex items-center justify-center bg-coffee-mid text-white px-3 py-1.5 rounded-full text-xs font-medium disabled:opacity-60"
+                className="inline-flex items-center justify-center bg-white border border-[#eceac8] text-[#271310] px-6 py-2.5 rounded-full text-sm font-semibold disabled:opacity-60 hover:bg-[#eceac8] transition"
               >
                 {verifyLoading ? "Verifying..." : "Verify"}
               </button>
@@ -149,7 +149,7 @@ function VerificationBanner({
         <button
           type="button"
           onClick={() => setHidden(true)}
-          className="sm:hidden ml-2 mt-0.5 text-xs text-amber-500 hover:text-amber-700"
+          className="sm:hidden ml-2 mt-0.5 text-lg text-[#a5a08c] hover:text-[#1f100d]"
         >
           ✕
         </button>
