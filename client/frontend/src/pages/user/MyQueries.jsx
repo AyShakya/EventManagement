@@ -25,15 +25,15 @@ export default function MyQueries() {
   }, []);
 
   return (
-    <div className="min-h-[70vh] py-10 bg-gradient-to-b from-coffee-cream/70 to-coffee-mid/20">
+    <div className="min-h-[70vh] py-10 bg-[#fbfbe2]">
       <div className="app-container mx-auto">
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-6">
           <div>
-            <h1 className="text-2xl sm:text-3xl font-bold text-coffee-dark">
+            <h1 className="text-5xl sm:text-6xl font-semibold text-[#1f0f0d]">
               My queries & feedback
             </h1>
-            <p className="text-sm text-gray-600 mt-1">
+            <p className="text-base text-[#594d47] mt-2">
               Track questions you&apos;ve asked and feedback you&apos;ve shared
               with organizers.
             </p>
@@ -57,7 +57,7 @@ export default function MyQueries() {
             ))}
           </div>
         ) : queries.length === 0 ? (
-          <div className="bg-white rounded-xl p-6 sm:p-7 shadow card-coffee">
+          <div className="bg-[#f7f7f9] rounded-[1.8rem] p-6 sm:p-7 shadow-[0_18px_30px_rgba(39,29,19,0.09)]">
             <h2 className="text-lg font-semibold text-gray-900 mb-1">
               Nothing here yet
             </h2>
@@ -71,9 +71,9 @@ export default function MyQueries() {
             </p>
           </div>
         ) : (
-          <div className="bg-white rounded-xl p-4 sm:p-5 shadow card-coffee">
+          <div className="bg-[#f7f7f9] rounded-[1.8rem] p-4 sm:p-5 shadow-[0_18px_30px_rgba(39,29,19,0.09)]">
             <div className="flex items-center justify-between mb-3">
-              <h2 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">
+              <h2 className="text-sm font-semibold text-[#3e332e] uppercase tracking-[0.16em]">
                 Last {queries.length} submissions
               </h2>
             </div>
@@ -85,7 +85,7 @@ export default function MyQueries() {
                 return (
                   <li
                     key={q._id}
-                    className="border border-gray-100 rounded-lg p-3.5 hover:shadow-sm transition flex flex-col gap-1.5"
+                    className="rounded-[1.3rem] bg-[#f1f1df] p-4 transition flex flex-col gap-1.5"
                   >
                     {/* Top row: subject + date + status pill */}
                     <div className="flex flex-wrap items-center justify-between gap-2">

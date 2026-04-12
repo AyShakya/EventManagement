@@ -160,190 +160,178 @@ export default function OrganizerEditEvent() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-coffee-cream to-coffee-mid text-gray-900 py-10 page-content">
-      <div className="app-container mx-auto max-w-4xl">
+    <div className="min-h-screen bg-[#fbfbe2] text-[#2a1a14] py-10 page-content">
+      <div className="app-container mx-auto max-w-6xl">
         {/* Header */}
-        <div className="mb-6 flex items-center justify-between gap-3">
+        <div className="mb-8 flex items-center justify-between gap-3">
           <div>
-            <h1 className="text-2xl md:text-3xl font-bold text-coffee-dark">
-              Edit event
+            <h1 className="text-5xl md:text-7xl font-semibold text-[#1f0f0d] leading-tight">
+              Refine Event
             </h1>
-            <p className="text-sm text-gray-600 mt-1">
+            <p className="text-xl text-[#4f433e] mt-2">
               Update the information for this event. Changes are visible
               immediately.
             </p>
           </div>
         </div>
 
-        <div className="bg-white rounded-xl p-6 md:p-8 shadow card-coffee">
+        <div className="bg-[#fbfbe2] rounded-[2rem]">
           {error && (
-            <div className="mb-4 rounded border border-red-200 bg-red-50 px-4 py-2 text-sm text-red-700">
+            <div className="mb-4 rounded-2xl bg-red-100/80 px-4 py-3 text-sm text-red-700">
               {error}
             </div>
           )}
           {success && (
-            <div className="mb-4 rounded border border-emerald-200 bg-emerald-50 px-4 py-2 text-sm text-emerald-700">
+            <div className="mb-4 rounded-2xl bg-emerald-100/80 px-4 py-3 text-sm text-emerald-700">
               {success}
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Basic info */}
-            <div>
-              <div className="flex items-center justify-between mb-3">
-                <h2 className="text-base font-semibold text-coffee-dark">
-                  Basic information
-                </h2>
-                <span className="text-[11px] uppercase tracking-wide text-gray-400">
-                  * Required fields
-                </span>
-              </div>
+          <form onSubmit={handleSubmit} className="space-y-8">
+            <div className="grid lg:grid-cols-[1.5fr_0.72fr] gap-6">
+              <div className="bg-[#f7f7f9] rounded-[2rem] p-6 md:p-7">
+                <label className="block text-sm font-semibold uppercase tracking-[0.18em] text-[#2d2623]/90 mb-2">
+                  Event Title
+                </label>
+                <input
+                  className="w-full px-4 py-3 rounded-full bg-[#e8e7d0] text-lg placeholder:text-[#c6baa7] focus:outline-none focus:ring-2 focus:ring-[#9f402d]/65 border-0"
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                  required
+                />
 
-              <div className="grid md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-xs font-semibold text-gray-600 mb-1">
-                    Title <span className="text-red-500">*</span>
+                <div className="mt-6">
+                  <label className="block text-sm font-semibold uppercase tracking-[0.18em] text-[#2d2623]/90 mb-2">
+                    Description
                   </label>
-                  <input
-                    className="w-full px-3 py-2 rounded-lg border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-coffee-mid/60 focus:border-coffee-mid"
-                    value={title}
-                    onChange={(e) => setTitle(e.target.value)}
+                  <textarea
+                    className="w-full px-4 py-4 rounded-[1.8rem] bg-[#e8e7d0] text-lg placeholder:text-[#c6baa7] min-h-[210px] resize-vertical focus:outline-none focus:ring-2 focus:ring-[#9f402d]/65 border-0"
+                    value={description}
+                    onChange={(e) => setDescription(e.target.value)}
                     required
                   />
+                  <p className="mt-2 text-xs text-[#726560]">
+                    Minimum 20 characters so users understand the event.
+                  </p>
                 </div>
+              </div>
 
-                <div>
-                  <label className="block text-xs font-semibold text-gray-600 mb-1">
-                    Location <span className="text-red-500">*</span>
+              <div className="space-y-5">
+                <div className="bg-[#ececd8] rounded-[2rem] p-5">
+                  <h3 className="text-sm font-semibold uppercase tracking-[0.18em] mb-3">
+                    Schedule
+                  </h3>
+                  <label className="block text-xs uppercase tracking-[0.14em] text-[#514642] mb-1">
+                    Date & Time
                   </label>
                   <input
-                    className="w-full px-3 py-2 rounded-lg border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-coffee-mid/60 focus:border-coffee-mid"
+                    type="datetime-local"
+                    className="w-full px-4 py-2.5 rounded-full bg-white text-base focus:outline-none focus:ring-2 focus:ring-[#9f402d]/65 border-0"
+                    value={startAt}
+                    onChange={(e) => setStartAt(e.target.value)}
+                  />
+                </div>
+                <div className="bg-[#ececd8] rounded-[2rem] p-5">
+                  <h3 className="text-sm font-semibold uppercase tracking-[0.18em] mb-3">
+                    Destination
+                  </h3>
+                  <label className="block text-xs uppercase tracking-[0.14em] text-[#514642] mb-1">
+                    Venue Name
+                  </label>
+                  <input
+                    className="w-full px-4 py-2.5 rounded-full bg-white text-base focus:outline-none focus:ring-2 focus:ring-[#9f402d]/65 border-0"
                     value={location}
                     onChange={(e) => setLocation(e.target.value)}
                     required
                   />
+                  <p className="mt-3 text-xs text-[#726560]">
+                    Registration form URL
+                  </p>
+                  <input
+                    className="mt-1 w-full px-4 py-2.5 rounded-full bg-white text-sm focus:outline-none focus:ring-2 focus:ring-[#9f402d]/65 border-0"
+                    value={registrationFormURL}
+                    onChange={(e) => setRegistrationFormURL(e.target.value)}
+                    placeholder="https://your-form.com/register"
+                  />
                 </div>
-              </div>
-
-              <div className="mt-4">
-                <label className="block text-xs font-semibold text-gray-600 mb-1">
-                  Description <span className="text-red-500">*</span>
-                </label>
-                <textarea
-                  className="w-full px-3 py-2 rounded-lg border border-gray-200 text-sm min-h-[130px] resize-vertical focus:outline-none focus:ring-2 focus:ring-coffee-mid/60 focus:border-coffee-mid"
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
-                  required
-                />
-                <p className="text-[11px] text-gray-400 mt-1">
-                  Minimum 20 characters so users understand the event.
-                </p>
               </div>
             </div>
 
-            {/* Layout split: image + schedule */}
-            <div className="grid md:grid-cols-2 gap-6">
-              {/* Image */}
-              <div>
-                <h2 className="text-sm font-semibold text-coffee-dark mb-2">
-                  Event image
-                </h2>
-                <p className="text-xs text-gray-500 mb-2">
-                  Update the banner image for this event.
-                </p>
-
+            <div className="grid lg:grid-cols-[1.35fr_0.85fr] gap-6">
+              <div className="bg-[#f7f7f9] rounded-[2rem] p-4">
                 <label className="block">
-                  <div className="border border-dashed border-gray-300 rounded-lg px-3 py-3 text-xs text-gray-600 cursor-pointer hover:border-coffee-mid/70">
-                    <div className="flex items-center justify-between gap-3">
-                      <span>Choose a new image (optional)</span>
-                      <span className="px-2 py-1 rounded bg-coffee-mid text-white text-[11px]">
-                        Upload
-                      </span>
-                    </div>
-                    <input
-                      type="file"
-                      accept="image/*"
-                      onChange={handleImageChange}
-                      className="hidden"
-                    />
-                  </div>
-                </label>
-
-                {uploadingImage && (
-                  <div className="text-xs text-gray-500 mt-2">Uploading...</div>
-                )}
-
-                {imageURL && (
-                  <div className="mt-3">
-                    <div className="text-xs text-gray-500 mb-1">Preview</div>
-                    <div className="w-full max-w-xs h-32 rounded-lg overflow-hidden bg-gray-100 border border-gray-200">
-                      <img
-                        src={imageURL}
-                        alt="Event"
-                        className="w-full h-full object-cover"
+                  <div className="rounded-[1.75rem] border-2 border-dashed border-[#d9ccc8] min-h-[250px] flex items-center justify-center text-center px-6 cursor-pointer bg-[#bfa284]/40 hover:bg-[#bfa284]/50">
+                    <div>
+                      <p className="text-2xl font-medium mb-1">
+                        Update Cover Image
+                      </p>
+                      <p className="text-sm text-[#5f524d]">
+                        Recommended: 1920x1080px (Max 5MB)
+                      </p>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={handleImageChange}
+                        className="hidden"
                       />
                     </div>
                   </div>
+                </label>
+                {uploadingImage && (
+                  <div className="text-xs text-[#6d625d] mt-2">Uploading...</div>
+                )}
+                {imageURL && (
+                  <div className="mt-4 rounded-2xl overflow-hidden bg-[#ececd8] h-40">
+                    <img
+                      src={imageURL}
+                      alt="Event"
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
                 )}
               </div>
 
-              {/* Date/time */}
-              <div>
-                <h2 className="text-sm font-semibold text-coffee-dark mb-2">
-                  Schedule
-                </h2>
-                <p className="text-xs text-gray-500 mb-2">
-                  Adjust the event&apos;s start date &amp; time if needed.
+              <div className="bg-[#ececd8] rounded-[2rem] p-6">
+                <h3 className="text-4xl leading-tight font-semibold mb-4">
+                  Curator&apos;s Notes
+                </h3>
+                <p className="text-sm text-[#5f534c] mb-4">
+                  Keep descriptions evocative and specific to boost attendance.
                 </p>
-
-                <label className="block text-xs font-semibold text-gray-600 mb-1">
-                  Event date / time
-                </label>
-                <input
-                  type="datetime-local"
-                  className="w-full px-3 py-2 rounded-lg border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-coffee-mid/60 focus:border-coffee-mid"
-                  value={startAt}
-                  onChange={(e) => setStartAt(e.target.value)}
-                />
-                <p className="text-[11px] text-gray-400 mt-1">
-                  This is when the event actually happens (not when you posted
-                  it).
-                </p>
+                <div className="flex flex-wrap gap-2">
+                  {["Workshops", "Live Music", "Tasting", "Networking"].map(
+                    (tag, idx) => (
+                      <span
+                        key={tag}
+                        className={`px-4 py-1.5 rounded-full text-sm ${
+                          idx === 0
+                            ? "bg-[#fd876f] text-[#732010]"
+                            : "bg-white/80 text-[#5b4f48]"
+                        }`}
+                      >
+                        {tag}
+                      </span>
+                    )
+                  )}
+                </div>
               </div>
             </div>
 
-            {/* Registration form URL */}
-            <div>
-              <label className="block text-sm font-medium mb-1">
-                Registration form link (optional)
-              </label>
-              <input
-                className="w-full px-3 py-2 rounded border"
-                value={registrationFormURL}
-                onChange={(e) => setRegistrationFormURL(e.target.value)}
-                placeholder="https://your-form.com/register"
-              />
-              <p className="text-xs text-gray-400 mt-1">
-                If you use Google Forms, Typeform, etc., paste the link here.
-                Users will be redirected when they click “Attend / Register”.
-              </p>
-            </div>
-
             {/* Actions */}
-            <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-end gap-3 pt-4 border-t border-gray-100">
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-end gap-3 pt-4">
               <button
                 type="button"
                 onClick={() => navigate("/organizer/events")}
-                className="px-4 py-2 rounded-lg border border-gray-300 text-sm bg-white hover:bg-gray-50"
+                className="px-8 py-3 rounded-full text-lg bg-transparent border border-[#d3c3c0] text-[#9f402d] hover:bg-[#f3eed9]"
               >
-                Cancel
+                Discard Changes
               </button>
               <button
                 type="submit"
                 disabled={saving}
-                className="px-5 py-2 rounded-lg bg-coffee-mid text-white text-sm font-medium disabled:opacity-60"
+                className="px-10 py-3 rounded-full bg-[#271310] text-white text-lg font-medium disabled:opacity-60 shadow-[0_14px_24px_rgba(39,19,16,0.2)]"
               >
-                {saving ? "Saving..." : "Save changes"}
+                {saving ? "Saving..." : "Publish Update"}
               </button>
             </div>
           </form>

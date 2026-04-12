@@ -85,19 +85,19 @@ export default function OrganizerEvents() {
 
   return (
     <div className="mt-8">
-      <div className="bg-white rounded-xl p-5 shadow card-coffee">
+      <div className="bg-[#f7f7f9] rounded-[2rem] p-5 md:p-6 shadow-[0_20px_34px_rgba(39,29,19,0.08)]">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
           <div>
-            <h2 className="text-lg font-semibold text-coffee-dark">
-              Your events
+            <h2 className="text-4xl font-semibold text-[#20100d]">
+              Event Management
             </h2>
-            <p className="text-xs text-gray-500">
+            <p className="text-sm text-[#60544e]">
               Manage dates, see stats, and review queries for each event.
             </p>
           </div>
           <Link
             to="/organizer/events/create"
-            className="inline-flex items-center justify-center bg-coffee-mid text-white px-4 py-2 rounded-lg text-sm shadow-sm hover:bg-coffee-dark"
+            className="inline-flex items-center justify-center bg-[#271310] text-white px-6 py-3 rounded-full text-sm shadow-sm hover:bg-[#3b241b]"
           >
             + Create new
           </Link>
@@ -127,124 +127,76 @@ export default function OrganizerEvents() {
           </div>
         ) : (
           <>
-            <div className="overflow-x-auto mt-1">
-              <table className="min-w-full text-sm">
-                <thead>
-                  <tr className="border-b text-left text-xs text-gray-500 uppercase">
-                    <th className="py-2 pr-4 font-semibold">Title</th>
-                    <th className="py-2 pr-4 font-semibold">Location</th>
-                    <th className="py-2 pr-4 font-semibold">Stage</th>
-                    <th className="py-2 pr-4 font-semibold">Event date</th>
-                    <th className="py-2 pr-4 font-semibold">
-                      Reported attendees
-                    </th>
-                    <th className="py-2 pr-4 font-semibold">Likes</th>
-                    <th className="py-2 pr-4 font-semibold">Views</th>
-                    <th className="py-2 pr-3 font-semibold">Actions</th>
-                  </tr>
-                </thead>
-
-                <tbody>
-                  {events.map((ev) => {
-                    const { stage } = getEventStage(ev.startAt);
-                    const reportedAttendees =
-                      ev.stats?.totalAttendees ?? "—";
-                    const statsDisabled = stage !== "completed"; 
-
-                    return (
-                      <tr key={ev._id} className="border-b last:border-0">
-                        <td className="py-2 pr-4 align-top">
-                          <div className="flex flex-col">
-                            <Link
-                              to={`/events/${ev._id}`}
-                              className="text-coffee-dark font-medium hover:underline line-clamp-2"
-                            >
-                              {ev.title}
-                            </Link>
-                            <span className="text-[11px] text-gray-400 mt-0.5">
-                              Posted{" "}
-                              {ev.postedAt
-                                ? new Date(
-                                    ev.postedAt
-                                  ).toLocaleDateString()
-                                : "-"}
-                            </span>
-                          </div>
-                        </td>
-
-                        <td className="py-2 pr-4 align-top text-gray-700">
-                          {ev.location}
-                        </td>
-
-                        <td className="py-2 pr-4 align-top">
-                          {renderStageBadge(ev.startAt)}
-                        </td>
-
-                        <td className="py-2 pr-4 align-top text-xs text-gray-600">
-                          {ev.startAt
-                            ? new Date(ev.startAt).toLocaleString()
-                            : "Not set"}
-                        </td>
-
-                        <td className="py-2 pr-4 align-top text-center text-sm text-gray-700">
-                          {reportedAttendees}
-                        </td>
-
-                        <td className="py-2 pr-4 align-top text-sm">
-                          {ev.likes ?? 0}
-                        </td>
-
-                        <td className="py-2 pr-4 align-top text-sm">
-                          {ev.views ?? 0}
-                        </td>
-
-                        <td className="py-2 pr-3 align-top">
-                          <div className="flex flex-wrap gap-2">
-                            <Link
-                              to={`/organizer/events/${ev._id}/edit`}
-                              className="px-2.5 py-1 rounded border text-xs hover:bg-gray-50"
-                            >
-                              Edit
-                            </Link>
-                            <Link
-                              to={`/organizer/events/${ev._id}/queries`}
-                              className="px-2.5 py-1 rounded text-xs bg-coffee-mid text-white hover:bg-coffee-dark"
-                            >
-                              Queries
-                            </Link>
-
-                            <Link
-                              to={
-                                statsDisabled
-                                  ? "#"
-                                  : `/organizer/events/${ev._id}/stats`
-                              }
-                              onClick={(e) => {
-                                if (statsDisabled) e.preventDefault();
-                              }}
-                              className={`px-2.5 py-1 rounded text-xs border ${
-                                statsDisabled
-                                  ? "border-gray-200 text-gray-400 cursor-not-allowed"
-                                  : "border-coffee-mid text-coffee-mid hover:bg-coffee-cream/40"
-                              }`}
-                            >
-                              Stats
-                            </Link>
-
-                            <button
-                              onClick={() => handleDelete(ev._id)}
-                              disabled={deletingId === ev._id}
-                              className="px-2.5 py-1 rounded text-xs border border-red-500 text-red-600 hover:bg-red-50 disabled:opacity-60"
-                            >
-                              {deletingId === ev._id ? "Deleting..." : "Delete"}
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
+            <div className="space-y-4 mt-1">
+              {events.map((ev) => {
+                const { stage } = getEventStage(ev.startAt);
+                const reportedAttendees = ev.stats?.totalAttendees ?? "—";
+                const statsDisabled = stage !== "completed";
+                return (
+                  <div
+                    key={ev._id}
+                    className="bg-[#f1f1df] rounded-[1.6rem] p-4 md:p-5 flex flex-col lg:flex-row gap-4 lg:items-center lg:justify-between"
+                  >
+                    <div className="min-w-0 flex-1">
+                      <div className="flex flex-wrap items-center gap-2 mb-2">
+                        {renderStageBadge(ev.startAt)}
+                        <span className="text-xs text-[#7b6d66]">
+                          Posted {ev.postedAt ? new Date(ev.postedAt).toLocaleDateString() : "-"}
+                        </span>
+                      </div>
+                      <Link
+                        to={`/events/${ev._id}`}
+                        className="text-2xl md:text-3xl font-semibold text-[#23120f] hover:underline line-clamp-1"
+                      >
+                        {ev.title}
+                      </Link>
+                      <p className="text-[#584d47] mt-1">{ev.location}</p>
+                      <div className="mt-2 text-xs text-[#6d625c]">
+                        {ev.startAt ? new Date(ev.startAt).toLocaleString() : "Not set"}
+                      </div>
+                      <div className="mt-3 flex flex-wrap gap-4 text-sm text-[#433833]">
+                        <span>Attendees: <strong>{reportedAttendees}</strong></span>
+                        <span>❤️ {ev.likes ?? 0}</span>
+                        <span>👁 {ev.views ?? 0}</span>
+                      </div>
+                    </div>
+                    <div className="flex flex-wrap gap-2 lg:w-[300px] lg:justify-end">
+                      <Link
+                        to={`/organizer/events/${ev._id}/edit`}
+                        className="px-4 py-2 rounded-full text-xs bg-white text-[#2c211c] hover:bg-[#f7f1ea]"
+                      >
+                        Edit
+                      </Link>
+                      <Link
+                        to={`/organizer/events/${ev._id}/queries`}
+                        className="px-4 py-2 rounded-full text-xs bg-[#9f402d] text-white hover:bg-[#7f2f20]"
+                      >
+                        Queries
+                      </Link>
+                      <Link
+                        to={statsDisabled ? "#" : `/organizer/events/${ev._id}/stats`}
+                        onClick={(e) => {
+                          if (statsDisabled) e.preventDefault();
+                        }}
+                        className={`px-4 py-2 rounded-full text-xs ${
+                          statsDisabled
+                            ? "bg-[#dddcd1] text-[#8f8782] cursor-not-allowed"
+                            : "bg-[#baa900] text-[#2a2500]"
+                        }`}
+                      >
+                        Stats
+                      </Link>
+                      <button
+                        onClick={() => handleDelete(ev._id)}
+                        disabled={deletingId === ev._id}
+                        className="px-4 py-2 rounded-full text-xs bg-[#271310] text-white disabled:opacity-60"
+                      >
+                        {deletingId === ev._id ? "Deleting..." : "Delete"}
+                      </button>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
 
             {meta && (

@@ -125,15 +125,15 @@ export default function OrganizerDashboard() {
   }, [authUser]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-coffee-cream to-coffee-mid text-gray-900 py-10">
+    <div className="min-h-screen bg-[#fbfbe2] text-[#2c1d16] py-10">
       <div className="app-container">
         {/* Header */}
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-6">
           <div>
-            <h1 className="text-3xl font-bold text-coffee-dark">
-              Organizer dashboard
+            <h1 className="text-5xl md:text-6xl font-semibold text-[#1f0f0d]">
+              Organizer Atelier
             </h1>
-            <p className="text-sm text-gray-600 mt-1">
+            <p className="text-base text-[#5a4d46] mt-1">
               Manage your events, attendees and feedback
             </p>
           </div>
@@ -141,7 +141,7 @@ export default function OrganizerDashboard() {
           <div className="flex flex-wrap gap-2">
             <button
               onClick={() => navigate("/organizer/events/create")}
-              className="bg-coffee-dark text-coffee-cream px-4 py-2 rounded-full text-sm"
+              className="bg-[#271310] text-white px-6 py-3 rounded-full text-sm"
             >
               Create event
             </button>
@@ -152,6 +152,21 @@ export default function OrganizerDashboard() {
               Manage events
             </Link>
           </div>
+        </div>
+
+        <div className="mb-6 bg-[#f1f1df] rounded-[1.4rem] p-2 inline-flex flex-wrap gap-2">
+          <Link to="/organizer" className="px-4 py-2 rounded-full bg-white text-[#271310] text-sm">
+            Overview
+          </Link>
+          <Link to="/organizer/events" className="px-4 py-2 rounded-full text-[#4d423c] text-sm hover:bg-white/70">
+            Event Management
+          </Link>
+          <button
+            onClick={() => navigate("/organizer/events/create")}
+            className="px-4 py-2 rounded-full text-[#4d423c] text-sm hover:bg-white/70"
+          >
+            New Event
+          </button>
         </div>
 
         <div className="flex flex-col lg:flex-row gap-6 mb-6">
@@ -169,9 +184,9 @@ export default function OrganizerDashboard() {
         {/* Main content */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Recent events */}
-          <div className="lg:col-span-2 bg-white rounded-xl p-4 shadow card-coffee border border-coffee-cream/60">
+          <div className="lg:col-span-2 bg-[#f7f7f9] rounded-[1.8rem] p-4 shadow-[0_18px_30px_rgba(39,29,19,0.09)]">
             <div className="flex items-center justify-between mb-3">
-              <h3 className="text-lg font-semibold text-coffee-dark">
+              <h3 className="text-4xl font-semibold text-[#21100d]">
                 Recent events
               </h3>
               <Link
@@ -202,17 +217,17 @@ export default function OrganizerDashboard() {
                 No events yet. Create an event to get started.
               </div>
             ) : (
-              <ul className="space-y-3">
+              <ul className="space-y-4">
                 {events.map((ev) => (
                   <li
                     key={ev._id}
-                    className="p-3 border rounded-lg hover:shadow-sm transition flex items-start justify-between gap-3"
+                    className="p-4 rounded-[1.4rem] bg-[#f1f1df] transition flex items-start justify-between gap-3"
                   >
                     <div className="min-w-0">
-                      <div className="font-medium text-coffee-dark truncate">
+                      <div className="text-2xl font-semibold text-[#22110f] truncate">
                         {ev.title}
                       </div>
-                      <div className="text-xs text-gray-500">
+                      <div className="text-sm text-[#5f524b]">
                         {ev.location} •{" "}
                         {new Date(ev.postedAt).toLocaleDateString()}
                       </div>
@@ -223,13 +238,13 @@ export default function OrganizerDashboard() {
                     <div className="flex flex-col gap-2 items-end shrink-0">
                       <Link
                         to={`/organizer/events/${ev._id}/edit`}
-                        className="text-xs px-3 py-1 rounded-full border border-coffee-mid/60 hover:bg-coffee-mid hover:text-white transition"
+                        className="text-xs px-4 py-2 rounded-full bg-white hover:bg-[#ece9d4] transition"
                       >
                         Edit
                       </Link>
                       <Link
                         to={`/organizer/events/${ev._id}/queries`}
-                        className="text-xs px-3 py-1 rounded-full bg-coffee-mid text-white hover:bg-coffee-dark transition"
+                        className="text-xs px-4 py-2 rounded-full bg-[#9f402d] text-white hover:bg-[#7e2d21] transition"
                       >
                         Queries
                       </Link>
@@ -241,10 +256,10 @@ export default function OrganizerDashboard() {
           </div>
 
           {/* Tips card with bullets & highlight */}
-          <div className="bg-white rounded-xl p-4 shadow card-coffee border border-coffee-cream/60">
+          <div className="bg-[#f1f1df] rounded-[1.8rem] p-5 shadow-[0_18px_30px_rgba(39,29,19,0.06)]">
             <div className="flex items-center gap-2 mb-2">
-              <div className="w-1 h-6 rounded-full bg-coffee-mid" />
-              <h3 className="text-lg font-semibold text-coffee-dark">
+              <div className="w-1 h-6 rounded-full bg-[#9f402d]" />
+              <h3 className="text-3xl font-semibold text-[#21100d]">
                 Tips to grow your events
               </h3>
             </div>

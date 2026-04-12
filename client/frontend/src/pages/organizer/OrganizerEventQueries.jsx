@@ -76,11 +76,11 @@ export default function OrganizerEventQueries() {
 
   return (
     <div className="mt-8">
-      <div className="bg-white rounded-xl p-5 shadow card-coffee">
+      <div className="bg-[#f7f7f9] rounded-[2rem] p-5 shadow-[0_20px_34px_rgba(39,29,19,0.08)]">
         {/* Header */}
         <div className="flex flex-wrap items-start justify-between gap-4 mb-4">
           <div>
-            <h2 className="text-xl font-semibold text-coffee-dark">
+            <h2 className="text-4xl font-semibold text-[#1f0f0d]">
               Event queries
               {event ? ` — ${event.title}` : ""}
             </h2>
@@ -95,7 +95,7 @@ export default function OrganizerEventQueries() {
           </div>
           <Link
             to="/organizer/events"
-            className="text-sm px-3 py-1.5 rounded border border-coffee-mid text-coffee-mid hover:bg-coffee-mid hover:text-white transition"
+            className="text-sm px-4 py-2 rounded-full bg-[#271310] text-white transition"
           >
             Back to events
           </Link>
@@ -116,7 +116,7 @@ export default function OrganizerEventQueries() {
             ))}
           </div>
         ) : queries.length === 0 ? (
-          <div className="text-gray-600 text-sm bg-gray-50 border border-dashed border-gray-200 rounded-md px-4 py-5">
+          <div className="text-[#645852] text-sm bg-[#f1f1df] rounded-[1.4rem] px-4 py-5">
             There are no queries or feedback for this event yet.
           </div>
         ) : (
@@ -127,11 +127,11 @@ export default function OrganizerEventQueries() {
                 return (
                   <div
                     key={q._id}
-                    className="border border-gray-100 rounded-lg p-3.5 hover:shadow-sm transition flex flex-col gap-1"
+                    className="bg-[#f1f1df] rounded-[1.4rem] p-4 transition flex flex-col gap-1"
                   >
                     {/* First row: subject + timestamp + status pill */}
                     <div className="flex flex-wrap items-center justify-between gap-2">
-                      <div className="text-sm font-semibold text-gray-900">
+                      <div className="text-lg font-semibold text-[#21100d]">
                         {q.subject || "Query"}
                       </div>
                       <div className="flex items-center gap-2 text-xs">
@@ -174,7 +174,7 @@ export default function OrganizerEventQueries() {
                           <button
                             disabled={updatingId === q._id}
                             onClick={() => updateStatus(q._id, "pending")}
-                            className="px-3 py-1 rounded text-xs border text-gray-700 hover:bg-gray-50 disabled:opacity-60"
+                            className="px-3 py-1.5 rounded-full text-xs bg-white text-[#4e433d] hover:bg-[#ece9d4] disabled:opacity-60"
                           >
                             {updatingId === q._id ? "Updating..." : "Mark as pending"}
                           </button>
@@ -182,7 +182,7 @@ export default function OrganizerEventQueries() {
                           <button
                             disabled={updatingId === q._id}
                             onClick={() => updateStatus(q._id, "resolved")}
-                            className="px-3 py-1 rounded text-xs bg-coffee-mid text-white hover:bg-coffee-dark disabled:opacity-60"
+                            className="px-3 py-1.5 rounded-full text-xs bg-[#9f402d] text-white hover:bg-[#7f2f20] disabled:opacity-60"
                           >
                             {updatingId === q._id ? "Updating..." : "Mark as resolved"}
                           </button>
