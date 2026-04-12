@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import api from "../api/axiosClient";
 import { getEventStage } from "../utils/eventStage";
-import PageSkeleton from "../components/PageSkeleton";
 
 function EventCard({ ev }) {
   const cover =
@@ -15,72 +14,37 @@ function EventCard({ ev }) {
   return (
     <Link
       to={`/events/${ev._id}`}
-      className="group block bg-white rounded-2xl shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 overflow-hidden border border-coffee-cream/60"
+      className="group block rounded-[24px] bg-[#ffffff] p-2 shadow-[0_18px_30px_rgba(27,29,14,0.08)] transition-all duration-200 hover:-translate-y-1"
     >
-      {/* Image */}
-      <div className="relative h-40 w-full bg-gray-100 overflow-hidden">
+      <div className="relative h-44 w-full overflow-hidden rounded-[18px] bg-[#eaead1]">
         {cover ? (
           <img
             src={cover}
             alt={ev.title}
-            className="h-full w-full object-cover group-hover:scale-[1.03] transition-transform duration-200"
+            className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.03]"
           />
         ) : (
-          <div className="h-full w-full flex flex-col items-center justify-center bg-gradient-to-br from-gray-100 to-gray-200 text-xs text-gray-600">
-            <span className="font-medium">No image</span>
+          <div className="flex h-full w-full items-center justify-center text-xs text-[#5f604f]">
+            No image
           </div>
         )}
 
-        <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-black/15 to-transparent" />
-
-        {/* Stage chip */}
-        <div className="absolute bottom-2 left-2 flex items-center gap-1 text-[11px]">
-          <span
-            className={`inline-flex items-center px-2 py-0.5 rounded-full font-medium
-              ${
-                stageInfo.stage === "completed"
-                  ? "bg-green-100/90 text-green-800"
-                  : stageInfo.stage === "upcoming"
-                  ? "bg-blue-100/90 text-blue-800"
-                  : "bg-gray-100/90 text-gray-800"
-              }`}
-          >
-            {stageInfo.label}
-          </span>
-        </div>
+        <span className="absolute right-3 top-3 rounded-full bg-[#fd876f] px-3 py-1 text-[10px] font-medium text-[#732010]">
+          {stageInfo.label}
+        </span>
       </div>
 
-      {/* Content */}
-      <div className="p-4 flex flex-col gap-2">
-        <h3 className="text-base font-semibold text-coffee-dark line-clamp-2 group-hover:text-coffee-mid">
+      <div className="px-2 pb-3 pt-4">
+        <h3 className="line-clamp-2 text-[1.85rem] leading-[1.05] text-[#1f0f0d] group-hover:text-[#9f402d]">
           {ev.title}
         </h3>
 
-        <div className="flex items-center justify-between text-[11px] text-gray-500">
-          <span className="inline-flex items-center gap-1">
-            <span>📍</span>
-            <span className="truncate max-w-[140px]">{ev.location}</span>
-          </span>
+        <div className="mt-3 flex items-center justify-between text-[12px] text-[#7a7468]">
+          <span className="truncate max-w-[65%]">{ev.location}</span>
           <span>
             {ev.startAt
               ? new Date(ev.startAt).toLocaleDateString()
               : new Date(ev.postedAt).toLocaleDateString()}
-          </span>
-        </div>
-
-        <p className="text-sm text-gray-600 mt-1 line-clamp-2">
-          {ev.description}
-        </p>
-
-        <div className="mt-2 flex items-center justify-between text-[11px] text-gray-500">
-          <span className="inline-flex items-center gap-1">
-            <span>❤️</span>
-            <span>{ev.likes || 0}</span>
-            <span className="mx-1">·</span>
-            <span>👁️ {ev.views || 0}</span>
-          </span>
-          <span className="text-coffee-mid font-medium text-[11px]">
-            View details →
           </span>
         </div>
       </div>
@@ -135,200 +99,128 @@ const Home = () => {
     (ev) => getEventStage(ev.startAt).stage === "completed"
   ).length;
 
+  const heroImage =
+    (featured[0] &&
+      (featured[0].imageURL ||
+        (Array.isArray(featured[0].images) && featured[0].images[0]))) ||
+    (events[0] &&
+      (events[0].imageURL ||
+        (Array.isArray(events[0].images) && events[0].images[0]))) ||
+    "";
+
   return (
-    <div className="min-h-screen bg-gradient-to-b from-coffee-cream via-[#f5ece0] to-coffee-mid text-gray-900 flex flex-col page-content">
-      {/* Hero */}
-      <section className="py-14 px-4 md:px-6 bg-coffee-hero text-coffee-cream">
-        <div className="app-container mx-auto flex flex-col lg:flex-row items-center gap-10">
-          {/* Left text side */}
-          <div className="flex-1">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-black/15 text-xs mb-4 border border-white/10">
-              <span className="text-[10px] uppercase tracking-[0.16em]">
-                CoffeeEvents
-              </span>
-              <span className="h-1 w-1 rounded-full bg-coffee-cream" />
-              <span className="text-[10px] opacity-80">
-                Discover · Attend · Organize
-              </span>
-            </div>
-
-            <h1 className="text-3xl md:text-5xl font-bold leading-tight text-coffee-cream drop-shadow-sm">
-              Discover events that{" "}
-              <span className="text-[#F5CBA7]">match your vibe</span>.
-            </h1>
-
-            <p className="mt-4 text-sm md:text-base text-coffee-cream/90 max-w-xl">
-              From tech fests to open mics — explore what&apos;s happening
-              around you, save your favorites, and get post-event insights from
-              organizers.
-            </p>
-
-            <div className="mt-6 flex flex-wrap gap-3">
-              <Link
-                to="/events"
-                className="inline-flex items-center justify-center bg-coffee-cream text-coffee-dark px-4 py-2.5 rounded-full shadow font-medium text-sm hover:bg-[#f8e7d1] transition"
-              >
-                Browse events
-              </Link>
-              <Link
-                to="/register"
-                className="inline-flex items-center justify-center border border-coffee-cream/70 text-coffee-cream px-4 py-2.5 rounded-full text-sm hover:bg-black/10 transition"
-              >
-                Create organizer account
-              </Link>
-            </div>
-
-            {/* Tiny stats row */}
-            <div className="mt-5 flex flex-wrap gap-4 text-[11px] text-coffee-cream/80">
-              <div className="flex items-center gap-2">
-                <span className="h-2 w-2 rounded-full bg-green-400" />
-                Live and upcoming events handled in real-time.
-              </div>
-              <div>Track likes, views & post-event stats.</div>
-            </div>
-          </div>
-
-          {/* Right search card */}
-          <div className="w-full max-w-md">
-            <div className="bg-white/95 rounded-2xl shadow-xl p-5 border border-coffee-cream/50 backdrop-blur-sm">
-              <h2 className="text-base font-semibold text-coffee-dark mb-2">
-                Search events
-              </h2>
-              <p className="text-xs text-gray-500 mb-3">
-                Search by title or location — for example,{" "}
-                <span className="italic">Hackathon</span> or{" "}
-                <span className="italic">Delhi</span>.
-              </p>
-
-              <form onSubmit={onSearchSubmit} className="space-y-3">
-                <div className="flex gap-2">
-                  <input
-                    value={q}
-                    onChange={(e) => setQ(e.target.value)}
-                    placeholder="Try: Hackathon, Music, Workshop..."
-                    className="flex-1 px-3 py-2 text-coffee-mid rounded-lg border text-sm focus:outline-none focus:ring-1 focus:ring-coffee-mid focus:border-coffee-mid"
-                  />
-                  <button
-                    type="submit"
-                    className="px-4 py-2 rounded-lg bg-coffee-mid text-white text-sm font-medium hover:bg-coffee-dark transition"
-                  >
-                    Search
-                  </button>
-                </div>
-
-                <div className="flex flex-wrap gap-2 text-[11px] text-gray-500">
-                  <span className="font-medium">Popular:</span>
-                  <button
-                    type="button"
-                    onClick={() => setQ("Workshop")}
-                    className="px-2 py-1 rounded-full bg-gray-100 hover:bg-gray-200"
-                  >
-                    Workshop
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setQ("Hackathon")}
-                    className="px-2 py-1 rounded-full bg-gray-100 hover:bg-gray-200"
-                  >
-                    Hackathon
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setQ("Music")}
-                    className="px-2 py-1 rounded-full bg-gray-100 hover:bg-gray-200"
-                  >
-                    Music
-                  </button>
-                </div>
-              </form>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Main content */}
-      <main className="app-container mx-auto px-4 py-10 flex-1 w-full">
+    <div className="min-h-screen bg-[#fbfbe2] text-[#1b1d0e] page-content">
+      <main className="app-container mx-auto px-4 pb-12 pt-8 md:pt-12">
         {error && (
-          <div className="mb-4 bg-red-50 border border-red-200 text-red-700 text-sm px-4 py-3 rounded-xl">
+          <div className="mb-6 rounded-[20px] bg-[#f5c1b7] px-4 py-3 text-sm text-[#63251b]">
             {error}
           </div>
         )}
 
-        {/* Quick overview stats */}
-        <section className="mb-8">
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <div className="bg-white rounded-2xl p-4 shadow-sm border border-coffee-cream/60">
-              <div className="text-xs uppercase tracking-wide text-gray-500">
-                Total events
+        <section className="grid grid-cols-1 gap-10 lg:grid-cols-[1.02fr_1fr] lg:items-center">
+          <div>
+            <h1 className="max-w-[620px] text-[3rem] leading-[0.92] text-[#1f0f0d] sm:text-[4.3rem] lg:text-[5.4rem]">
+              Discover
+              <br />
+              events that
+              <br />
+              match your
+              <br />
+              <span className="italic text-[#9f402d]">vibe.</span>
+            </h1>
+
+            <form
+              onSubmit={onSearchSubmit}
+              className="mt-7 flex w-full max-w-2xl items-center gap-3 rounded-full bg-[#ffffff] p-2 shadow-[0_12px_24px_rgba(27,29,14,0.08)]"
+            >
+              <span className="pl-3 text-[#7a7468]">⌕</span>
+              <input
+                value={q}
+                onChange={(e) => setQ(e.target.value)}
+                placeholder="Event title or location..."
+                className="h-11 flex-1 bg-transparent px-1 text-sm text-[#2d2e1d] placeholder:text-[#9a9588] focus:outline-none"
+              />
+              <button
+                type="submit"
+                className="h-11 rounded-full bg-[#271310] px-8 text-sm font-semibold text-white hover:bg-[#3c201c]"
+              >
+                Search
+              </button>
+            </form>
+
+            <div className="mt-8 flex flex-wrap gap-8 text-[#1f0f0d]">
+              <div>
+                <div className="text-4xl leading-none">{totalEvents}</div>
+                <div className="mt-1 text-[10px] uppercase tracking-[0.24em] text-[#787467]">
+                  Total
+                </div>
               </div>
-              <div className="mt-1 text-2xl font-semibold text-coffee-dark">
-                {totalEvents}
+              <div>
+                <div className="text-4xl leading-none text-[#9f402d]">{upcomingCount}</div>
+                <div className="mt-1 text-[10px] uppercase tracking-[0.24em] text-[#787467]">
+                  Upcoming
+                </div>
               </div>
-              <p className="text-[11px] text-gray-500 mt-1">
-                Across all stages on the platform.
-              </p>
+              <div>
+                <div className="text-4xl leading-none">{completedCount}</div>
+                <div className="mt-1 text-[10px] uppercase tracking-[0.24em] text-[#787467]">
+                  Completed
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="relative lg:justify-self-end">
+            <div className="overflow-hidden rounded-[40px] bg-[#eaead1] shadow-[0_28px_40px_rgba(27,29,14,0.18)]">
+              {heroImage ? (
+                <img
+                  src={heroImage}
+                  alt="Featured event"
+                  className="h-[500px] w-full object-cover md:h-[620px] lg:w-[560px]"
+                />
+              ) : (
+                <div className="flex h-[500px] w-full items-center justify-center bg-[#e4e4ca] text-[#656652] md:h-[620px] lg:w-[560px]">
+                  Featured experience
+                </div>
+              )}
             </div>
 
-            <div className="bg-white rounded-2xl p-4 shadow-sm border border-coffee-cream/60">
-              <div className="text-xs uppercase tracking-wide text-gray-500">
-                Upcoming
-              </div>
-              <div className="mt-1 text-2xl font-semibold text-coffee-dark">
-                {upcomingCount}
-              </div>
-              <p className="text-[11px] text-gray-500 mt-1">
-                Events that haven&apos;t started yet.
-              </p>
-            </div>
-
-            <div className="bg-white rounded-2xl p-4 shadow-sm border border-coffee-cream/60">
-              <div className="text-xs uppercase tracking-wide text-gray-500">
-                Completed
-              </div>
-              <div className="mt-1 text-2xl font-semibold text-coffee-dark">
-                {completedCount}
-              </div>
-              <p className="text-[11px] text-gray-500 mt-1">
-                With potential post-event stats & highlights.
-              </p>
+            <div className="absolute -bottom-6 left-[-10px] max-w-[230px] rotate-[-3deg] rounded-[22px] bg-[#f7dc44] px-5 py-4 text-xl italic leading-snug text-[#362804] shadow-[0_14px_20px_rgba(27,29,14,0.16)]">
+              “The best stories start over a perfectly brewed cup.”
             </div>
           </div>
         </section>
 
-        {/* Featured events */}
-        <section className="mb-10">
-          <div className="flex items-center justify-between mb-4">
+        <section className="mt-24">
+          <div className="mb-6 flex items-end justify-between gap-3">
             <div>
-              <h2 className="text-xl md:text-2xl font-bold text-coffee-dark">
-                Featured events
-              </h2>
-              <p className="text-xs text-gray-500 mt-1">
-                Most loved events based on likes and activity.
+              <p className="text-[11px] uppercase tracking-[0.32em] text-[#9f402d]">
+                Curated picks
               </p>
+              <h2 className="mt-2 text-5xl leading-none text-[#1f0f0d]">
+                Featured Experiences
+              </h2>
             </div>
             <Link
               to="/events"
-              className="text-xs md:text-sm text-coffee-mid hover:underline"
+              className="text-sm text-[#9f402d] underline decoration-[#9f402d]/40 underline-offset-4"
             >
-              See all events
+              See all events →
             </Link>
           </div>
 
           {loading ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
               {[1, 2, 3, 4].map((i) => (
-                <div
-                  key={i}
-                  className="h-56 skeleton-block"
-                />
+                <div key={i} className="h-72 rounded-[24px] skeleton-block" />
               ))}
             </div>
           ) : featured.length === 0 ? (
-            <div className="text-gray-500 text-sm bg-white rounded-2xl p-6 shadow-sm">
+            <div className="rounded-[24px] bg-[#f5f5dc] px-6 py-8 text-sm text-[#625f53]">
               No featured events yet. Check back soon, or browse all events.
             </div>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
               {featured.map((ev) => (
                 <EventCard key={ev._id} ev={ev} />
               ))}
@@ -336,81 +228,56 @@ const Home = () => {
           )}
         </section>
 
-        {/* How it helps / value proposition */}
-        <section className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
-          <div className="bg-white rounded-2xl p-6 shadow-sm border border-coffee-cream/60">
-            <h3 className="text-lg font-semibold text-coffee-dark mb-2">
-              For attendees
-            </h3>
-            <ul className="text-sm text-gray-700 space-y-2 list-disc list-inside">
-              <li>Browse events by stage: upcoming, completed, unscheduled.</li>
-              <li>Like events to save them in your personal list.</li>
-              <li>Send feedback or questions directly to organizers.</li>
-              <li>
-                See post-event stats (attendance, ratings, highlights) when
-                organizers publish them.
-              </li>
+        <section className="mt-20 grid grid-cols-1 overflow-hidden rounded-[36px] bg-[#f5f5dc] md:grid-cols-2">
+          <div className="p-10 md:p-12">
+            <div className="mb-6 text-3xl text-[#9f402d]">☕</div>
+            <h3 className="text-6xl leading-[0.95] text-[#1f0f0d]">For the Seekers</h3>
+            <p className="mt-6 max-w-md text-base leading-relaxed text-[#5d5a50]">
+              Immerse yourself in curated gatherings that celebrate craft,
+              conversation, and connection.
+            </p>
+            <ul className="mt-8 space-y-4 text-sm text-[#2f301f]">
+              <li>● Access exclusive local workshops</li>
+              <li>● Connect with master artisans</li>
+              <li>● Seamless booking & reminders</li>
             </ul>
           </div>
 
-          <div className="bg-white rounded-2xl p-6 shadow-sm border border-coffee-cream/60">
-            <h3 className="text-lg font-semibold text-coffee-dark mb-2">
-              For organizers
-            </h3>
-            <ul className="text-sm text-gray-700 space-y-2 list-disc list-inside">
-              <li>Create and manage events from a dedicated dashboard.</li>
-              <li>Track views, likes, queries, and attendee interest.</li>
-              <li>
-                After the event, record stats like attendance, revenue, and
-                highlights.
-              </li>
-              <li>
-                Optionally publish a recap so your event page becomes a
-                showcase.
-              </li>
+          <div className="bg-[#2c100d] p-10 text-[#fff5e8] md:p-12">
+            <div className="mb-6 text-3xl text-[#fd876f]">✦</div>
+            <h3 className="text-6xl leading-[0.95]">For the Curators</h3>
+            <p className="mt-6 max-w-md text-base leading-relaxed text-[#e6cdbd]">
+              Turn your passion into a shared experience. Host events with tools
+              designed for artisans.
+            </p>
+            <ul className="mt-8 space-y-4 text-sm text-[#f8dcc9]">
+              <li>● Simple dashboard for attendee management</li>
+              <li>● Direct communication with your community</li>
+              <li>● Automated waitlists & scheduling</li>
             </ul>
-          </div>
-        </section>
-
-        {/* CTA strip */}
-        <section className="mt-4 bg-white rounded-2xl p-6 md:p-7 shadow-sm border border-coffee-cream/60">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-            <div>
-              <h3 className="text-lg md:text-xl font-semibold text-coffee-dark">
-                Organize your next event with CoffeeEvents
-              </h3>
-              <p className="text-sm text-gray-600 mt-1 max-w-md">
-                Create events, collect feedback, and publish post-event stats
-                like attendance, ratings, and highlights — all in one place.
-              </p>
-            </div>
-            <div className="flex flex-wrap gap-3">
+            <div className="mt-10">
               <Link
                 to="/register"
-                className="bg-coffee-mid text-white px-4 py-2 rounded-full text-sm hover:bg-coffee-dark transition"
+                className="inline-flex items-center rounded-full bg-[#b54f37] px-8 py-3 text-sm font-semibold text-white hover:bg-[#c75f46]"
               >
-                Start as organizer
-              </Link>
-              <Link
-                to="/login"
-                className="px-4 py-2 rounded-full border text-sm hover:bg-gray-50 transition"
-              >
-                I already have an account
+                Start as organizer ↗
               </Link>
             </div>
           </div>
         </section>
       </main>
 
-      {/* Footer */}
-      <footer className="mt-12 bg-gradient-to-r from-[#1a0605] to-[#2b0d0f] text-coffee-cream/80 text-sm border-t-4 border-coffee-mid">
-        <div className="app-container mx-auto px-4 py-6 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <span className="font-semibold">
-            © {new Date().getFullYear()} CoffeeEvents · Built with MERN Stack
-          </span>
-          <span className="text-xs text-coffee-cream/60">
-            For campus events, fests, tech talks & community meetups ☕
-          </span>
+      <footer className="mx-auto mt-10 w-full max-w-[1400px] rounded-t-[30px] bg-[#ededee] px-8 py-9 text-[#6f7071]">
+        <div className="mx-auto flex max-w-[1240px] flex-col gap-4 text-xs md:flex-row md:items-center md:justify-between">
+          <div>
+            <div className="text-xl text-[#1f0f0d]">EventEase</div>
+            <p className="mt-2">© {new Date().getFullYear()} EventEase. Crafted for curators.</p>
+          </div>
+          <div className="flex flex-wrap gap-6">
+            <span>Privacy Policy</span>
+            <span>Terms of Service</span>
+            <span>Contact Us</span>
+          </div>
         </div>
       </footer>
     </div>
