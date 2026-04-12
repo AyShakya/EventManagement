@@ -153,188 +153,107 @@ export default function EventDetail() {
   const isOrganizerView = user?.userType === "organizer";
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-coffee-cream via-[#f5ece0] to-coffee-mid text-gray-900 py-10 page-content">
+    <div className="min-h-screen bg-[#fbfbe2] text-[#2a1a15] py-10 page-content">
       <div className="app-container">
-        {/* breadcrumb */}
-        <div className="mb-4 text-xs text-gray-500 flex items-center gap-1">
-          <Link to="/events" className="hover:text-coffee-mid">
-            Events
-          </Link>
+        <div className="mb-4 text-xs text-[#7a6f68] flex items-center gap-1">
+          <Link to="/events" className="hover:text-[#9f402d]">Events</Link>
           <span>/</span>
           <span className="truncate max-w-[60%]">{event.title}</span>
         </div>
 
-        <div className="bg-white rounded-2xl p-5 md:p-7 shadow card-coffee">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            {/* Left: main content */}
-            <div className="lg:col-span-2">
-              {/* Title + meta row */}
-              <div className="flex flex-col gap-3">
-                <h1 className="text-2xl md:text-3xl font-bold text-coffee-dark leading-snug">
-                  {event.title}
-                </h1>
+        <div className="rounded-[2.2rem] bg-[#f7f7f9] overflow-hidden shadow-[0_26px_44px_rgba(31,19,16,0.15)]">
+          <div className="grid lg:grid-cols-[0.42fr_0.58fr]">
+            <div className="bg-[#ececd8] p-6">
+              <div className="rounded-[1.7rem] overflow-hidden">
+                <img src={heroImage} alt={event.title} className="w-full h-[340px] md:h-[430px] object-cover" />
+              </div>
 
-                <div className="flex flex-wrap items-center gap-2 text-xs md:text-sm text-gray-600">
-                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-coffee-cream/60 text-coffee-dark border border-coffee-cream">
-                    📍 {event.location}
+              <div className="mt-5">
+                <div className="text-xl font-semibold">{event.location || "Location TBA"}</div>
+                <div className="text-sm text-[#5f544d] mt-1">{formatDateTime(event.startAt)}</div>
+              </div>
+
+              <div className="mt-4 rounded-[1.6rem] bg-[#c57b59] min-h-[240px] flex items-center justify-center text-[#fbe7dc]/90 text-sm">
+                Venue map preview
+              </div>
+            </div>
+
+            <div className="p-6 md:p-8">
+              <div className="flex flex-wrap gap-2 items-center">
+                <span className="px-4 py-1 rounded-full bg-[#fd876f] text-[#732010] text-xs font-semibold uppercase tracking-[0.18em]">
+                  {stageInfo.label}
+                </span>
+                {event.capacity && (
+                  <span className="px-4 py-1 rounded-full bg-[#baa900] text-[#2b2700] text-xs font-semibold uppercase tracking-[0.15em]">
+                    {event.capacity} seats
                   </span>
+                )}
+              </div>
 
-                  {event.startAt && (
-                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-gray-50 border border-gray-200">
-                      🕒 {formatDateTime(event.startAt)}
-                    </span>
-                  )}
+              <h1 className="mt-4 text-5xl md:text-6xl leading-[0.95] font-semibold text-[#1f0f0d]">
+                {event.title}
+              </h1>
 
-                  <span
-                    className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-medium
-                    ${
-                      stageInfo.stage === "completed"
-                        ? "bg-green-50 text-green-700 border border-green-200"
-                        : stageInfo.stage === "upcoming"
-                        ? "bg-blue-50 text-blue-700 border border-blue-200"
-                        : "bg-gray-50 text-gray-600 border border-gray-200"
-                    }`}
-                  >
-                    {stageInfo.label}
-                  </span>
+              <div className="mt-5 grid sm:grid-cols-2 gap-3 bg-[#ececd8] rounded-[1.5rem] p-4">
+                <div>
+                  <div className="text-xs uppercase tracking-[0.18em] text-[#5d524b]">Date</div>
+                  <div className="text-lg font-semibold mt-1">{event.startAt ? new Date(event.startAt).toLocaleDateString() : "TBA"}</div>
                 </div>
-
-                <div className="text-xs text-gray-400">
-                  Posted on{" "}
-                  <span className="font-medium">
-                    {new Date(event.postedAt).toLocaleDateString()}
-                  </span>{" "}
-                  · 👁 {event.views || 0} · ❤️ {likes}
+                <div>
+                  <div className="text-xs uppercase tracking-[0.18em] text-[#5d524b]">Time</div>
+                  <div className="text-lg font-semibold mt-1">{event.startAt ? new Date(event.startAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : "TBA"}</div>
                 </div>
               </div>
 
-              {/* Hero image */}
-              <div className="mt-5 rounded-2xl overflow-hidden bg-gray-100 border border-gray-100">
-                <div className="aspect-[16/9] w-full">
-                  <img
-                    src={heroImage}
-                    alt={event.title}
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-              </div>
-
-              {/* Description */}
               <div className="mt-6">
-                <h2 className="text-base font-semibold text-coffee-dark mb-2">
-                  About this event
-                </h2>
-                <p className="text-sm leading-relaxed text-gray-700 whitespace-pre-wrap">
+                <div className="text-xs uppercase tracking-[0.2em] text-[#5d524b] mb-2">About the event</div>
+                <p className="text-[1.08rem] leading-relaxed text-[#3b2f2a] whitespace-pre-wrap">
                   {event.description}
                 </p>
               </div>
 
-              {/* Public stats / recap */}
               {showPublicStats && (
-                <div className="mt-6 border rounded-xl p-4 bg-coffee-cream/30">
-                  <h3 className="text-sm font-semibold text-coffee-dark mb-3">
+                <div className="mt-6 bg-[#efefdf] rounded-[1.5rem] p-4">
+                  <h3 className="text-sm font-semibold uppercase tracking-[0.18em] text-[#4f443d] mb-3">
                     Event recap
                   </h3>
-
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-sm">
-                    {(stats.totalAttendees !== undefined ||
-                      stats.expectedAttendees !== undefined) && (
-                      <div>
-                        <div className="text-[11px] uppercase text-gray-500 tracking-wide">
-                          Attendance
-                        </div>
-                        <div className="mt-1 font-semibold text-gray-900">
-                          {stats.totalAttendees !== undefined
-                            ? `${stats.totalAttendees} attended`
-                            : "Not reported"}
-                        </div>
-                        {stats.expectedAttendees !== undefined && (
-                          <div className="text-xs text-gray-500">
-                            Expected: {stats.expectedAttendees}
-                          </div>
-                        )}
+                    <div>
+                      <div className="text-[11px] uppercase tracking-[0.15em] text-[#70655e]">Attendance</div>
+                      <div className="font-semibold mt-1">
+                        {stats.totalAttendees !== undefined ? `${stats.totalAttendees} attended` : "Not reported"}
                       </div>
-                    )}
-
-                    {stats.averageRating !== undefined && (
-                      <div>
-                        <div className="text-[11px] uppercase text-gray-500 tracking-wide">
-                          Average rating
-                        </div>
-                        <div className="mt-1 font-semibold text-gray-900">
-                          {stats.averageRating.toFixed
-                            ? stats.averageRating.toFixed(1)
-                            : stats.averageRating}{" "}
-                          / 5
-                        </div>
-                      </div>
-                    )}
-
-                    {(stats.revenue !== undefined ||
-                      stats.cost !== undefined) && (
-                      <div>
-                        <div className="text-[11px] uppercase text-gray-500 tracking-wide">
-                          Overview
-                        </div>
-                        {stats.revenue !== undefined && (
-                          <div className="mt-1 text-gray-900">
-                            Revenue:{" "}
-                            <span className="font-semibold">
-                              {stats.revenue}
-                            </span>
-                          </div>
-                        )}
-                        {stats.cost !== undefined && (
-                          <div className="text-gray-900">
-                            Cost:{" "}
-                            <span className="font-semibold">{stats.cost}</span>
-                          </div>
-                        )}
-                      </div>
-                    )}
-                  </div>
-
-                  {stats.highlights && (
-                    <div className="mt-4">
-                      <div className="text-[11px] uppercase text-gray-500 tracking-wide mb-1">
-                        Highlights
-                      </div>
-                      <p className="text-sm text-gray-800 whitespace-pre-wrap">
-                        {stats.highlights}
-                      </p>
                     </div>
+                    <div>
+                      <div className="text-[11px] uppercase tracking-[0.15em] text-[#70655e]">Rating</div>
+                      <div className="font-semibold mt-1">
+                        {stats.averageRating !== undefined
+                          ? `${stats.averageRating.toFixed ? stats.averageRating.toFixed(1) : stats.averageRating} / 5`
+                          : "Not reported"}
+                      </div>
+                    </div>
+                    <div>
+                      <div className="text-[11px] uppercase tracking-[0.15em] text-[#70655e]">Overview</div>
+                      <div className="font-semibold mt-1">❤️ {likes} · 👁 {event.views || 0}</div>
+                    </div>
+                  </div>
+                  {stats.highlights && (
+                    <p className="mt-3 text-sm text-[#3f322e] whitespace-pre-wrap">{stats.highlights}</p>
                   )}
                 </div>
               )}
 
-              {/* Actions row */}
-              <div className="mt-6 flex flex-wrap items-center gap-3">
+              <div className="mt-8 pt-6 border-t border-[#e7e0dc] flex flex-wrap items-center gap-3">
                 <button
                   onClick={toggleLike}
-                  className="inline-flex items-center gap-2 px-4 py-2 rounded-full shadow bg-coffee-dark text-coffee-cream text-sm hover:bg-[#3b1418] transition"
+                  className="inline-flex items-center gap-2 px-5 py-3 rounded-full bg-[#f5f5dc] text-[#2d211d] text-sm"
                 >
-                  <span>{liked ? "Unlike" : "Like"}</span>
-                  <span className="text-xs bg-coffee-cream/20 px-2 py-0.5 rounded-full">
-                    {likes}
-                  </span>
-                </button>
-
-                <button
-                  onClick={handleAttend}
-                  disabled={attendDisabled}
-                  className={`inline-flex items-center px-4 py-2 rounded-full text-sm border transition
-                    ${
-                      attendDisabled
-                        ? "bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed"
-                        : "bg-coffee-mid text-white border-coffee-mid hover:bg-coffee-dark"
-                    }`}
-                >
-                  {attendButtonLabel}
+                  {liked ? "Unlike" : "Like"} <span className="text-xs">{likes}</span>
                 </button>
 
                 <Link
                   to={`/events/${id}/feedback`}
-                  className="inline-flex items-center px-4 py-2 rounded-full border text-sm hover:bg-gray-50 transition"
+                  className="inline-flex items-center px-5 py-3 rounded-full bg-[#f5f5dc] text-[#2d211d] text-sm"
                 >
                   Send feedback
                 </Link>
@@ -345,147 +264,79 @@ export default function EventDetail() {
                     setCopied(true);
                     setTimeout(() => setCopied(false), 1200);
                   }}
-                  className="inline-flex items-center px-3 py-2 rounded-full border text-xs hover:bg-gray-50 transition"
+                  className="inline-flex items-center px-4 py-3 rounded-full bg-[#f5f5dc] text-[#2d211d] text-xs"
                 >
                   {copied ? "Copied!" : "Copy link"}
                 </button>
               </div>
 
               {hasExternalRegistration && !isCompleted && (
-                <p className="mt-2 text-[11px] text-gray-500">
+                <p className="mt-3 text-xs text-[#6b5f58]">
                   Registration is handled on the organizer&apos;s external form.
-                  Clicking “Register on form” will open it in a new tab.
                 </p>
               )}
 
-              {/* Organizer card */}
-              <div className="mt-8 border-t pt-5">
-                <div className="flex items-center gap-4">
-                  <div className="w-14 h-14 rounded-full bg-gray-100 overflow-hidden flex-shrink-0">
-                    {event.organizer?.avatarURL ? (
-                      <img
-                        src={event.organizer.avatarURL}
-                        alt={event.organizer.name}
-                        className="w-full h-full object-cover"
-                      />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center text-gray-400 text-lg">
-                        {(
-                          event.organizer?.name ||
-                          event.organizer?.userName ||
-                          "O"
-                        )
-                          .slice(0, 1)
-                          .toUpperCase()}
-                      </div>
-                    )}
-                  </div>
-                  <div>
-                    <div className="text-sm font-semibold">
-                      {event.organizer?.name ||
-                        event.organizer?.userName ||
-                        "Organizer"}
-                    </div>
-                    <div className="text-xs text-gray-500">
-                      {event.organizer?.email}
-                    </div>
-                    {event.organizer?._id && (
-                      <Link
-                        to={`/organizer/${event.organizer._id}`}
-                        className="text-xs text-coffee-mid hover:underline"
-                      >
-                        View profile
-                      </Link>
-                    )}
+              <div className="mt-5 flex items-center justify-between gap-4">
+                <div>
+                  <div className="text-xs uppercase tracking-[0.2em] text-[#6d625b]">Price</div>
+                  <div className="text-5xl font-semibold text-[#22100f]">
+                    {event.price ? `$${event.price}` : "$0.00"}
                   </div>
                 </div>
-              </div>
-            </div>
-
-            {/* Right: side panel */}
-            <aside className="space-y-4 lg:pl-2 lg:border-l lg:border-gray-100 lg:ml-2 lg:py-1">
-              {/* Quick info card */}
-              <div className="bg-gray-50 rounded-xl p-4 border border-gray-100">
-                <h3 className="text-sm font-semibold text-coffee-dark mb-3">
-                  Event details
-                </h3>
-
-                <dl className="space-y-3 text-sm">
-                  <div>
-                    <dt className="text-xs text-gray-500 uppercase">When</dt>
-                    <dd className="mt-0.5 font-medium">
-                      {formatDateTime(event.startAt)}
-                    </dd>
-                    <dd className="mt-0.5 text-[11px] text-gray-500">
-                      Status:{" "}
-                      <span className="font-medium">{stageInfo.label}</span>
-                    </dd>
-                  </div>
-
-                  <div className="border-t border-gray-200 pt-3">
-                    <dt className="text-xs text-gray-500 uppercase">
-                      Capacity
-                    </dt>
-                    <dd className="mt-0.5">
-                      {event.capacity ? `${event.capacity} seats` : "Open"}
-                    </dd>
-                  </div>
-
-                  <div className="border-t border-gray-200 pt-3 flex items-center justify-between">
-                    <div>
-                      <dt className="text-xs text-gray-500 uppercase">Likes</dt>
-                      <dd className="mt-0.5 font-medium">{likes}</dd>
-                    </div>
-                    <div>
-                      <dt className="text-xs text-gray-500 uppercase">Views</dt>
-                      <dd className="mt-0.5 font-medium">{event.views || 0}</dd>
-                    </div>
-                  </div>
-                </dl>
+                <button
+                  onClick={handleAttend}
+                  disabled={attendDisabled}
+                  className={`px-10 py-4 rounded-full text-2xl sm:text-lg font-medium ${
+                    attendDisabled
+                      ? "bg-[#d9d7d3] text-[#8b847f] cursor-not-allowed"
+                      : "bg-[#271310] text-white shadow-[0_12px_22px_rgba(39,19,16,0.2)]"
+                  }`}
+                >
+                  {attendButtonLabel}
+                </button>
               </div>
 
-              {/* Organizer-only: attendee messages */}
+              <div className="mt-6 text-xs text-[#817670]">
+                Posted on {new Date(event.postedAt).toLocaleDateString()} · 👁 {event.views || 0} · ❤️ {likes}
+              </div>
+
+              {event.organizer && (
+                <div className="mt-4 text-sm text-[#4e423d]">
+                  Curated by{" "}
+                  <span className="font-semibold">
+                    {event.organizer?.name || event.organizer?.userName || "Organizer"}
+                  </span>
+                  {event.organizer?._id && (
+                    <Link to={`/organizer/${event.organizer._id}`} className="ml-2 text-[#9f402d] hover:underline">
+                      View profile
+                    </Link>
+                  )}
+                </div>
+              )}
+
               {isOrganizerView && (
-                <div className="bg-white rounded-xl p-4 border border-gray-100">
-                  <h4 className="font-semibold mb-2 text-sm">
-                    Attendee messages & feedback
-                  </h4>
-
+                <div className="mt-6 rounded-[1.4rem] bg-[#efefdf] p-4">
+                  <h4 className="font-semibold mb-2 text-sm uppercase tracking-[0.15em]">Attendee messages</h4>
                   {queries.length === 0 ? (
-                    <div className="text-gray-500 text-xs">
-                      No messages yet. Attendees can use the “Send feedback”
-                      form on this event.
-                    </div>
+                    <div className="text-[#6b6059] text-xs">No messages yet.</div>
                   ) : (
                     <ul className="space-y-2 max-h-52 overflow-auto pr-1 text-sm">
                       {queries.map((q) => (
-                        <li
-                          key={q._id}
-                          className="p-2 border rounded bg-gray-50/60"
-                        >
+                        <li key={q._id} className="p-2 rounded-xl bg-[#f7f7ed]">
                           <div className="flex items-center justify-between gap-2">
-                            <div className="text-xs font-semibold">
-                              {q.subject || "Message"}
-                            </div>
-                            <div className="text-[10px] text-gray-400 whitespace-nowrap">
+                            <div className="text-xs font-semibold">{q.subject || "Message"}</div>
+                            <div className="text-[10px] text-[#8b7f78] whitespace-nowrap">
                               {new Date(q.createdAt).toLocaleString()}
                             </div>
                           </div>
-                          <div className="text-xs text-gray-700 mt-1">
-                            {q.message}
-                          </div>
+                          <div className="text-xs text-[#4c403a] mt-1">{q.message}</div>
                         </li>
                       ))}
                     </ul>
                   )}
-
-                  <p className="mt-2 text-[11px] text-gray-400">
-                    Full list available in your organizer dashboard under
-                    Queries for this event.
-                  </p>
                 </div>
               )}
-            </aside>
+            </div>
           </div>
         </div>
       </div>
