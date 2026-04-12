@@ -2,90 +2,57 @@ import React, { useEffect, useMemo, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import api from "../api/axiosClient";
 import { getEventStage } from "../utils/eventStage";
-import PageSkeleton from "../components/PageSkeleton";
 
-function EventCard({ ev }) {
+function EventCard({ ev, compact = false }) {
   const cover = (Array.isArray(ev.images) && ev.images[0]) || ev.imageURL || "";
   const stageInfo = getEventStage(ev.startAt);
   const hasCover = Boolean(cover);
 
   return (
-    <div className="bg-white rounded-2xl shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 overflow-hidden border border-coffee-cream/60 flex flex-col">
-      {/* Image / placeholder */}
+    <div className="flex h-full flex-col overflow-hidden rounded-[30px] bg-[#ffffff] shadow-[0_18px_26px_rgba(27,29,14,0.08)]">
       <Link
         to={`/events/${ev._id}`}
-        className="relative block h-40 bg-gray-100 overflow-hidden"
+        className={`relative block overflow-hidden bg-[#eaead1] ${compact ? "h-48" : "h-[390px]"}`}
       >
         {hasCover ? (
-          <>
-            <img
-              src={cover}
-              alt={ev.title}
-              className="w-full h-full object-cover transition-transform duration-200 hover:scale-[1.03]"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-black/10 to-transparent" />
-          </>
+          <img
+            src={cover}
+            alt={ev.title}
+            className="h-full w-full object-cover transition-transform duration-300 hover:scale-[1.03]"
+          />
         ) : (
-          <div className="w-full h-full flex flex-col items-center justify-center text-xs text-gray-600 bg-gradient-to-br from-gray-100 to-gray-200">
-            <span className="font-medium">No image</span>
+          <div className="flex h-full w-full items-center justify-center text-xs text-[#6a675d]">
+            No image
           </div>
         )}
 
-        {/* Stage chip */}
-        <div className="absolute bottom-2 left-2 flex items-center gap-1 text-[11px]">
-          <span
-            className={`inline-flex items-center px-2 py-0.5 rounded-full font-medium shadow-sm
-              ${
-                stageInfo.stage === "completed"
-                  ? "bg-green-100/95 text-green-800"
-                  : stageInfo.stage === "upcoming"
-                  ? "bg-blue-100/95 text-blue-800"
-                  : "bg-gray-100/95 text-gray-800"
-              }`}
-          >
-            {stageInfo.label}
-          </span>
-        </div>
+        <span className="absolute left-4 top-4 rounded-full bg-[#fd876f] px-3 py-1 text-[10px] font-medium uppercase tracking-[0.06em] text-[#732010]">
+          {stageInfo.label}
+        </span>
       </Link>
 
-      {/* Content */}
-      <div className="p-4 flex flex-col gap-2 flex-1">
-        <h3 className="text-base font-semibold text-coffee-dark line-clamp-2">
-          <Link
-            to={`/events/${ev._id}`}
-            className="hover:text-coffee-mid transition-colors"
-          >
+      <div className="flex flex-1 flex-col px-5 pb-5 pt-4">
+        <h3 className={`text-[#1f0f0d] ${compact ? "text-[2.1rem] leading-[1.03]" : "text-[3.4rem] leading-[0.95]"}`}>
+          <Link to={`/events/${ev._id}`} className="hover:text-[#9f402d]">
             {ev.title}
           </Link>
         </h3>
 
-        <div className="flex items-center justify-between text-[11px] text-gray-500">
-          <span className="inline-flex items-center gap-1 max-w-[160px]">
-            <span>📍</span>
-            <span className="truncate">{ev.location}</span>
-          </span>
+        <p className="mt-3 line-clamp-2 text-sm text-[#5f5a51]">{ev.description}</p>
+
+        <div className="mt-5 flex items-center justify-between text-xs text-[#6c665d]">
           <span>
             {ev.startAt
               ? new Date(ev.startAt).toLocaleDateString()
               : new Date(ev.postedAt).toLocaleDateString()}
           </span>
+          <span className="truncate pl-4 text-right">{ev.location}</span>
         </div>
 
-        <p className="text-sm text-gray-600 mt-1 line-clamp-2">
-          {ev.description}
-        </p>
-
-        <div className="mt-auto pt-2 flex items-center justify-between text-[11px] text-gray-500">
-          <span className="inline-flex items-center gap-1">
-            <span>❤️ {ev.likes || 0}</span>
-            <span className="mx-1">·</span>
-            <span>👁️ {ev.views || 0}</span>
-          </span>
-          <Link
-            to={`/events/${ev._id}`}
-            className="text-coffee-mid font-medium text-[11px] hover:underline"
-          >
-            View details →
+        <div className="mt-4 flex items-center justify-between text-xs">
+          <span className="text-[#8b7d73]">❤️ {ev.likes || 0} · 👁️ {ev.views || 0}</span>
+          <Link to={`/events/${ev._id}`} className="font-semibold text-[#9f402d] underline underline-offset-4">
+            View details
           </Link>
         </div>
       </div>
@@ -104,8 +71,8 @@ export default function EventsList() {
   const q = searchParams.get("q") || "";
 
   const [searchTerm, setSearchTerm] = useState(q);
-  const [sortBy, setSortBy] = useState("latest"); 
-  const [stageFilter, setStageFilter] = useState("all"); 
+  const [sortBy, setSortBy] = useState("latest");
+  const [stageFilter, setStageFilter] = useState("all");
 
   const limit = 8;
 
@@ -194,75 +161,68 @@ export default function EventsList() {
   }, [events, sortBy, stageFilter]);
 
   const pageEvents = processedEvents.slice(0, limit);
+  const [featuredEvent, ...remainingEvents] = pageEvents;
+  const sideEvents = remainingEvents.slice(0, 2);
+  const lowerEvents = remainingEvents.slice(2);
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-coffee-cream via-[#f5ece0] to-coffee-mid page-content">
+    <div className="min-h-screen bg-[#fbfbe2] text-[#1b1d0e] page-content">
       <div className="app-container py-10">
-        {/* Header / hero strip */}
-        <header className="mb-6">
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-            <div>
-              <h1 className="text-2xl md:text-3xl font-bold text-coffee-dark">
-                Browse events
+        <header className="mb-9">
+          <div className="flex flex-col gap-6 xl:flex-row xl:items-start xl:justify-between">
+            <div className="max-w-4xl">
+              <h1 className="text-[4.6rem] leading-[0.9] text-[#1f0f0d] md:text-[6rem]">
+                Discover the pulse of
+                <br />
+                your community
               </h1>
-              <p className="text-sm text-gray-600 mt-1">
-                Filter by stage, sort by popularity, and find what interests
-                you.
+              <p className="mt-6 max-w-3xl text-[1.9rem] leading-snug text-[#4f4c43]">
+                Thoughtfully curated gatherings, from intimate morning workshops
+                to vibrant evening melodies. Find your next meaningful moment.
               </p>
               {q && (
-                <p className="mt-1 text-xs text-gray-500">
-                  Showing results for{" "}
-                  <span className="font-medium">&quot;{q}&quot;</span>.
+                <p className="mt-3 text-sm text-[#6f6a5f]">
+                  Showing results for <span className="font-semibold">&quot;{q}&quot;</span>.
                 </p>
               )}
               {meta?.totalDocs !== undefined && (
-                <p className="mt-1 text-xs text-gray-500">
-                  Total events found:{" "}
-                  <span className="font-semibold">{meta.totalDocs}</span>
+                <p className="mt-1 text-sm text-[#6f6a5f]">
+                  Total events found: <span className="font-semibold">{meta.totalDocs}</span>
                 </p>
               )}
             </div>
 
-            {/* Search form */}
-            <form
-              onSubmit={handleSearchSubmit}
-              className="w-full sm:w-auto sm:min-w-[260px]"
-            >
-              <div className="flex gap-2">
+            <form onSubmit={handleSearchSubmit} className="w-full max-w-md">
+              <div className="flex items-center gap-2 rounded-full bg-[#f3f2dd] px-4 py-2.5 shadow-[inset_0_0_0_1px_rgba(211,195,192,0.2)]">
                 <input
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  placeholder="Search by title or location..."
-                  className="flex-1 px-3 py-2 rounded-lg border text-sm focus:outline-none focus:ring-1 focus:ring-coffee-mid focus:border-coffee-mid bg-white"
+                  placeholder="Search experiences..."
+                  className="h-9 flex-1 bg-transparent text-sm text-[#2e2b22] placeholder:text-[#8e887d] focus:outline-none"
                 />
-                <button
-                  type="submit"
-                  className="px-3 py-2 rounded-lg bg-coffee-mid text-white text-sm font-medium hover:bg-coffee-dark transition"
-                >
+                <button type="submit" className="rounded-full bg-[#271310] px-4 py-2 text-xs font-semibold text-white">
                   Search
                 </button>
               </div>
             </form>
           </div>
 
-          {/* Filters row */}
-          <div className="mt-4 flex flex-wrap items-center gap-3 justify-between">
-            <div className="flex flex-wrap gap-2 text-xs">
-              <span className="text-gray-500 mr-1">Stage:</span>
+          <div className="mt-8 flex flex-wrap items-center justify-between gap-3 rounded-full bg-[#f3f2dd] px-2 py-2">
+            <div className="flex flex-wrap gap-2 text-xs uppercase tracking-[0.08em]">
               {[
-                { id: "all", label: "All" },
-                { id: "upcoming", label: "Upcoming" },
-                { id: "completed", label: "Completed" },
-                { id: "unscheduled", label: "Unscheduled" },
+                { id: "all", label: "All events" },
+                { id: "upcoming", label: "Workshops" },
+                { id: "completed", label: "Hackathons" },
+                { id: "unscheduled", label: "Music" },
               ].map((opt) => (
                 <button
                   key={opt.id}
                   type="button"
                   onClick={() => setStageFilter(opt.id)}
-                  className={`px-2.5 py-1 rounded-full border text-[11px] transition-all ${
+                  className={`rounded-full px-5 py-2.5 transition ${
                     stageFilter === opt.id
-                      ? "bg-coffee-mid text-white border-coffee-mid shadow-sm"
-                      : "bg-white text-gray-600 border-gray-200 hover:bg-gray-50"
+                      ? "bg-[#a9442f] text-white"
+                      : "text-[#6a665c] hover:bg-[#ebe8d0]"
                   }`}
                 >
                   {opt.label}
@@ -270,12 +230,12 @@ export default function EventsList() {
               ))}
             </div>
 
-            <div className="flex items-center gap-2 text-xs">
-              <span className="text-gray-500">Sort by:</span>
+            <div className="flex items-center gap-3 pr-3 text-xs uppercase tracking-[0.08em] text-[#6d685d]">
+              <span>Sort by:</span>
               <select
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value)}
-                className="px-2 py-1 rounded-lg border text-xs bg-white focus:outline-none focus:ring-1 focus:ring-coffee-mid"
+                className="rounded-full bg-transparent px-2 py-1 text-sm text-[#1f0f0d] focus:outline-none"
               >
                 <option value="latest">Latest</option>
                 <option value="popular">Most liked</option>
@@ -285,28 +245,19 @@ export default function EventsList() {
           </div>
         </header>
 
-        {/* Content */}
         {loading ? (
           <div className="py-10">
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
               {[1, 2, 3, 4, 5, 6].map((i) => (
-                <div key={i} className="surface-card p-4 space-y-3">
-                  <div className="skeleton-block h-28 w-full" />
-                  <div className="skeleton-block h-4 w-4/5" />
-                  <div className="skeleton-block h-3 w-2/3" />
-                </div>
+                <div key={i} className="h-72 rounded-[30px] skeleton-block" />
               ))}
             </div>
           </div>
         ) : err ? (
-          <div className="py-14 text-center text-red-600 bg-white/80 rounded-2xl">
-            {err}
-          </div>
+          <div className="rounded-[24px] bg-[#f5c1b7] py-14 text-center text-[#63251b]">{err}</div>
         ) : pageEvents.length === 0 ? (
-          <div className="py-14 text-center bg-white rounded-2xl shadow-sm">
-            <p className="text-gray-600 text-sm">
-              No events match your filters.
-            </p>
+          <div className="rounded-[24px] bg-[#f5f5dc] py-14 text-center">
+            <p className="text-sm text-[#59564c]">No events match your filters.</p>
             <button
               type="button"
               onClick={() => {
@@ -315,39 +266,62 @@ export default function EventsList() {
                 setSearchParams({ page: "1" });
                 setSearchTerm("");
               }}
-              className="mt-3 inline-flex items-center px-3 py-1.5 rounded-full border text-xs hover:bg-gray-50"
+              className="mt-4 inline-flex items-center rounded-full bg-[#ffffff] px-4 py-2 text-xs text-[#352f24]"
             >
               Clear filters
             </button>
           </div>
         ) : (
           <>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {pageEvents.map((ev) => (
-                <EventCard key={ev._id} ev={ev} />
-              ))}
-            </div>
+            <section className="grid grid-cols-1 gap-6 lg:grid-cols-[2.1fr_1fr]">
+              <EventCard ev={featuredEvent} />
 
-            {/* Pagination */}
+              <div className="flex flex-col gap-6">
+                {sideEvents.map((ev) => (
+                  <EventCard key={ev._id} ev={ev} compact />
+                ))}
+              </div>
+            </section>
+
+            <section className="mt-8 grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+              {lowerEvents.map((ev) => (
+                <EventCard key={ev._id} ev={ev} compact />
+              ))}
+
+              <div className="flex min-h-[290px] flex-col justify-between rounded-[36px] bg-[#a9442f] p-8 text-[#fff6e8] shadow-[0_16px_30px_rgba(27,29,14,0.08)]">
+                <div>
+                  <h3 className="text-[2.4rem] leading-[1.04]">Host your own?</h3>
+                  <p className="mt-4 text-sm leading-relaxed text-[#f5d4c8]">
+                    Bring your community together. Share your passion and grow your audience.
+                  </p>
+                </div>
+                <Link
+                  to="/register"
+                  className="inline-flex w-fit items-center rounded-full bg-[#f5f5dc] px-6 py-3 text-sm font-semibold text-[#2d140f]"
+                >
+                  Create Event
+                </Link>
+              </div>
+            </section>
+
             {meta && (
-              <div className="flex items-center justify-center gap-4 mt-10 text-xs">
+              <div className="mt-10 flex items-center justify-center gap-4 text-xs">
                 <button
                   onClick={() => goToPage(Math.max(1, page - 1))}
                   disabled={!meta.hasPrevPage}
-                  className="px-4 py-2 rounded-full border bg-white hover:bg-gray-50 disabled:opacity-50 disabled:hover:bg-white"
+                  className="rounded-full bg-[#ffffff] px-5 py-2 hover:bg-[#f2f0e0] disabled:opacity-50 disabled:hover:bg-[#ffffff]"
                 >
                   Prev
                 </button>
 
-                <span className="text-coffee-cream ">
-                  Page <strong>{meta.currentPage}</strong> of{" "}
-                  <strong>{meta.totalPages}</strong>
+                <span className="text-[#5f5c54]">
+                  Page <strong>{meta.currentPage}</strong> of <strong>{meta.totalPages}</strong>
                 </span>
 
                 <button
                   onClick={() => goToPage(Math.min(meta.totalPages, page + 1))}
                   disabled={!meta.hasNextPage}
-                  className="px-4 py-2 rounded-full border bg-white hover:bg-gray-50 disabled:opacity-50 disabled:hover:bg-white"
+                  className="rounded-full bg-[#ffffff] px-5 py-2 hover:bg-[#f2f0e0] disabled:opacity-50 disabled:hover:bg-[#ffffff]"
                 >
                   Next
                 </button>
