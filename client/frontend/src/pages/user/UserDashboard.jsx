@@ -277,15 +277,15 @@ export default function UserDashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-coffee-cream to-coffee-mid text-gray-900 py-10">
+    <div className="min-h-screen bg-[#fbfbe2] text-[#2c1d16] py-10">
       <div className="app-container">
         {/* Header */}
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-6">
           <div>
-            <h1 className="text-3xl font-bold text-coffee-dark">
+            <h1 className="text-5xl md:text-6xl font-semibold text-[#1f0f0d]">
               Welcome back{user?.userName ? `, ${user.userName}` : ""}
             </h1>
-            <p className="text-sm text-gray-600 mt-1">
+            <p className="text-base text-[#5a4d46] mt-1">
               Overview of your account and activity
             </p>
           </div>
@@ -293,11 +293,23 @@ export default function UserDashboard() {
           <div className="flex flex-wrap gap-2">
             <button
               onClick={() => navigate("/events")}
-              className="bg-coffee-dark text-coffee-cream px-4 py-2 rounded-full text-sm"
+              className="bg-[#271310] text-white px-6 py-3 rounded-full text-sm"
             >
               Browse Events
             </button>
           </div>
+        </div>
+
+        <div className="mb-6 bg-[#f1f1df] rounded-[1.4rem] p-2 inline-flex flex-wrap gap-2">
+          <Link to="/user" className="px-4 py-2 rounded-full bg-white text-[#271310] text-sm">
+            Overview
+          </Link>
+          <Link to="/user/liked" className="px-4 py-2 rounded-full text-[#4d423c] text-sm hover:bg-white/70">
+            Saved
+          </Link>
+          <Link to="/user/queries" className="px-4 py-2 rounded-full text-[#4d423c] text-sm hover:bg-white/70">
+            Queries
+          </Link>
         </div>
 
         {user && !user.emailVerified && (
@@ -325,9 +337,9 @@ export default function UserDashboard() {
 
         {/* main content */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className="lg:col-span-2 bg-white rounded-2xl p-4 shadow card-coffee border border-coffee-cream/60">
+          <div className="lg:col-span-2 bg-[#f7f7f9] rounded-[1.8rem] p-4 shadow-[0_18px_30px_rgba(39,29,19,0.09)]">
             <div className="flex items-center justify-between mb-3">
-              <h3 className="text-lg font-semibold text-coffee-dark">
+              <h3 className="text-4xl font-semibold text-[#21100d]">
                 Recent queries
               </h3>
               <Link to="/user/queries" className="text-sm text-coffee-mid">
@@ -349,14 +361,14 @@ export default function UserDashboard() {
                 No queries yet. Use the feedback form on an event to create one.
               </div>
             ) : (
-              <ul className="space-y-3">
+              <ul className="space-y-4">
                 {recentQueries.map((q) => (
                   <li
                     key={q._id}
-                    className="p-3 border rounded-xl hover:shadow-sm transition flex flex-col"
+                    className="p-4 rounded-[1.4rem] bg-[#f1f1df] transition flex flex-col"
                   >
                     <div className="flex items-center justify-between gap-3">
-                      <div className="text-sm font-medium text-coffee-dark truncate">
+                      <div className="text-lg font-semibold text-[#22110f] truncate">
                         {q.subject}
                       </div>
                       <div className="text-xs text-gray-400 whitespace-nowrap">
@@ -372,26 +384,26 @@ export default function UserDashboard() {
             )}
           </div>
 
-          <div className="bg-white rounded-2xl p-4 shadow card-coffee border border-coffee-cream/60">
-            <h3 className="text-lg font-semibold mb-3 text-coffee-dark">
+          <div className="bg-[#f1f1df] rounded-[1.8rem] p-5 shadow-[0_18px_30px_rgba(39,29,19,0.06)]">
+            <h3 className="text-3xl font-semibold mb-3 text-[#21100d]">
               Quick actions
             </h3>
             <div className="flex flex-col gap-3">
               <Link
                 to="/events"
-                className="block bg-coffee-mid text-white px-3 py-2 rounded-full text-center text-sm"
+                className="block bg-[#9f402d] text-white px-3 py-2 rounded-full text-center text-sm"
               >
                 Browse events
               </Link>
               <Link
                 to="/user/liked"
-                className="block px-3 py-2 rounded-full border text-center text-sm"
+                className="block px-3 py-2 rounded-full bg-white text-center text-sm"
               >
                 Liked events
               </Link>
               <Link
                 to="/user/queries"
-                className="block px-3 py-2 rounded-full border text-center text-sm"
+                className="block px-3 py-2 rounded-full bg-white text-center text-sm"
               >
                 My queries
               </Link>
