@@ -99,16 +99,27 @@ export const SendFeedback = () => {
 }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-coffee-cream to-coffee-mid text-gray-900 py-14">
-      <div className="app-container mx-auto w-full max-w-3xl">
-        <div className="bg-white rounded-xl p-6 md:p-7 shadow card-coffee">
+    <div className="min-h-screen bg-[#fbfbe2] text-[#281915] py-14">
+      <div className="app-container mx-auto w-full max-w-5xl">
+        <div className="text-center mb-8">
+          <span className="inline-flex px-4 py-1 rounded-full bg-[#fd876f] text-xs font-semibold uppercase tracking-[0.2em] text-[#5d1d12]">
+            Attendee Feedback
+          </span>
+          <h1 className="mt-4 text-6xl italic font-semibold text-[#1f0f0d]">
+            How was your brew?
+          </h1>
+          <p className="text-xl text-[#4d423d] mt-3">
+            Your thoughts help us refine the Artisan experience.
+          </p>
+        </div>
+        <div className="bg-[#f7f7f9] rounded-[2.2rem] p-6 md:p-8 shadow-[0_24px_44px_rgba(39,29,19,0.1)]">
           {/* Header */}
           <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 mb-5">
             <div>
-              <h2 className="text-2xl font-semibold text-coffee-dark">
+              <h2 className="text-2xl font-semibold text-[#22110f]">
                 Send feedback
               </h2>
-              <p className="text-sm text-gray-600 mt-1">
+              <p className="text-base text-[#4d423d] mt-1">
                 Share your thoughts with the organizer. Be as specific and
                 helpful as you can.
               </p>
@@ -116,8 +127,8 @@ export const SendFeedback = () => {
 
             {eventId && (
               <div className="flex flex-col items-start sm:items-end text-xs text-gray-500">
-                <span className="uppercase tracking-wide">Event</span>
-                <span className="mt-1 inline-flex items-center px-2.5 py-0.5 rounded-full bg-coffee-cream/70 text-[11px] font-medium text-gray-700 max-w-[220px] truncate">
+                <span className="uppercase tracking-[0.2em]">Event</span>
+                <span className="mt-1 inline-flex items-center px-3 py-1 rounded-full bg-[#ececd8] text-[11px] font-medium text-[#4b403b] max-w-[220px] truncate">
                   {eventTitle || `ID: ${eventId}`}
                 </span>
               </div>
@@ -140,19 +151,19 @@ export const SendFeedback = () => {
             {/* Name + Email row */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block font-semibold text-xs uppercase tracking-wide text-gray-600 mb-1.5">
-                  Your name (optional)
-                </label>
-                <input
+              <label className="block font-semibold text-xs uppercase tracking-[0.18em] text-[#342420]/85 mb-1.5">
+                Your name (optional)
+              </label>
+              <input
                   value={senderName}
                   onChange={(e) => setSenderName(e.target.value)}
                   placeholder="Your name"
-                  className="w-full px-3 py-2 rounded-md border border-gray-200 focus:outline-none focus:ring-2 focus:ring-coffee-mid/50"
+                  className="w-full px-4 py-3 rounded-full bg-[#e8e7d0] focus:outline-none focus:ring-2 focus:ring-[#9f402d]/60 border-0"
                 />
               </div>
 
               <div>
-                <label className="block font-semibold text-xs uppercase tracking-wide text-gray-600 mb-1.5">
+                <label className="block font-semibold text-xs uppercase tracking-[0.18em] text-[#342420]/85 mb-1.5">
                   Your email (optional)
                 </label>
                 <input
@@ -160,7 +171,7 @@ export const SendFeedback = () => {
                   onChange={(e) => setSenderEmail(e.target.value)}
                   placeholder="you@example.com"
                   type="email"
-                  className="w-full px-3 py-2 rounded-md border border-gray-200 focus:outline-none focus:ring-2 focus:ring-coffee-mid/50"
+                  className="w-full px-4 py-3 rounded-full bg-[#e8e7d0] focus:outline-none focus:ring-2 focus:ring-[#9f402d]/60 border-0"
                 />
                 <p className="mt-1 text-[11px] text-gray-400">
                   Only used so the organizer can follow up if needed.
@@ -169,7 +180,7 @@ export const SendFeedback = () => {
             </div>
 
             <div>
-              <label className="block font-semibold text-xs uppercase tracking-wide text-gray-600 mb-1.5">
+              <label className="block font-semibold text-xs uppercase tracking-[0.18em] text-[#342420]/85 mb-1.5">
                 Subject
               </label>
               <input
@@ -177,12 +188,12 @@ export const SendFeedback = () => {
                 onChange={(e) => setSubject(e.target.value)}
                 placeholder="Short summary of your feedback"
                 required
-                className="w-full px-3 py-2 rounded-md border border-gray-200 focus:outline-none focus:ring-2 focus:ring-coffee-mid/50"
+                className="w-full px-4 py-3 rounded-full bg-[#e8e7d0] focus:outline-none focus:ring-2 focus:ring-[#9f402d]/60 border-0"
               />
             </div>
 
             <div>
-              <label className="block font-semibold text-xs uppercase tracking-wide text-gray-600 mb-1.5">
+              <label className="block font-semibold text-xs uppercase tracking-[0.18em] text-[#342420]/85 mb-1.5">
                 Message
               </label>
               <textarea
@@ -191,7 +202,7 @@ export const SendFeedback = () => {
                 placeholder="Write your feedback, suggestions, or issues..."
                 rows={8}
                 required
-                className="w-full px-3 py-2 rounded-md border border-gray-200 focus:outline-none focus:ring-2 focus:ring-coffee-mid/50 resize-vertical"
+                className="w-full px-4 py-4 rounded-[1.8rem] bg-[#e8e7d0] focus:outline-none focus:ring-2 focus:ring-[#9f402d]/60 resize-vertical border-0"
               />
               <p className="mt-1 text-[11px] text-gray-400">
                 Minimum 10 characters. Be respectful and constructive.
@@ -202,14 +213,14 @@ export const SendFeedback = () => {
               <button
                 type="submit"
                 disabled={loading}
-                className="bg-coffee-mid text-white px-4 py-2 rounded-md text-sm font-medium disabled:opacity-70 disabled:cursor-not-allowed hover:bg-coffee-dark transition"
+                className="bg-[#271310] text-white px-8 py-3 rounded-full text-base font-medium disabled:opacity-70 disabled:cursor-not-allowed hover:bg-[#3e1d18] transition"
               >
-                {loading ? "Sending..." : "Send feedback"}
+                {loading ? "Sending..." : "Submit Feedback"}
               </button>
               <button
                 type="button"
                 onClick={() => navigate(-1)}
-                className="px-3 py-2 rounded-md border text-sm text-gray-700 hover:bg-gray-50 transition"
+                className="px-6 py-3 rounded-full border border-[#d3c3c0] text-sm text-[#5f514a] hover:bg-[#f2efdd] transition"
               >
                 Cancel
               </button>

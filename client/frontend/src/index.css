@@ -14,16 +14,16 @@
   }
 
   body {
-    @apply bg-[#f6f1ea] text-[#2e211b] antialiased;
-    font-family: "Inter", "Avenir Next", "Segoe UI", sans-serif;
-    background-image: radial-gradient(circle at top right, #f0dfca 0%, #f6f1ea 45%, #efe7dc 100%);
+    @apply bg-[#fbfbe2] text-[#2e211b] antialiased;
+    font-family: "Manrope", "Inter", "Avenir Next", "Segoe UI", sans-serif;
+    background-image: none;
   }
 
   h1,
   h2,
   h3,
   h4 {
-    font-family: "Playfair Display", "Times New Roman", serif;
+    font-family: "Newsreader", "Playfair Display", "Times New Roman", serif;
     letter-spacing: -0.01em;
   }
 
@@ -96,14 +96,10 @@
   }
 }
 
-nav {
-  border-bottom: 1px solid rgba(137, 102, 76, 0.28);
-}
-
 input,
 select,
 textarea {
-  border-color: rgba(137, 102, 76, 0.3) !important;
+  border-color: transparent !important;
 }
 
 input:focus,
