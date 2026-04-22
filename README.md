@@ -1,218 +1,179 @@
-CoffeeEvents — Full-Stack Event Management Platform
+# EventEase - Full-Stack Event Management Platform
 
-CoffeeEvents is a production-ready full-stack event management platform where users can discover, like, and give feedback on events, while organizers can create and manage events with analytics, images, and dashboards.
+EventEase is a full-stack event management website for discovering events, browsing event details, sharing feedback, and letting organizers create and manage events from a role-based dashboard.
 
-The application is built with modern web technologies, follows industry-grade security practices, and is deployed using cloud-native infrastructure.
-____________________________________________________________________________________________________________________________________________________________________________________________________________________________
+It is built as a monorepo with a React frontend and a Node.js/Express backend, using MongoDB, JWT authentication, secure cookies, CSRF protection, Cloudinary image uploads, and email-based account flows.
 
-Live URLs
+## Live Demo
 
-Frontend (Vercel):
- https://event-management-brown-iota.vercel.app/
+- Frontend: https://event-management-brown-iota.vercel.app/
+- Backend API: https://eventmanagement-e3om.onrender.com
 
-Backend API (Render):
- https://eventmanagement-e3om.onrender.com
-____________________________________________________________________________________________________________________________________________________________________________________________________________________________
+## What The Website Does
 
-Architecture Overview
+### Public Experience
 
-This is a monorepo containing:
+- Landing page with featured events and a search entry point.
+- Events listing page with search, filter, sort, and pagination.
+- Event detail page with image preview, date, time, location, price, likes, views, and event recap data when available.
+- Copy-link action for quickly sharing an event page.
+- External registration link support when an organizer provides a form URL.
 
-    EventManagement/
-    ├── client/frontend        # Frontend (React + Vite)
-    └── server/                # Backend (Node.js + Express)
+### User Features
 
+- Register, log in, verify email, and reset password using OTP.
+- Browse events and open full event details.
+- Like and unlike events.
+- View liked events inside the user dashboard.
+- Send feedback on an event.
+- View personal dashboard data such as liked count and submitted queries.
 
-- Frontend and backend are deployed independently
+### Organizer Features
 
-- Authentication is handled using HTTP-only cookies
+- Separate organizer login flow.
+- Organizer dashboard with event and query summaries.
+- Create new events.
+- Edit and delete events.
+- Upload event images through Cloudinary.
+- Review event queries and update their status.
+- View organizer stats such as total events, attendees, and queries.
 
-- Cross-domain communication is secured using CORS + CSRF
-____________________________________________________________________________________________________________________________________________________________________________________________________________________________
+### Security and Authentication
 
-Tech Stack
+- Access and refresh token based authentication.
+- Tokens stored in HTTP-only cookies.
+- Refresh token rotation and automatic session restoration on page load.
+- CSRF-protected state-changing requests.
+- Rate limiting on auth, verification, reset, and feedback endpoints.
+- Helmet, CORS, and server-side validation to reduce common web risks.
 
-🔹 Frontend
+## Tech Stack
 
-  • React.js – UI library
-  
-  • Vite – Fast build tool
-  
-  • React Router DOM – Client-side routing
-  
-  • Axios – API communication
-  
-  • Tailwind CSS – Utility-first styling
-  
-  • Context API – Global auth state
+### Frontend
 
-🔹 Backend
+- React 19
+- Vite
+- React Router DOM
+- Axios
+- React Hook Form
+- Tailwind CSS
+- React Toastify
 
-  • Node.js – Runtime
-  
-  • Express.js – Web framework
-  
-  • MongoDB Atlas – Cloud database
-  
-  • Mongoose – ODM
-  
-  • JWT – Authentication tokens
-  
-  • HTTP-only Cookies – Secure auth storage
-  
-  • CSRF Protection (csurf) – Request validation
-  
-  • Helmet – Security headers
-  
-  • Express Rate Limit – API protection
-  
-  • Morgan – Logging (dev only)
+### Backend
 
-🔹 Cloud & Services
+- Node.js
+- Express
+- MongoDB and Mongoose
+- JWT authentication
+- bcrypt password hashing
+- csurf for CSRF protection
+- express-rate-limit
+- Helmet
+- Multer for uploads
+- Nodemailer for email delivery
 
-  • Render – Backend hosting
-  
-  • Vercel – Frontend hosting
-  
-  • MongoDB Atlas – Database
-  
-  • Cloudinary – Image uploads
-  
-  • Brevo (SMTP) – Email delivery
+### Services
 
-Authentication & Security
+- MongoDB Atlas for data storage
+- Cloudinary for event images
+- SMTP email service for verification and password reset
+- Vercel for frontend hosting
+- Render for backend hosting
 
-This project uses industry-grade security practices:
+## Project Structure
 
- • JWT authentication with access & refresh tokens
+```text
+EventManagement/
+├── client/frontend   # React + Vite frontend
+└── server            # Express API and database logic
+```
 
- • Tokens stored in HTTP-only cookies
+## Main Pages
 
- • Refresh token rotation
+- `/` Home
+- `/events` Event listing
+- `/events/:id` Event detail
+- `/login` User or organizer login
+- `/register` Registration
+- `/reset-pass-otp` Request password reset code
+- `/reset-password` Reset password
+- `/verify-email` Email verification
+- `/user` User dashboard
+- `/user/liked` Liked events
+- `/user/queries` Submitted queries
+- `/organizer` Organizer dashboard
+- `/organizer/events` Organizer event manager
+- `/organizer/events/create` Create event
+- `/organizer/events/:id/edit` Edit event
+- `/organizer/events/:id/queries` Event queries
+- `/organizer/events/:id/stats` Event stats
 
- • CSRF protection using double-submit cookie pattern
+## API Overview
 
- • Secure CORS configuration (supports Vercel preview domains)
+- `/api/auth` Registration, login, refresh, logout, verification, and password reset
+- `/api/event` Event listing, single event, likes, uploads, and event updates
+- `/api/query` Feedback and organizer query management
+- `/api/user` User profile data, stats, liked events, and queries
+- `/api/organizer` Organizer profile data, stats, and managed events
 
- • Rate limiting against abuse
+## Setup
 
- • Password hashing with bcrypt
+### Prerequisites
 
- • Email verification & password reset via OTP
-____________________________________________________________________________________________________________________________________________________________________________________________________________________________
+- Node.js 18+ recommended
+- MongoDB connection string
+- SMTP credentials for email delivery
+- Cloudinary credentials for image uploads
 
-Core Features
+### Frontend
 
- User
-  
-  • Register & login
-  
-  • Browse events
-  
-  • Like / unlike events
-  
-  • View liked events
-  
-  • Submit feedback for events
-  
-  • Persistent login across refresh
+```bash
+cd client/frontend
+npm install
+npm run dev
+```
 
-🎤 Organizer
+### Backend
 
-  • Organizer login
-  
-  • Create, update, and manage events
-  
-  • Upload event images (Cloudinary)
-  
-  • View event stats & engagement
-  
-  • Manage user queries & feedback
+```bash
+cd server
+npm install
+npm start
+```
 
- Media
+### Environment Variables
 
-  • Secure image uploads
-  
-  • Cloudinary storage
-  
-  • Optimized image delivery
+Backend environment variables used by the app include:
 
- Email
+- `MONGO_URI`
+- `JWT_SECRET`
+- `SERVER_URL`
+- `CLIENT_URL`
+- `SENDER_EMAIL`
+- `SMTP_USER`
+- `SMTP_PASS`
+- `CLOUDINARY_CLOUD_NAME`
+- `CLOUDINARY_API_KEY`
+- `CLOUDINARY_API_SECRET`
+- `COOKIE_DOMAIN` optional
+- `ACCESS_TOKEN_EXPIRES_MIN` optional
+- `REFRESH_TOKEN_EXPIRES_DAYS` optional
+- `MAX_REFRESH_TOKENS` optional
 
-  • Email verification
-  
-  • Password reset via OTP
-____________________________________________________________________________________________________________________________________________________________________________________________________________________________
+The frontend can also use:
 
-Deployment
+- `VITE_API_BASE_URL`
 
-  Backend (Render)
-  
-  └──Root Directory: server
-  
-  └──Build Command: npm install
-  
-  └──Start Command: node server.js
-  
-  └──Free plan (cold starts after inactivity)
-  
-  Frontend (Vercel)
-  
-  └──Root Directory: frontend
-  
-  └──Framework: Vite
-  
-  └──Build Command: npm run build
-  
-  └──Output Directory: dist
-____________________________________________________________________________________________________________________________________________________________________________________________________________________________
+## Deployment Notes
 
-Production Considerations
+- Frontend is deployed separately on Vercel.
+- Backend is deployed separately on Render.
+- The backend is configured for secure cross-origin requests from the frontend domain.
+- The API uses secure cookies and CSRF protection in production.
 
-  Backend may sleep on inactivity (Render free tier)
-  
-  First request after idle may take ~30–60 seconds
-  
-  All data is persisted safely in MongoDB Atlas
-  
-  Frontend remains always live via Vercel CDN
-____________________________________________________________________________________________________________________________________________________________________________________________________________________________
+## Resume Highlights
 
-Key Learnings & Highlights
-
-  • Cross-domain authentication with cookies
-  
-  • CSRF handling in SPAs
-  
-  • CORS configuration for Vercel preview domains
-  
-  • Linux vs Windows case-sensitivity issues
-  
-  • Monorepo deployment strategy
-  
-  • Real-world production debugging
-____________________________________________________________________________________________________________________________________________________________________________________________________________________________
-
-Future Improvements (Optional)
-
-  • Background job queue (email retries)
-  
-  • WebSockets for real-time update
-  
-  • Admin moderation panel
-  
-  • Custom domain setup
-  
-  • Performance monitoring & alerts
-____________________________________________________________________________________________________________________________________________________________________________________________________________________________
- Possible Underlying Issues:
-  • Refresh Token Not Implemented correctly: Reason can be one of these.
-          - Refresh endpoint called too frequently
-          - Frontend retry loop
-          - Axios interceptor misconfigured
-          - Refresh token rotation implemented incorrectly
-____________________________________________________________________________________________________________________________________________________________________________________________________________________________
-
-Author
-
-Built and deployed as a real-world full-stack learning project, focused on understanding production practices, security considerations, and clean architecture—while accepting there’s still plenty to improve.
+- Role-based event platform with separate user and organizer experiences.
+- Secure auth flow with refresh tokens, CSRF protection, and protected routes.
+- Cloud image uploads and email workflows integrated end to end.
+- Searchable, filterable event discovery experience with dashboards and management tools.
