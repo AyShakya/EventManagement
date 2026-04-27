@@ -6,7 +6,7 @@ It is built as a monorepo with a React frontend and a Node.js/Express backend, u
 
 ## Live Demo
 
-- Frontend: https://event-management-brown-iota.vercel.app/
+- Frontend: https://eventease.sh4mky.tech/
 - Backend API: https://eventmanagement-e3om.onrender.com
 
 ## What The Website Does
